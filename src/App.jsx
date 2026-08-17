@@ -134,6 +134,59 @@ function NewEmployeeModal({ onCancel, onCreate }) {
   );
 }
 
+// ---------- Sidebar ----------
+function Sidebar({ tab, setTab, employees, selectedEmployee, onSelectEmployee, onNewEmployee, onDeleteEmployee, onExport, onLogout, email }) {
+  return (
+    <div className="sidebar">
+      <div className="sidebar-brand">
+        <div className="brand">
+          <div className="dot"></div>
+          <div>
+            <h1>DELS Stundentool</h1>
+            <div className="sub">Stunden, Ferien &amp; Absenzen</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="sidebar-nav">
+        <div className={`nav-item ${tab === "erfassung" ? "active" : ""}`} onClick={() => setTab("erfassung")}>Erfassung</div>
+        <div className={`nav-item ${tab === "uebersicht" ? "active" : ""}`} onClick={() => setTab("uebersicht")}>Monatsübersicht</div>
+      </div>
+
+      <div className="sidebar-emp-section">
+        <div className="sidebar-emp-title">Mitarbeiter</div>
+        <div className="emp-list">
+          {employees.map((e) => (
+            <div
+              key={e.id}
+              className={`emp-item ${tab === "erfassung" && e.id === selectedEmployee ? "active" : ""}`}
+              onClick={() => { onSelectEmployee(e.id); setTab("erfassung"); }}
+            >
+              <span>{e.name}</span>
+              <button
+                className="del"
+                title="Mitarbeiter löschen"
+                onClick={(ev) => { ev.stopPropagation(); onDeleteEmployee(e.id); }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+        <button className="btn ghost full sidebar-add-btn" onClick={onNewEmployee}>+ Mitarbeiter</button>
+      </div>
+
+      <div className="sidebar-footer">
+        <button className="btn secondary full" onClick={onExport}>CSV exportieren</button>
+        <div className="sidebar-user">
+          <span className="who">{email}</span>
+          <button className="link-btn" onClick={onLogout}>Abmelden</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ---------- Main app (after login) ----------
 function MainApp({ session }) {
   const [employees, setEmployees] = useState([]);
@@ -276,160 +329,148 @@ function MainApp({ session }) {
     URL.revokeObjectURL(url);
   }
 
+  const sidebar = (
+    <Sidebar
+      tab={tab}
+      setTab={setTab}
+      employees={employees}
+      selectedEmployee={selectedEmployee}
+      onSelectEmployee={setSelectedEmployee}
+      onNewEmployee={() => setShowNewEmployee(true)}
+      onDeleteEmployee={(id) => setConfirmDelete({ kind: "employee", id })}
+      onExport={exportCSV}
+      onLogout={() => supabase.auth.signOut()}
+      email={session.user.email}
+    />
+  );
+
   if (loading) {
     return (
-      <div>
-        <Topbar onExport={exportCSV} onLogout={() => supabase.auth.signOut()} email={session.user.email} />
-        <div className="wrap"><div className="loading">Lade Daten …</div></div>
+      <div className="app-shell">
+        {sidebar}
+        <div className="main-area"><div className="loading">Lade Daten …</div></div>
       </div>
     );
   }
 
   return (
-    <div>
-      <Topbar onExport={exportCSV} onLogout={() => supabase.auth.signOut()} email={session.user.email} />
-      <div className="wrap">
+    <div className="app-shell">
+      {sidebar}
+      <div className="main-area">
         {!employees.length ? (
-          <div className="card empty" style={{ marginTop: 20 }}>
-            <p style={{ fontSize: 14, color: "var(--text)", fontWeight: 600, marginBottom: 8 }}>Noch keine Mitarbeiter erfasst</p>
-            <p style={{ marginBottom: 16 }}>Füge den ersten Mitarbeiter hinzu, um mit der Erfassung zu starten.</p>
-            <button className="btn" style={{ maxWidth: 220, margin: "0 auto" }} onClick={() => setShowNewEmployee(true)}>
-              + Mitarbeiter hinzufügen
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="tabs">
-              <div className={`tab ${tab === "erfassung" ? "active" : ""}`} onClick={() => setTab("erfassung")}>Erfassung</div>
-              <div className={`tab ${tab === "uebersicht" ? "active" : ""}`} onClick={() => setTab("uebersicht")}>Monatsübersicht (alle)</div>
+          <div className="main-content">
+            <div className="card empty" style={{ marginTop: 20 }}>
+              <p style={{ fontSize: 14, color: "var(--text)", fontWeight: 600, marginBottom: 8 }}>Noch keine Mitarbeiter erfasst</p>
+              <p style={{ marginBottom: 16 }}>Füge den ersten Mitarbeiter hinzu, um mit der Erfassung zu starten.</p>
+              <button className="btn" style={{ maxWidth: 220, margin: "0 auto" }} onClick={() => setShowNewEmployee(true)}>
+                + Mitarbeiter hinzufügen
+              </button>
             </div>
-
-            {tab === "erfassung" ? (
-              <div className="grid">
-                <div>
-                  <div className="card">
-                    <div className="emp-list">
-                      {employees.map((e) => (
-                        <div
-                          key={e.id}
-                          className={`emp-item ${e.id === selectedEmployee ? "active" : ""}`}
-                          onClick={() => setSelectedEmployee(e.id)}
-                        >
-                          <span>{e.name}</span>
-                          <button
-                            className="del"
-                            title="Mitarbeiter löschen"
-                            onClick={(ev) => { ev.stopPropagation(); setConfirmDelete({ kind: "employee", id: e.id }); }}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <button className="btn full" style={{ marginTop: 10 }} onClick={() => setShowNewEmployee(true)}>+ Mitarbeiter</button>
-                  </div>
-
-                  {emp && (
-                    <div className="card">
-                      <label>Ferienanspruch (Tage / Jahr)</label>
-                      <input
-                        type="number" min="0" step="0.5" defaultValue={emp.ferienanspruch}
-                        key={"fer-" + emp.id}
-                        onBlur={(e) => updateEmployeeField("ferienanspruch", parseFloat(e.target.value) || 0)}
-                      />
-                      <div className="field" style={{ marginTop: 10 }}>
-                        <label>Soll-Stunden pro Tag</label>
-                        <input
-                          type="number" min="0" step="0.1" defaultValue={emp.soll_pro_tag}
-                          key={"soll-" + emp.id}
-                          onBlur={(e) => updateEmployeeField("soll_pro_tag", parseFloat(e.target.value) || 8.4)}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  {!emp ? (
-                    <div className="card empty">Mitarbeiter auswählen</div>
-                  ) : (
-                    <>
-                      <div className="card">
-                        <div className="month-nav">
-                          <button onClick={() => shiftMonth(-1)}>←</button>
-                          <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · {emp.name}</div>
-                          <button onClick={() => shiftMonth(1)}>→</button>
-                        </div>
-                        {(() => {
-                          const totals = monthTotals(emp.id, viewYear, viewMonth);
-                          const ferienJahr = yearFerienUsed(emp.id, viewYear);
-                          const ferienRest = emp.ferienanspruch - ferienJahr;
-                          return (
-                            <div className="stats">
-                              <div className="stat"><div className="n">{fmtHours(totals.arbeit)}</div><div className="l">Std. gearbeitet</div></div>
-                              <div className="stat"><div className="n">{fmtHours(totals.ferien)}</div><div className="l">Ferientage</div></div>
-                              <div className="stat"><div className="n">{fmtHours(totals.krankheit)}</div><div className="l">Kranktage</div></div>
-                              <div className="stat"><div className="n">{fmtHours(totals.unfall)}</div><div className="l">Unfalltage</div></div>
-                              <div className={`stat ${ferienRest < 0 ? "warn" : ""}`}><div className="n">{fmtHours(ferienRest)}</div><div className="l">Ferien Rest {viewYear}</div></div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-
-                      <div className="card">
-                        <label style={{ marginBottom: 8 }}>Neuer Eintrag</label>
-                        <div className="row2">
-                          <div className="field"><label>Datum</label><input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} /></div>
-                          <div className="field">
-                            <label>Typ</label>
-                            <select value={newType} onChange={(e) => setNewType(e.target.value)}>
-                              {Object.entries(TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-                            </select>
-                          </div>
-                        </div>
-                        <div className="row2">
-                          <div className="field">
-                            <label>{TYPES[newType].unit === "Std." ? "Stunden" : "Tage"}</label>
-                            <input type="number" min="0" step="0.25" value={newValue} onChange={(e) => setNewValue(e.target.value)} />
-                          </div>
-                          <div className="field"><label>Notiz (optional)</label><input type="text" value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="z.B. Auftrag Zürich" /></div>
-                        </div>
-                        <button className="btn full" onClick={addEntry}>Eintrag hinzufügen</button>
-                      </div>
-
-                      <div className="card">
-                        {(() => {
-                          const list = entriesForMonth(emp.id, viewYear, viewMonth);
-                          if (!list.length) return <div className="empty">Noch keine Einträge in diesem Monat.</div>;
-                          return (
-                            <table>
-                              <thead><tr><th>Datum</th><th>Typ</th><th>Wert</th><th>Notiz</th><th></th></tr></thead>
-                              <tbody>
-                                {list.map((e) => (
-                                  <tr key={e.id}>
-                                    <td>{formatDate(e.date)}</td>
-                                    <td><span className={`type-pill ${TYPES[e.type].cls}`}>{TYPES[e.type].label}</span></td>
-                                    <td>{fmtHours(e.value)} {TYPES[e.type].unit}</td>
-                                    <td>{e.note || "–"}</td>
-                                    <td><button className="del-row" onClick={() => setConfirmDelete({ kind: "entry", id: e.id })}>Löschen</button></td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          );
-                        })()}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="card">
+          </div>
+        ) : tab === "erfassung" ? (
+          !emp ? (
+            <div className="main-content"><div className="card empty">Mitarbeiter auswählen</div></div>
+          ) : (
+            <>
+              <div className="main-header">
                 <div className="month-nav">
                   <button onClick={() => shiftMonth(-1)}>←</button>
-                  <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · Alle Mitarbeiter</div>
+                  <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · {emp.name}</div>
                   <button onClick={() => shiftMonth(1)}>→</button>
                 </div>
+                <div className="emp-meta">
+                  <div className="emp-meta-field">
+                    <label>Ferienanspruch/Jahr</label>
+                    <input
+                      type="number" min="0" step="0.5" defaultValue={emp.ferienanspruch}
+                      key={"fer-" + emp.id}
+                      onBlur={(e) => updateEmployeeField("ferienanspruch", parseFloat(e.target.value) || 0)}
+                    />
+                  </div>
+                  <div className="emp-meta-field">
+                    <label>Soll-Std./Tag</label>
+                    <input
+                      type="number" min="0" step="0.1" defaultValue={emp.soll_pro_tag}
+                      key={"soll-" + emp.id}
+                      onBlur={(e) => updateEmployeeField("soll_pro_tag", parseFloat(e.target.value) || 8.4)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="main-content">
+                {(() => {
+                  const totals = monthTotals(emp.id, viewYear, viewMonth);
+                  const ferienJahr = yearFerienUsed(emp.id, viewYear);
+                  const ferienRest = emp.ferienanspruch - ferienJahr;
+                  return (
+                    <div className="stats">
+                      <div className="stat"><div className="n">{fmtHours(totals.arbeit)}</div><div className="l">Std. gearbeitet</div></div>
+                      <div className="stat"><div className="n">{fmtHours(totals.ferien)}</div><div className="l">Ferientage</div></div>
+                      <div className="stat"><div className="n">{fmtHours(totals.krankheit)}</div><div className="l">Kranktage</div></div>
+                      <div className="stat"><div className="n">{fmtHours(totals.unfall)}</div><div className="l">Unfalltage</div></div>
+                      <div className={`stat ${ferienRest < 0 ? "warn" : ""}`}><div className="n">{fmtHours(ferienRest)}</div><div className="l">Ferien Rest {viewYear}</div></div>
+                    </div>
+                  );
+                })()}
+
+                <div className="sheet">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th style={{ width: 130 }}>Datum</th>
+                        <th style={{ width: 150 }}>Typ</th>
+                        <th style={{ width: 110 }}>Wert</th>
+                        <th>Notiz</th>
+                        <th style={{ width: 70 }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="entry-form-row">
+                        <td><input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} /></td>
+                        <td>
+                          <select value={newType} onChange={(e) => setNewType(e.target.value)}>
+                            {Object.entries(TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                          </select>
+                        </td>
+                        <td><input type="number" min="0" step="0.25" value={newValue} onChange={(e) => setNewValue(e.target.value)} /></td>
+                        <td><input type="text" value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="z.B. Auftrag Zürich" /></td>
+                        <td><button className="btn small full" onClick={addEntry}>+ Eintrag</button></td>
+                      </tr>
+                      {(() => {
+                        const list = entriesForMonth(emp.id, viewYear, viewMonth);
+                        if (!list.length) {
+                          return (
+                            <tr><td colSpan={5} className="empty">Noch keine Einträge in diesem Monat.</td></tr>
+                          );
+                        }
+                        return list.map((e) => (
+                          <tr key={e.id}>
+                            <td>{formatDate(e.date)}</td>
+                            <td><span className={`type-pill ${TYPES[e.type].cls}`}>{TYPES[e.type].label}</span></td>
+                            <td>{fmtHours(e.value)} {TYPES[e.type].unit}</td>
+                            <td>{e.note || "–"}</td>
+                            <td><button className="del-row" onClick={() => setConfirmDelete({ kind: "entry", id: e.id })}>Löschen</button></td>
+                          </tr>
+                        ));
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )
+        ) : (
+          <>
+            <div className="main-header">
+              <div className="month-nav">
+                <button onClick={() => shiftMonth(-1)}>←</button>
+                <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · Alle Mitarbeiter</div>
+                <button onClick={() => shiftMonth(1)}>→</button>
+              </div>
+            </div>
+            <div className="main-content">
+              <div className="sheet">
                 <table className="overview-table">
                   <thead><tr><th>Mitarbeiter</th><th>Gearbeitet (Std.)</th><th>Ferien (Tage)</th><th>Krankheit</th><th>Unfall</th><th>Sonstiges</th></tr></thead>
                   <tbody>
@@ -449,7 +490,7 @@ function MainApp({ session }) {
                   </tbody>
                 </table>
               </div>
-            )}
+            </div>
           </>
         )}
       </div>
@@ -467,27 +508,6 @@ function MainApp({ session }) {
         />
       )}
       {toastMsg && <div className="toast show">{toastMsg}</div>}
-    </div>
-  );
-}
-
-function Topbar({ onExport, onLogout, email }) {
-  return (
-    <div className="topbar">
-      <div className="topbar-inner">
-        <div className="brand">
-          <div className="dot"></div>
-          <div>
-            <h1>DELS Stundentool</h1>
-            <div className="sub">Stunden, Ferien &amp; Absenzen erfassen</div>
-          </div>
-        </div>
-        <div className="topbar-right">
-          <span className="who">{email}</span>
-          <button className="btn secondary" onClick={onExport}>CSV exportieren</button>
-          <button className="btn ghost" onClick={onLogout} style={{ color: "#fff", borderColor: "rgba(255,255,255,0.3)" }}>Abmelden</button>
-        </div>
-      </div>
     </div>
   );
 }
