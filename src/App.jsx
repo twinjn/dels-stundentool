@@ -24,6 +24,64 @@ function fmtHours(n) {
   return (Math.round(Number(n) * 100) / 100).toString().replace(".", ",");
 }
 
+// ---------- Month calendar ----------
+const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+
+function MonthCalendar({ year, month, entries, activeDate, onDayClick }) {
+  const byDate = useMemo(() => {
+    const map = {};
+    entries.forEach((e) => { (map[e.date] = map[e.date] || []).push(e); });
+    return map;
+  }, [entries]);
+
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7; // Montag = 0
+  const cells = [];
+  for (let i = 0; i < firstWeekday; i++) cells.push(null);
+  for (let d = 1; d <= totalDays; d++) cells.push(d);
+  while (cells.length % 7 !== 0) cells.push(null);
+  const today = todayISO();
+
+  return (
+    <div className="calendar">
+      <div className="calendar-weekdays">
+        {WEEKDAY_LABELS.map((w) => <div key={w} className="calendar-weekday">{w}</div>)}
+      </div>
+      <div className="calendar-grid">
+        {cells.map((d, i) => {
+          if (d === null) return <div key={i} className="cal-day empty"></div>;
+          const dateISO = `${year}-${pad(month + 1)}-${pad(d)}`;
+          const dayEntries = byDate[dateISO] || [];
+          const primary = dayEntries.find((e) => e.type !== "arbeit") || dayEntries[0];
+          const cls = primary ? TYPES[primary.type].cls : "";
+          const title = dayEntries.map((e) => `${TYPES[e.type].label}: ${fmtHours(e.value)} ${TYPES[e.type].unit}`).join(", ");
+          return (
+            <div
+              key={i}
+              className={`cal-day ${cls} ${i % 7 >= 5 ? "weekend" : ""} ${dateISO === activeDate ? "active" : ""} ${dateISO === today ? "today" : ""}`}
+              onClick={() => onDayClick(dateISO)}
+              title={title}
+            >
+              <div className="cal-day-num">{d}</div>
+              {dayEntries.length === 1 && (
+                <div className="cal-day-label">
+                  {fmtHours(dayEntries[0].value)}{TYPES[dayEntries[0].type].unit === "Std." ? "h" : "d"}
+                </div>
+              )}
+              {dayEntries.length > 1 && <div className="cal-day-label">{dayEntries.length} Eintr.</div>}
+            </div>
+          );
+        })}
+      </div>
+      <div className="calendar-legend">
+        {Object.entries(TYPES).map(([k, v]) => (
+          <div key={k} className="legend-item"><span className={`legend-dot legend-${k}`}></span>{v.label}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ---------- Toast ----------
 function useToast() {
   const [msg, setMsg] = useState(null);
@@ -413,6 +471,16 @@ function MainApp({ session }) {
                     </div>
                   );
                 })()}
+
+                <div className="card calendar-card">
+                  <MonthCalendar
+                    year={viewYear}
+                    month={viewMonth}
+                    entries={entriesForMonth(emp.id, viewYear, viewMonth)}
+                    activeDate={newDate}
+                    onDayClick={(d) => setNewDate(d)}
+                  />
+                </div>
 
                 <div className="sheet">
                   <table>

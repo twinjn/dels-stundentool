@@ -116,6 +116,42 @@ label { font-size: 12px; font-weight: 600; color: var(--text-dim); display: bloc
 .stat .l { font-size: 11px; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
 .stat.warn .n { color: var(--red); }
 
+/* ---------- Month calendar ---------- */
+.calendar-card { margin-bottom: 14px; }
+.calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
+.calendar-weekday { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.3px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-day {
+  position: relative; min-height: 50px; border-radius: 7px; background: var(--bg);
+  border: 1px solid var(--line); padding: 5px 7px; cursor: pointer; font-size: 11px;
+}
+.cal-day.empty { background: transparent; border: none; cursor: default; }
+.cal-day.weekend:not(.empty) { background: #eceef1; }
+.cal-day:hover:not(.empty) { border-color: var(--orange); }
+.cal-day.active { outline: 2px solid var(--orange); outline-offset: -2px; }
+.cal-day.today .cal-day-num { color: var(--orange); }
+.cal-day-num { font-weight: 700; color: var(--text); }
+.cal-day-label { margin-top: 3px; font-weight: 700; font-size: 10px; }
+.cal-day.type-arbeit { background: #dbeee6; }
+.cal-day.type-arbeit .cal-day-label { color: var(--green); }
+.cal-day.type-ferien { background: var(--orange-light); }
+.cal-day.type-ferien .cal-day-label { color: #b5591a; }
+.cal-day.type-krankheit, .cal-day.type-unfall { background: #fde3e1; }
+.cal-day.type-krankheit .cal-day-label, .cal-day.type-unfall .cal-day-label { color: var(--red); }
+.cal-day.type-feiertag { background: #e3e9f5; }
+.cal-day.type-feiertag .cal-day-label { color: var(--navy); }
+.cal-day.type-sonstiges { background: #ececec; }
+.cal-day.type-sonstiges .cal-day-label { color: #555; }
+
+.calendar-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 11px; color: var(--text-dim); }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+.legend-arbeit { background: var(--green); }
+.legend-ferien { background: var(--orange); }
+.legend-krankheit, .legend-unfall { background: var(--red); }
+.legend-feiertag { background: var(--navy); }
+.legend-sonstiges { background: #888; }
+
 /* ---------- Spreadsheet-style tables ---------- */
 .sheet { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
