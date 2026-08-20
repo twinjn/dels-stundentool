@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { supabase } from "./supabaseClient.js";
+import delsLogo from "./assets/dels-logo.png";
 
 const TYPES = {
   arbeit: { label: "Gearbeitet", unit: "Std.", cls: "type-arbeit" },
@@ -8,8 +9,44 @@ const TYPES = {
   unfall: { label: "Unfall", unit: "Tage", cls: "type-unfall" },
   feiertag: { label: "Feiertag", unit: "Tage", cls: "type-feiertag" },
   sonstiges: { label: "Sonstiges", unit: "Tage", cls: "type-sonstiges" },
+  spesen: { label: "Spesen", unit: "CHF", cls: "type-spesen" },
 };
 const MONTH_NAMES = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+const WEEKDAY_SHORT = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+const ABSENCE_SHORT = { ferien: "F", krankheit: "K", unfall: "U", feiertag: "FT", sonstiges: "S" };
+
+function monthDayNumbers(year, month) {
+  const total = new Date(year, month + 1, 0).getDate();
+  return Array.from({ length: total }, (_, i) => i + 1);
+}
+
+const MITARBEITERSTUFEN = [
+  "Unterhaltsreinigung I",
+  "Unterhaltsreinigung II",
+  "Spezialreinigung I",
+  "Spezialreinigung II",
+  "Spitalreinigung I",
+  "Spitalreinigung II",
+  "Fahrzeugreinigung I",
+  "Fahrzeugreinigung II",
+  "Objektleiter/in / Vorarbeiter/in",
+  "Reinigungsfachkraft EBA",
+  "Reinigungsfachkraft EFZ",
+  "Monatslohn",
+];
+
+const STAMMDATEN_COLUMNS = [
+  { key: "personalnummer", label: "Personal-Nr.", type: "text", width: 110 },
+  { key: "geburtsdatum", label: "Geburtsdatum", type: "date", width: 140 },
+  { key: "eintrittsdatum", label: "Eintritt", type: "date", width: 140 },
+  { key: "telefon", label: "Telefon", type: "text", width: 130 },
+  { key: "email", label: "E-Mail", type: "email", width: 180 },
+  { key: "strasse", label: "Strasse", type: "text", width: 170 },
+  { key: "plz", label: "PLZ", type: "text", width: 70 },
+  { key: "ort", label: "Ort", type: "text", width: 130 },
+  { key: "ahv_nummer", label: "AHV-Nr.", type: "text", width: 150 },
+  { key: "iban", label: "IBAN", type: "text", width: 200 },
+];
 
 function pad(n) { return n < 10 ? "0" + n : "" + n; }
 function todayISO() {
@@ -24,61 +61,133 @@ function fmtHours(n) {
   return (Math.round(Number(n) * 100) / 100).toString().replace(".", ",");
 }
 
-// ---------- Month calendar ----------
-const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-
-function MonthCalendar({ year, month, entries, activeDate, onDayClick }) {
-  const byDate = useMemo(() => {
-    const map = {};
-    entries.forEach((e) => { (map[e.date] = map[e.date] || []).push(e); });
-    return map;
-  }, [entries]);
-
-  const totalDays = new Date(year, month + 1, 0).getDate();
-  const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7; // Montag = 0
-  const cells = [];
-  for (let i = 0; i < firstWeekday; i++) cells.push(null);
-  for (let d = 1; d <= totalDays; d++) cells.push(d);
-  while (cells.length % 7 !== 0) cells.push(null);
-  const today = todayISO();
+// ---------- Employee row for the day-matrix table (shared by Erfassung + Monatsübersicht) ----------
+function EmployeeMatrixRow({ e, days, year, month, monthEntries, totals, objekteById, isExpanded, onToggleExpand, onNameClick, onDayClick, activeDate, onCellChange, onSpesenChange }) {
+  const isMonatslohn = e.mitarbeiterstufe === "Monatslohn";
+  const spesenEntries = monthEntries.filter((en) => en.type === "spesen");
+  const byObjekt = {};
+  monthEntries.filter((en) => en.type === "arbeit").forEach((en) => {
+    const k = en.objekt_id || "none";
+    (byObjekt[k] = byObjekt[k] || []).push(en);
+  });
+  const objektKeys = Object.keys(byObjekt);
 
   return (
-    <div className="calendar">
-      <div className="calendar-weekdays">
-        {WEEKDAY_LABELS.map((w) => <div key={w} className="calendar-weekday">{w}</div>)}
-      </div>
-      <div className="calendar-grid">
-        {cells.map((d, i) => {
-          if (d === null) return <div key={i} className="cal-day empty"></div>;
+    <React.Fragment>
+      <tr className={isMonatslohn ? "matrix-row-monatslohn" : ""}>
+        <td className="matrix-name-col" title={isMonatslohn ? "Monatslohn" : undefined}>
+          {objektKeys.length > 0 && (
+            <button className="matrix-expand-btn" title="Objekt-Details anzeigen" onClick={onToggleExpand}>
+              {isExpanded ? "−" : "+"}
+            </button>
+          )}
+          {onNameClick ? (
+            <span className="clickable-row" onClick={onNameClick} title="Zur Erfassung dieses Mitarbeiters">{e.name}</span>
+          ) : (
+            <span>{e.name}</span>
+          )}
+        </td>
+        {days.map((d) => {
           const dateISO = `${year}-${pad(month + 1)}-${pad(d)}`;
-          const dayEntries = byDate[dateISO] || [];
-          const primary = dayEntries.find((e) => e.type !== "arbeit") || dayEntries[0];
-          const cls = primary ? TYPES[primary.type].cls : "";
-          const title = dayEntries.map((e) => `${TYPES[e.type].label}: ${fmtHours(e.value)} ${TYPES[e.type].unit}`).join(", ");
+          const dayEntries = monthEntries.filter((en) => en.date === dateISO);
+          const arbeitEntries = dayEntries.filter((en) => en.type === "arbeit");
+          const arbeitSum = arbeitEntries.reduce((s, en) => s + Number(en.value), 0);
+          const otherEntry = dayEntries.find((en) => en.type !== "arbeit" && en.type !== "spesen");
+          const wd = new Date(year, month, d).getDay();
+          const canEditCell = onCellChange && !otherEntry && arbeitEntries.length <= 1;
           return (
-            <div
-              key={i}
-              className={`cal-day ${cls} ${i % 7 >= 5 ? "weekend" : ""} ${dateISO === activeDate ? "active" : ""} ${dateISO === today ? "today" : ""}`}
-              onClick={() => onDayClick(dateISO)}
-              title={title}
+            <td
+              key={d}
+              className={`matrix-cell ${wd === 0 || wd === 6 ? "weekend" : ""} ${arbeitSum ? "has-arbeit" : ""} ${otherEntry ? TYPES[otherEntry.type].cls : ""} ${onDayClick && !canEditCell ? "clickable" : ""} ${dateISO === activeDate ? "active" : ""}`}
+              onClick={onDayClick && !canEditCell ? () => onDayClick(dateISO) : undefined}
             >
-              <div className="cal-day-num">{d}</div>
-              {dayEntries.length === 1 && (
-                <div className="cal-day-label">
-                  {fmtHours(dayEntries[0].value)}{TYPES[dayEntries[0].type].unit === "Std." ? "h" : "d"}
-                </div>
+              {canEditCell ? (
+                <input
+                  type="number" min="0" step="0.25" className="matrix-cell-input"
+                  defaultValue={arbeitSum || ""}
+                  key={dateISO + "-" + arbeitSum}
+                  onFocus={() => onDayClick && onDayClick(dateISO)}
+                  onBlur={(ev) => onCellChange(dateISO, arbeitEntries[0] || null, ev.target.value)}
+                />
+              ) : arbeitSum ? (
+                fmtHours(arbeitSum)
+              ) : otherEntry ? (
+                ABSENCE_SHORT[otherEntry.type]
+              ) : (
+                ""
               )}
-              {dayEntries.length > 1 && <div className="cal-day-label">{dayEntries.length} Eintr.</div>}
-            </div>
+            </td>
           );
         })}
-      </div>
-      <div className="calendar-legend">
-        {Object.entries(TYPES).map(([k, v]) => (
-          <div key={k} className="legend-item"><span className={`legend-dot legend-${k}`}></span>{v.label}</div>
-        ))}
-      </div>
-    </div>
+        <td className="matrix-total-col">{fmtHours(totals.arbeit)}</td>
+        <td className="matrix-total-col">{fmtHours(totals.ferien)}</td>
+        <td className="matrix-total-col">{fmtHours(totals.krankheit)}</td>
+        <td className="matrix-total-col">{fmtHours(totals.unfall)}</td>
+        <td className="matrix-total-col">{fmtHours(totals.sonstiges + totals.feiertag)}</td>
+        <td className="matrix-total-col matrix-spesen-col">
+          {onSpesenChange && spesenEntries.length <= 1 ? (
+            <input
+              type="number" min="0" step="0.05" className="matrix-cell-input"
+              defaultValue={totals.spesen || ""}
+              key={"spesen-" + e.id + "-" + totals.spesen}
+              placeholder="0"
+              onBlur={(ev) => onSpesenChange(e.id, spesenEntries[0] || null, ev.target.value)}
+            />
+          ) : (
+            fmtHours(totals.spesen)
+          )}
+        </td>
+      </tr>
+      {isExpanded && objektKeys.map((k) => {
+        const objEntries = byObjekt[k];
+        const obj = k !== "none" ? objekteById[k] : null;
+        const objTotal = objEntries.reduce((s, en) => s + Number(en.value), 0);
+        return (
+          <tr key={"obj-" + k} className="matrix-sub-row">
+            <td className="matrix-name-col matrix-sub-name">↳ {obj ? obj.name : "Ohne Objekt"}</td>
+            {days.map((d) => {
+              const dateISO = `${year}-${pad(month + 1)}-${pad(d)}`;
+              const val = objEntries.filter((en) => en.date === dateISO).reduce((s, en) => s + Number(en.value), 0);
+              const wd = new Date(year, month, d).getDay();
+              return <td key={d} className={`matrix-cell matrix-sub-cell ${wd === 0 || wd === 6 ? "weekend" : ""}`}>{val ? fmtHours(val) : ""}</td>;
+            })}
+            <td className="matrix-total-col">{fmtHours(objTotal)}</td>
+            <td className="matrix-total-col"></td>
+            <td className="matrix-total-col"></td>
+            <td className="matrix-total-col"></td>
+            <td className="matrix-total-col"></td>
+            <td className="matrix-total-col"></td>
+          </tr>
+        );
+      })}
+    </React.Fragment>
+  );
+}
+
+// ---------- Employee row for the Objekt-matrix table (Mitarbeiter x Tage, direkt editierbar) ----------
+function ObjektMatrixRow({ emp, days, year, month, entriesByDate, onCellChange }) {
+  let total = 0;
+  Object.values(entriesByDate).forEach((en) => { total += Number(en.value); });
+  return (
+    <tr>
+      <td className="matrix-name-col"><span>{emp.name}</span></td>
+      {days.map((d) => {
+        const dateISO = `${year}-${pad(month + 1)}-${pad(d)}`;
+        const entry = entriesByDate[dateISO];
+        const wd = new Date(year, month, d).getDay();
+        return (
+          <td key={d} className={`matrix-cell ${wd === 0 || wd === 6 ? "weekend" : ""} ${entry ? "has-arbeit" : ""}`}>
+            <input
+              type="number" min="0" step="0.25" className="matrix-cell-input"
+              defaultValue={entry ? entry.value : ""}
+              key={dateISO + "-" + (entry ? entry.value : "")}
+              onBlur={(ev) => onCellChange(dateISO, entry || null, ev.target.value)}
+            />
+          </td>
+        );
+      })}
+      <td className="matrix-total-col">{fmtHours(total)}</td>
+    </tr>
   );
 }
 
@@ -115,7 +224,7 @@ function Login({ onLoggedIn }) {
   return (
     <div className="login-screen">
       <div className="login-card">
-        <h1>DELS Stundentool</h1>
+        <img src={delsLogo} alt="DELS Reinigung & Beratung" className="login-logo" />
         <div className="sub">Bitte einloggen, um fortzufahren.</div>
         <form onSubmit={handleSubmit}>
           <div className="field">
@@ -136,6 +245,63 @@ function Login({ onLoggedIn }) {
   );
 }
 
+// ---------- Dashboard (Startseite, Vollbild) ----------
+function Dashboard({ employees, objekte, monthTotals, yearFerienUsed, onEnterStundentool, onEnterObjekte, onLogout, email }) {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(id);
+  }, []);
+
+  const y = now.getFullYear(), m = now.getMonth();
+  const totalArbeitThisMonth = employees.reduce((s, e) => s + monthTotals(e.id, y, m).arbeit, 0);
+  const ferienWarnings = employees.filter((e) => (e.ferienanspruch - yearFerienUsed(e.id, y)) < 0);
+  const dateLabel = now.toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+  return (
+    <div className="dashboard-screen">
+      <div className="dashboard-topbar">
+        <span className="who">{email}</span>
+        <button className="link-btn" onClick={onLogout}>Abmelden</button>
+      </div>
+      <div className="dashboard-center">
+        <img src={delsLogo} alt="DELS Reinigung & Beratung" className="dashboard-logo-big" />
+        <div className="dashboard-greeting">Willkommen zurück</div>
+        <div className="dashboard-date">{dateLabel}</div>
+
+        <div className="stats dashboard-stats">
+          <div className="stat"><div className="n">{employees.length}</div><div className="l">Mitarbeiter</div></div>
+          <div className="stat"><div className="n">{objekte.length}</div><div className="l">Objekte</div></div>
+          <div className="stat"><div className="n">{fmtHours(totalArbeitThisMonth)}</div><div className="l">Std. diesen Monat</div></div>
+          <div className={`stat ${ferienWarnings.length ? "warn" : ""}`}><div className="n">{ferienWarnings.length}</div><div className="l">Ferien-Warnungen</div></div>
+        </div>
+
+        {ferienWarnings.length > 0 && (
+          <div className="card dashboard-warning-card">
+            <div className="dashboard-warning-title">Negativer Ferien-Saldo {y}</div>
+            <ul className="dashboard-warning-list">
+              {ferienWarnings.map((e) => (
+                <li key={e.id}>{e.name}: {fmtHours(e.ferienanspruch - yearFerienUsed(e.id, y))} Tage</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="home-cards">
+          <div className="home-card" onClick={onEnterStundentool}>
+            <div className="home-card-title">Stundentool</div>
+            <div className="home-card-sub">Arbeitszeit, Ferien und Absenzen pro Mitarbeiter erfassen</div>
+          </div>
+          <div className="home-card" onClick={onEnterObjekte}>
+            <div className="home-card-title">Objekte</div>
+            <div className="home-card-sub">Reinigungsobjekte verwalten und Stunden pro Standort erfassen</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ---------- Confirm modal ----------
 function ConfirmModal({ text, onCancel, onConfirm }) {
   return (
@@ -151,29 +317,29 @@ function ConfirmModal({ text, onCancel, onConfirm }) {
   );
 }
 
-// ---------- New employee modal ----------
-function NewEmployeeModal({ onCancel, onCreate }) {
+// ---------- New objekt modal ----------
+function NewObjektModal({ onCancel, onCreate }) {
   const [name, setName] = useState("");
-  const [ferien, setFerien] = useState(25);
-  const [soll, setSoll] = useState(8.4);
+  const [strasse, setStrasse] = useState("");
+  const [plz, setPlz] = useState("");
+  const [ort, setOrt] = useState("");
+  const [kunde, setKunde] = useState("");
 
   return (
     <div className="modal-bg">
       <div className="modal">
-        <h3>Neuer Mitarbeiter</h3>
+        <h3>Neues Objekt</h3>
         <div className="field">
           <label>Name</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Vor- und Nachname" autoFocus />
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="z.B. Liegenschaft Bahnhofstrasse" autoFocus />
         </div>
         <div className="row2">
-          <div className="field">
-            <label>Ferienanspruch (Tage/Jahr)</label>
-            <input type="number" step="0.5" value={ferien} onChange={(e) => setFerien(e.target.value)} />
-          </div>
-          <div className="field">
-            <label>Soll-Std./Tag</label>
-            <input type="number" step="0.1" value={soll} onChange={(e) => setSoll(e.target.value)} />
-          </div>
+          <div className="field"><label>Strasse</label><input type="text" value={strasse} onChange={(e) => setStrasse(e.target.value)} /></div>
+          <div className="field"><label>Kunde/Ansprechperson</label><input type="text" value={kunde} onChange={(e) => setKunde(e.target.value)} /></div>
+        </div>
+        <div className="row2">
+          <div className="field"><label>PLZ</label><input type="text" value={plz} onChange={(e) => setPlz(e.target.value)} /></div>
+          <div className="field"><label>Ort</label><input type="text" value={ort} onChange={(e) => setOrt(e.target.value)} /></div>
         </div>
         <div className="modal-actions">
           <button className="btn ghost full" onClick={onCancel}>Abbrechen</button>
@@ -181,7 +347,13 @@ function NewEmployeeModal({ onCancel, onCreate }) {
             className="btn full"
             onClick={() => {
               if (!name.trim()) return;
-              onCreate({ name: name.trim(), ferienanspruch: parseFloat(ferien) || 0, soll_pro_tag: parseFloat(soll) || 8.4 });
+              onCreate({
+                name: name.trim(),
+                strasse: strasse.trim() || null,
+                plz: plz.trim() || null,
+                ort: ort.trim() || null,
+                kunde: kunde.trim() || null,
+              });
             }}
           >
             Hinzufügen
@@ -192,50 +364,190 @@ function NewEmployeeModal({ onCancel, onCreate }) {
   );
 }
 
+// ---------- Employee master data table ----------
+const EMPTY_NEW_EMPLOYEE = {
+  name: "", mitarbeiterstufe: "", personalnummer: "", geburtsdatum: "", eintrittsdatum: "",
+  telefon: "", email: "", strasse: "", plz: "", ort: "", ahv_nummer: "", iban: "",
+  ferienanspruch: 25, soll_pro_tag: 8.4,
+};
+
+function EmployeeMasterTable({ employees, onUpdateField, onCreate, onDelete }) {
+  const [newRow, setNewRow] = useState(EMPTY_NEW_EMPLOYEE);
+  function setField(k, v) { setNewRow((prev) => ({ ...prev, [k]: v })); }
+
+  function submit() {
+    if (!newRow.name.trim()) return;
+    const payload = { name: newRow.name.trim() };
+    payload.mitarbeiterstufe = newRow.mitarbeiterstufe || null;
+    STAMMDATEN_COLUMNS.forEach((c) => { payload[c.key] = String(newRow[c.key] || "").trim() || null; });
+    payload.ferienanspruch = parseFloat(newRow.ferienanspruch) || 0;
+    payload.soll_pro_tag = parseFloat(newRow.soll_pro_tag) || 8.4;
+    onCreate(payload);
+    setNewRow(EMPTY_NEW_EMPLOYEE);
+  }
+
+  return (
+    <div className="sheet sheet-wide">
+      <table>
+        <thead>
+          <tr>
+            <th style={{ width: 160 }}>Name</th>
+            <th style={{ width: 170 }}>Stufe (GAV)</th>
+            {STAMMDATEN_COLUMNS.map((c) => <th key={c.key} style={{ width: c.width }}>{c.label}</th>)}
+            <th style={{ width: 110 }}>Ferien/Jahr</th>
+            <th style={{ width: 110 }}>Soll-Std./Tag</th>
+            <th style={{ width: 70 }}></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="entry-form-row">
+            <td><input type="text" value={newRow.name} onChange={(e) => setField("name", e.target.value)} placeholder="Name" /></td>
+            <td>
+              <select value={newRow.mitarbeiterstufe} onChange={(e) => setField("mitarbeiterstufe", e.target.value)}>
+                <option value="">– wählen –</option>
+                {MITARBEITERSTUFEN.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </td>
+            {STAMMDATEN_COLUMNS.map((c) => (
+              <td key={c.key}>
+                <input type={c.type} value={newRow[c.key]} onChange={(e) => setField(c.key, e.target.value)} />
+              </td>
+            ))}
+            <td><input type="number" min="0" step="0.5" value={newRow.ferienanspruch} onChange={(e) => setField("ferienanspruch", e.target.value)} /></td>
+            <td><input type="number" min="0" step="0.1" value={newRow.soll_pro_tag} onChange={(e) => setField("soll_pro_tag", e.target.value)} /></td>
+            <td><button className="btn small full" onClick={submit}>+ Hinzufügen</button></td>
+          </tr>
+          {!employees.length && (
+            <tr><td colSpan={STAMMDATEN_COLUMNS.length + 5} className="empty">Noch keine Mitarbeiter erfasst. Trage oben den ersten ein.</td></tr>
+          )}
+          {employees.map((emp) => (
+            <tr key={emp.id}>
+              <td style={{ fontWeight: 600 }}>{emp.name}</td>
+              <td>
+                <select
+                  defaultValue={emp.mitarbeiterstufe || ""}
+                  key={"stufe-" + emp.id}
+                  onChange={(e) => onUpdateField(emp.id, "mitarbeiterstufe", e.target.value || null)}
+                >
+                  <option value="">–</option>
+                  {MITARBEITERSTUFEN.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </td>
+              {STAMMDATEN_COLUMNS.map((c) => (
+                <td key={c.key}>
+                  <input
+                    type={c.type}
+                    defaultValue={emp[c.key] || ""}
+                    key={c.key + "-" + emp.id}
+                    onBlur={(e) => onUpdateField(emp.id, c.key, e.target.value.trim() || null)}
+                  />
+                </td>
+              ))}
+              <td>
+                <input
+                  type="number" min="0" step="0.5" defaultValue={emp.ferienanspruch}
+                  key={"fer-" + emp.id}
+                  onBlur={(e) => onUpdateField(emp.id, "ferienanspruch", parseFloat(e.target.value) || 0)}
+                />
+              </td>
+              <td>
+                <input
+                  type="number" min="0" step="0.1" defaultValue={emp.soll_pro_tag}
+                  key={"soll-" + emp.id}
+                  onBlur={(e) => onUpdateField(emp.id, "soll_pro_tag", parseFloat(e.target.value) || 8.4)}
+                />
+              </td>
+              <td><button className="del-row" onClick={() => onDelete(emp.id)}>Löschen</button></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 // ---------- Sidebar ----------
-function Sidebar({ tab, setTab, employees, selectedEmployee, onSelectEmployee, onNewEmployee, onDeleteEmployee, onExport, onLogout, email }) {
+function Sidebar({
+  section, onSwitchSection,
+  stTab, setStTab, employees, selectedEmployee, onSelectEmployee, onNewEmployee, onDeleteEmployee,
+  objTab, setObjTab, objekte, selectedObjekt, onSelectObjekt, onNewObjekt, onDeleteObjekt,
+  onExportPdf, onExportBackup, onLogout, email,
+}) {
+  const isSt = section === "stundentool";
+  const isObj = section === "objekte";
   return (
     <div className="sidebar">
       <div className="sidebar-brand">
         <div className="brand">
-          <div className="dot"></div>
-          <div>
-            <h1>DELS Stundentool</h1>
-            <div className="sub">Stunden, Ferien &amp; Absenzen</div>
-          </div>
+          <img src={delsLogo} alt="DELS" className="brand-logo" />
+          <div className="sub">Stunden &amp; Objekte</div>
         </div>
       </div>
 
-      <div className="sidebar-nav">
-        <div className={`nav-item ${tab === "erfassung" ? "active" : ""}`} onClick={() => setTab("erfassung")}>Erfassung</div>
-        <div className={`nav-item ${tab === "uebersicht" ? "active" : ""}`} onClick={() => setTab("uebersicht")}>Monatsübersicht</div>
+      <div className="section-switch">
+        <button className={`switch-btn ${section === "home" ? "active" : ""}`} onClick={() => onSwitchSection("home")}>Start</button>
+        <button className={`switch-btn ${isSt ? "active" : ""}`} onClick={() => onSwitchSection("stundentool")}>Stundentool</button>
+        <button className={`switch-btn ${isObj ? "active" : ""}`} onClick={() => onSwitchSection("objekte")}>Objekte</button>
       </div>
 
-      <div className="sidebar-emp-section">
-        <div className="sidebar-emp-title">Mitarbeiter</div>
-        <div className="emp-list">
-          {employees.map((e) => (
-            <div
-              key={e.id}
-              className={`emp-item ${tab === "erfassung" && e.id === selectedEmployee ? "active" : ""}`}
-              onClick={() => { onSelectEmployee(e.id); setTab("erfassung"); }}
-            >
-              <span>{e.name}</span>
-              <button
-                className="del"
-                title="Mitarbeiter löschen"
-                onClick={(ev) => { ev.stopPropagation(); onDeleteEmployee(e.id); }}
+      {section !== "home" && (
+        <div className="sidebar-nav">
+          {isSt ? (
+            <>
+              <div className={`nav-item ${stTab === "erfassung" ? "active" : ""}`} onClick={() => setStTab("erfassung")}>Erfassung</div>
+              <div className={`nav-item ${stTab === "uebersicht" ? "active" : ""}`} onClick={() => setStTab("uebersicht")}>Monatsübersicht</div>
+              <div className={`nav-item ${stTab === "stammdaten" ? "active" : ""}`} onClick={() => setStTab("stammdaten")}>Mitarbeiterdaten</div>
+            </>
+          ) : (
+            <>
+              <div className={`nav-item ${objTab === "erfassung" ? "active" : ""}`} onClick={() => setObjTab("erfassung")}>Erfassung</div>
+              <div className={`nav-item ${objTab === "uebersicht" ? "active" : ""}`} onClick={() => setObjTab("uebersicht")}>Monatsübersicht</div>
+            </>
+          )}
+        </div>
+      )}
+
+      {isSt && (
+        <div className="sidebar-emp-section">
+          <div className="sidebar-emp-title">Mitarbeiter</div>
+          <div className="emp-list">
+            {employees.map((e) => (
+              <div
+                key={e.id}
+                className={`emp-item ${stTab === "erfassung" && e.id === selectedEmployee ? "active" : ""}`}
+                onClick={() => { onSelectEmployee(e.id); setStTab("erfassung"); }}
               >
-                ✕
-              </button>
-            </div>
-          ))}
+                <span>{e.name}</span>
+                <button className="del" title="Mitarbeiter löschen" onClick={(ev) => { ev.stopPropagation(); onDeleteEmployee(e.id); }}>✕</button>
+              </div>
+            ))}
+          </div>
+          <button className="btn ghost full sidebar-add-btn" onClick={onNewEmployee}>+ Mitarbeiter</button>
         </div>
-        <button className="btn ghost full sidebar-add-btn" onClick={onNewEmployee}>+ Mitarbeiter</button>
-      </div>
+      )}
+      {isObj && (
+        <div className="sidebar-emp-section">
+          <div className="sidebar-emp-title">Objekte</div>
+          <div className="emp-list">
+            {objekte.map((o) => (
+              <div
+                key={o.id}
+                className={`emp-item ${objTab === "erfassung" && o.id === selectedObjekt ? "active" : ""}`}
+                onClick={() => { onSelectObjekt(o.id); setObjTab("erfassung"); }}
+              >
+                <span>{o.name}</span>
+                <button className="del" title="Objekt löschen" onClick={(ev) => { ev.stopPropagation(); onDeleteObjekt(o.id); }}>✕</button>
+              </div>
+            ))}
+          </div>
+          <button className="btn ghost full sidebar-add-btn" onClick={onNewObjekt}>+ Objekt</button>
+        </div>
+      )}
+      {section === "home" && <div className="sidebar-emp-section sidebar-home-spacer"></div>}
 
       <div className="sidebar-footer">
-        <button className="btn secondary full" onClick={onExport}>CSV exportieren</button>
+        <button className="btn secondary full" onClick={onExportPdf}>PDF exportieren</button>
+        <button className="btn ghost full sidebar-backup-btn" onClick={onExportBackup} title="Alle Daten als JSON-Datei sichern">Backup erstellen</button>
         <div className="sidebar-user">
           <span className="who">{email}</span>
           <button className="link-btn" onClick={onLogout}>Abmelden</button>
@@ -248,33 +560,55 @@ function Sidebar({ tab, setTab, employees, selectedEmployee, onSelectEmployee, o
 // ---------- Main app (after login) ----------
 function MainApp({ session }) {
   const [employees, setEmployees] = useState([]);
+  const [objekte, setObjekte] = useState([]);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("erfassung");
+  const [section, setSection] = useState("home"); // home | stundentool | objekte
+  const [stTab, setStTab] = useState("erfassung");
+  const [objTab, setObjTab] = useState("erfassung");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedObjekt, setSelectedObjekt] = useState(null);
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(new Date().getMonth());
   const [confirmDelete, setConfirmDelete] = useState(null); // { kind, id }
-  const [showNewEmployee, setShowNewEmployee] = useState(false);
+  const [editingEntry, setEditingEntry] = useState(null); // { id, date, type, objektId, employeeId, value, note }
+  const [expandedEmployees, setExpandedEmployees] = useState(new Set());
+  const [showNewObjekt, setShowNewObjekt] = useState(false);
   const [toastMsg, showToast] = useToast();
 
   const [newDate, setNewDate] = useState(todayISO());
   const [newType, setNewType] = useState("arbeit");
   const [newValue, setNewValue] = useState(8.4);
   const [newNote, setNewNote] = useState("");
+  const [newObjektId, setNewObjektId] = useState("");
+  const [rangeMode, setRangeMode] = useState(false);
+  const [newRangeEnd, setNewRangeEnd] = useState("");
+  const [rangeWeekdays, setRangeWeekdays] = useState(new Set([1, 2, 3, 4, 5])); // 0=So..6=Sa, default Mo-Fr
+
+  const [newObjDate, setNewObjDate] = useState(todayISO());
+  const [newObjEmployeeId, setNewObjEmployeeId] = useState("");
+  const [newObjValue, setNewObjValue] = useState(8.4);
+  const [newObjNote, setNewObjNote] = useState("");
+  const [objRangeMode, setObjRangeMode] = useState(false);
+  const [newObjRangeEnd, setNewObjRangeEnd] = useState("");
+  const [objRangeWeekdays, setObjRangeWeekdays] = useState(new Set([1, 2, 3, 4, 5]));
+  const [lastBulkAdd, setLastBulkAdd] = useState(null); // { ids: [], count }
 
   const loadAll = useCallback(async () => {
     setLoading(true);
-    const [{ data: emps, error: empErr }, { data: ents, error: entErr }] = await Promise.all([
+    const [{ data: emps, error: empErr }, { data: ents, error: entErr }, { data: objs, error: objErr }] = await Promise.all([
       supabase.from("employees").select("*").order("name"),
       supabase.from("entries").select("*"),
+      supabase.from("objekte").select("*").order("name"),
     ]);
-    if (empErr || entErr) {
+    if (empErr || entErr || objErr) {
       showToast("Fehler beim Laden der Daten.");
     } else {
       setEmployees(emps || []);
       setEntries(ents || []);
+      setObjekte(objs || []);
       if (!selectedEmployee && emps && emps.length) setSelectedEmployee(emps[0].id);
+      if (!selectedObjekt && objs && objs.length) setSelectedObjekt(objs[0].id);
     }
     setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -282,12 +616,26 @@ function MainApp({ session }) {
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
+  useEffect(() => {
+    if (!lastBulkAdd) return;
+    const t = setTimeout(() => setLastBulkAdd(null), 15000);
+    return () => clearTimeout(t);
+  }, [lastBulkAdd]);
+
   const emp = useMemo(() => employees.find((e) => e.id === selectedEmployee) || null, [employees, selectedEmployee]);
+  const objekt = useMemo(() => objekte.find((o) => o.id === selectedObjekt) || null, [objekte, selectedObjekt]);
+  const objekteById = useMemo(() => Object.fromEntries(objekte.map((o) => [o.id, o])), [objekte]);
 
   useEffect(() => {
     if (emp) setNewValue(newType === "arbeit" ? emp.soll_pro_tag : 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newType, emp?.id]);
+
+  useEffect(() => {
+    const e = employees.find((x) => x.id === newObjEmployeeId);
+    if (e) setNewObjValue(e.soll_pro_tag);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newObjEmployeeId]);
 
   function entriesForMonth(employeeId, year, month) {
     return entries
@@ -299,9 +647,19 @@ function MainApp({ session }) {
       .sort((a, b) => a.date.localeCompare(b.date));
   }
 
+  function entriesForObjektMonth(objektId, year, month) {
+    return entries
+      .filter((e) => e.objekt_id === objektId && e.type === "arbeit")
+      .filter((e) => {
+        const d = new Date(e.date + "T00:00:00");
+        return d.getFullYear() === year && d.getMonth() === month;
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+
   function monthTotals(employeeId, year, month) {
     const list = entriesForMonth(employeeId, year, month);
-    const totals = { arbeit: 0, ferien: 0, krankheit: 0, unfall: 0, feiertag: 0, sonstiges: 0 };
+    const totals = { arbeit: 0, ferien: 0, krankheit: 0, unfall: 0, feiertag: 0, sonstiges: 0, spesen: 0 };
     list.forEach((e) => { totals[e.type] = (totals[e.type] || 0) + Number(e.value); });
     return totals;
   }
@@ -329,11 +687,10 @@ function MainApp({ session }) {
     showToast("Mitarbeiter hinzugefügt");
   }
 
-  async function updateEmployeeField(field, value) {
-    if (!emp) return;
-    const { error } = await supabase.from("employees").update({ [field]: value }).eq("id", emp.id);
+  async function updateEmployeeField(id, field, value) {
+    const { error } = await supabase.from("employees").update({ [field]: value }).eq("id", id);
     if (error) { showToast("Fehler beim Speichern."); return; }
-    setEmployees((prev) => prev.map((e) => (e.id === emp.id ? { ...e, [field]: value } : e)));
+    setEmployees((prev) => prev.map((e) => (e.id === id ? { ...e, [field]: value } : e)));
     showToast("Gespeichert");
   }
 
@@ -349,16 +706,170 @@ function MainApp({ session }) {
     showToast("Mitarbeiter gelöscht");
   }
 
-  async function addEntry() {
-    if (!newDate) { showToast("Bitte ein Datum wählen"); return; }
-    const val = parseFloat(newValue);
-    if (isNaN(val) || val < 0) { showToast("Bitte einen gültigen Wert eingeben"); return; }
-    const payload = { employee_id: selectedEmployee, date: newDate, type: newType, value: val, note: newNote.trim() || null };
+  async function createObjekt(payload) {
+    const { data, error } = await supabase.from("objekte").insert(payload).select().single();
+    if (error) { showToast("Fehler beim Anlegen."); return; }
+    setObjekte((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+    setSelectedObjekt(data.id);
+    setShowNewObjekt(false);
+    showToast("Objekt hinzugefügt");
+  }
+
+  async function updateObjektField(id, field, value) {
+    const { error } = await supabase.from("objekte").update({ [field]: value }).eq("id", id);
+    if (error) { showToast("Fehler beim Speichern."); return; }
+    setObjekte((prev) => prev.map((o) => (o.id === id ? { ...o, [field]: value } : o)));
+    showToast("Gespeichert");
+  }
+
+  async function deleteObjekt(id) {
+    const { error } = await supabase.from("objekte").delete().eq("id", id);
+    if (error) {
+      showToast("Objekt kann nicht gelöscht werden – es sind noch Stunden darauf gebucht.");
+      return;
+    }
+    setObjekte((prev) => prev.filter((o) => o.id !== id));
+    if (selectedObjekt === id) {
+      const rest = objekte.filter((o) => o.id !== id);
+      setSelectedObjekt(rest.length ? rest[0].id : null);
+    }
+    showToast("Objekt gelöscht");
+  }
+
+  async function addEntry({ employeeId, date, type, value, note, objektId, silent }) {
+    if (!employeeId) { if (!silent) showToast("Bitte einen Mitarbeiter wählen"); return false; }
+    if (!date) { if (!silent) showToast("Bitte ein Datum wählen"); return false; }
+    const val = parseFloat(value);
+    if (isNaN(val) || val < 0) { if (!silent) showToast("Bitte einen gültigen Wert eingeben"); return false; }
+    if (type === "arbeit" && !objektId) { if (!silent) showToast("Bitte ein Objekt wählen"); return false; }
+    const payload = {
+      employee_id: employeeId,
+      date,
+      type,
+      value: val,
+      note: (note || "").trim() || null,
+      objekt_id: type === "arbeit" ? objektId : null,
+    };
+    const { data, error } = await supabase.from("entries").insert(payload).select().single();
+    if (error) { if (!silent) showToast("Fehler beim Speichern."); return false; }
+    setEntries((prev) => [...prev, data]);
+    if (!silent) showToast("Eintrag gespeichert");
+    return data;
+  }
+
+  function toggleRangeWeekday(idx) {
+    setRangeWeekdays((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx); else next.add(idx);
+      return next;
+    });
+  }
+
+  async function handleAddStEntry() {
+    if (rangeMode && newRangeEnd && newRangeEnd >= newDate) {
+      if (newType === "arbeit" && !newObjektId) { showToast("Bitte ein Objekt wählen"); return; }
+      const start = new Date(newDate + "T00:00:00");
+      const end = new Date(newRangeEnd + "T00:00:00");
+      let skipped = 0;
+      const createdIds = [];
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const wd = d.getDay();
+        if (!rangeWeekdays.has(wd)) continue;
+        const dateISO = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const already = entries.some((en) => en.employee_id === selectedEmployee && en.date === dateISO && en.type === newType);
+        if (already) { skipped++; continue; }
+        const created = await addEntry({ employeeId: selectedEmployee, date: dateISO, type: newType, value: newValue, note: newNote, objektId: newObjektId, silent: true });
+        if (created) createdIds.push(created.id);
+      }
+      showToast(createdIds.length ? `${createdIds.length} Einträge gespeichert${skipped ? `, ${skipped} übersprungen (schon vorhanden)` : ""}` : "Keine neuen Einträge – alle Tage bereits vorhanden");
+      if (createdIds.length) setLastBulkAdd({ ids: createdIds, count: createdIds.length });
+      setNewNote("");
+      setRangeMode(false);
+      setNewRangeEnd("");
+      return;
+    }
+    const ok = await addEntry({ employeeId: selectedEmployee, date: newDate, type: newType, value: newValue, note: newNote, objektId: newObjektId });
+    if (ok) setNewNote("");
+  }
+
+  // Direktes Eintippen in eine Tages-Zelle der Matrix: bestehenden Arbeits-Eintrag
+  // aktualisieren, neuen anlegen oder (bei leerem Wert) löschen.
+  async function updateOrCreateArbeitEntry({ employeeId, objektId, date, existingEntry, rawValue }) {
+    const val = parseFloat(rawValue);
+    if (!rawValue || isNaN(val) || val <= 0) {
+      if (existingEntry) await deleteEntry(existingEntry.id);
+      return;
+    }
+    if (existingEntry) {
+      const { error } = await supabase.from("entries").update({ value: val }).eq("id", existingEntry.id);
+      if (error) { showToast("Fehler beim Speichern."); return; }
+      setEntries((prev) => prev.map((en) => (en.id === existingEntry.id ? { ...en, value: val } : en)));
+      showToast("Gespeichert");
+      return;
+    }
+    if (!objektId) { showToast("Bitte zuerst ein Objekt wählen."); return; }
+    const payload = { employee_id: employeeId, objekt_id: objektId, date, type: "arbeit", value: val, note: null };
     const { data, error } = await supabase.from("entries").insert(payload).select().single();
     if (error) { showToast("Fehler beim Speichern."); return; }
     setEntries((prev) => [...prev, data]);
-    setNewNote("");
     showToast("Eintrag gespeichert");
+  }
+
+  // Spesen sind ein Monatsbetrag: gespeichert als ein einzelner Eintrag, datiert auf den 1. des Monats.
+  async function updateOrCreateSpesenEntry(employeeId, existingEntry, rawValue) {
+    const val = parseFloat(rawValue);
+    if (!rawValue || isNaN(val) || val <= 0) {
+      if (existingEntry) await deleteEntry(existingEntry.id);
+      return;
+    }
+    if (existingEntry) {
+      const { error } = await supabase.from("entries").update({ value: val }).eq("id", existingEntry.id);
+      if (error) { showToast("Fehler beim Speichern."); return; }
+      setEntries((prev) => prev.map((en) => (en.id === existingEntry.id ? { ...en, value: val } : en)));
+      showToast("Gespeichert");
+      return;
+    }
+    const dateISO = `${viewYear}-${pad(viewMonth + 1)}-01`;
+    const payload = { employee_id: employeeId, objekt_id: null, date: dateISO, type: "spesen", value: val, note: null };
+    const { data, error } = await supabase.from("entries").insert(payload).select().single();
+    if (error) { showToast("Fehler beim Speichern."); return; }
+    setEntries((prev) => [...prev, data]);
+    showToast("Gespeichert");
+  }
+
+  function toggleObjRangeWeekday(idx) {
+    setObjRangeWeekdays((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx); else next.add(idx);
+      return next;
+    });
+  }
+
+  async function handleAddObjEntry() {
+    if (objRangeMode && newObjRangeEnd && newObjRangeEnd >= newObjDate) {
+      if (!newObjEmployeeId) { showToast("Bitte einen Mitarbeiter wählen"); return; }
+      const start = new Date(newObjDate + "T00:00:00");
+      const end = new Date(newObjRangeEnd + "T00:00:00");
+      let skipped = 0;
+      const createdIds = [];
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const wd = d.getDay();
+        if (!objRangeWeekdays.has(wd)) continue;
+        const dateISO = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const already = entries.some((en) => en.employee_id === newObjEmployeeId && en.date === dateISO && en.type === "arbeit");
+        if (already) { skipped++; continue; }
+        const created = await addEntry({ employeeId: newObjEmployeeId, date: dateISO, type: "arbeit", value: newObjValue, note: newObjNote, objektId: selectedObjekt, silent: true });
+        if (created) createdIds.push(created.id);
+      }
+      showToast(createdIds.length ? `${createdIds.length} Einträge gespeichert${skipped ? `, ${skipped} übersprungen (schon vorhanden)` : ""}` : "Keine neuen Einträge – alle Tage bereits vorhanden");
+      if (createdIds.length) setLastBulkAdd({ ids: createdIds, count: createdIds.length });
+      setNewObjNote("");
+      setObjRangeMode(false);
+      setNewObjRangeEnd("");
+      return;
+    }
+    const ok = await addEntry({ employeeId: newObjEmployeeId, date: newObjDate, type: "arbeit", value: newObjValue, note: newObjNote, objektId: selectedObjekt });
+    if (ok) setNewObjNote("");
   }
 
   async function deleteEntry(id) {
@@ -368,159 +879,646 @@ function MainApp({ session }) {
     showToast("Eintrag gelöscht");
   }
 
-  function exportCSV() {
-    const rows = [["Mitarbeiter", "Datum", "Typ", "Wert", "Einheit", "Notiz"]];
-    entries
-      .slice()
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .forEach((e) => {
-        const owner = employees.find((x) => x.id === e.employee_id);
-        if (!owner) return;
-        rows.push([owner.name, formatDate(e.date), TYPES[e.type].label, fmtHours(e.value), TYPES[e.type].unit, e.note || ""]);
-      });
-    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(";")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  async function undoBulkAdd() {
+    if (!lastBulkAdd) return;
+    const { error } = await supabase.from("entries").delete().in("id", lastBulkAdd.ids);
+    if (error) { showToast("Fehler beim Rückgängigmachen."); return; }
+    setEntries((prev) => prev.filter((en) => !lastBulkAdd.ids.includes(en.id)));
+    showToast(`${lastBulkAdd.ids.length} Einträge rückgängig gemacht`);
+    setLastBulkAdd(null);
+  }
+
+  function startEditEntry(e) {
+    setEditingEntry({ id: e.id, date: e.date, type: e.type, objektId: e.objekt_id || "", employeeId: e.employee_id, value: e.value, note: e.note || "" });
+  }
+
+  function cancelEditEntry() { setEditingEntry(null); }
+
+  async function saveEditEntry() {
+    if (!editingEntry) return;
+    const val = parseFloat(editingEntry.value);
+    if (isNaN(val) || val < 0) { showToast("Bitte einen gültigen Wert eingeben"); return; }
+    if (editingEntry.type === "arbeit" && !editingEntry.objektId) { showToast("Bitte ein Objekt wählen"); return; }
+    if (!editingEntry.employeeId) { showToast("Bitte einen Mitarbeiter wählen"); return; }
+    const patch = {
+      employee_id: editingEntry.employeeId,
+      date: editingEntry.date,
+      type: editingEntry.type,
+      value: val,
+      note: editingEntry.note.trim() || null,
+      objekt_id: editingEntry.type === "arbeit" ? editingEntry.objektId : null,
+    };
+    const { error } = await supabase.from("entries").update(patch).eq("id", editingEntry.id);
+    if (error) { showToast("Fehler beim Speichern."); return; }
+    setEntries((prev) => prev.map((en) => (en.id === editingEntry.id ? { ...en, ...patch } : en)));
+    showToast("Gespeichert");
+    setEditingEntry(null);
+  }
+
+  function exportBackup() {
+    const payload = { exportedAt: new Date().toISOString(), employees, objekte, entries };
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: "application/json;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = "dels-stundentool-export.csv";
+    a.href = url; a.download = `dels-backup-${todayISO()}.json`;
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
   }
 
+  async function handleLogout() {
+    try {
+      const today = todayISO();
+      if (localStorage.getItem("dels_last_backup_date") !== today) {
+        exportBackup();
+        localStorage.setItem("dels_last_backup_date", today);
+      }
+    } catch (e) {
+      // Backup ist ein Zusatz – ein Fehler hier darf das Abmelden nicht blockieren.
+    }
+    await supabase.auth.signOut();
+  }
+
+  if (loading) {
+    return <div className="loading">Lade Daten …</div>;
+  }
+
+  if (section === "home") {
+    return (
+      <Dashboard
+        employees={employees}
+        objekte={objekte}
+        monthTotals={monthTotals}
+        yearFerienUsed={yearFerienUsed}
+        onEnterStundentool={() => setSection("stundentool")}
+        onEnterObjekte={() => setSection("objekte")}
+        onLogout={handleLogout}
+        email={session.user.email}
+      />
+    );
+  }
+
   const sidebar = (
     <Sidebar
-      tab={tab}
-      setTab={setTab}
+      section={section}
+      onSwitchSection={setSection}
+      stTab={stTab}
+      setStTab={setStTab}
       employees={employees}
       selectedEmployee={selectedEmployee}
       onSelectEmployee={setSelectedEmployee}
-      onNewEmployee={() => setShowNewEmployee(true)}
+      onNewEmployee={() => setStTab("stammdaten")}
       onDeleteEmployee={(id) => setConfirmDelete({ kind: "employee", id })}
-      onExport={exportCSV}
-      onLogout={() => supabase.auth.signOut()}
+      objTab={objTab}
+      setObjTab={setObjTab}
+      objekte={objekte}
+      selectedObjekt={selectedObjekt}
+      onSelectObjekt={setSelectedObjekt}
+      onNewObjekt={() => setShowNewObjekt(true)}
+      onDeleteObjekt={(id) => setConfirmDelete({ kind: "objekt", id })}
+      onExportPdf={() => window.print()}
+      onExportBackup={exportBackup}
+      onLogout={handleLogout}
       email={session.user.email}
     />
   );
-
-  if (loading) {
-    return (
-      <div className="app-shell">
-        {sidebar}
-        <div className="main-area"><div className="loading">Lade Daten …</div></div>
-      </div>
-    );
-  }
 
   return (
     <div className="app-shell">
       {sidebar}
       <div className="main-area">
-        {!employees.length ? (
+        {section === "stundentool" ? (
+          stTab === "erfassung" ? (
+            !employees.length ? (
+              <div className="main-content">
+                <div className="card empty" style={{ marginTop: 20 }}>
+                  <p style={{ fontSize: 14, color: "var(--text)", fontWeight: 600, marginBottom: 8 }}>Noch keine Mitarbeiter erfasst</p>
+                  <p style={{ marginBottom: 16 }}>Füge den ersten Mitarbeiter hinzu, um mit der Erfassung zu starten.</p>
+                  <button className="btn" style={{ maxWidth: 220, margin: "0 auto" }} onClick={() => setStTab("stammdaten")}>
+                    + Mitarbeiter hinzufügen
+                  </button>
+                </div>
+              </div>
+            ) : !emp ? (
+              <div className="main-content"><div className="card empty">Mitarbeiter auswählen</div></div>
+            ) : (
+              <>
+                <div className="main-header">
+                  <div className="month-nav">
+                    <button onClick={() => shiftMonth(-1)}>←</button>
+                    <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · {emp.name}</div>
+                    <button onClick={() => shiftMonth(1)}>→</button>
+                  </div>
+                  <div className="emp-meta">
+                    <div className="emp-meta-field">
+                      <label>Ferienanspruch/Jahr</label>
+                      <input
+                        type="number" min="0" step="0.5" defaultValue={emp.ferienanspruch}
+                        key={"fer-" + emp.id}
+                        onBlur={(e) => updateEmployeeField(emp.id, "ferienanspruch", parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+                    <div className="emp-meta-field">
+                      <label>Soll-Std./Tag</label>
+                      <input
+                        type="number" min="0" step="0.1" defaultValue={emp.soll_pro_tag}
+                        key={"soll-" + emp.id}
+                        onBlur={(e) => updateEmployeeField(emp.id, "soll_pro_tag", parseFloat(e.target.value) || 8.4)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="main-content">
+                  {(() => {
+                    const totals = monthTotals(emp.id, viewYear, viewMonth);
+                    const ferienJahr = yearFerienUsed(emp.id, viewYear);
+                    const ferienRest = emp.ferienanspruch - ferienJahr;
+                    return (
+                      <div className="stats">
+                        <div className="stat"><div className="n">{fmtHours(totals.arbeit)}</div><div className="l">Std. gearbeitet</div></div>
+                        <div className="stat"><div className="n">{fmtHours(totals.ferien)}</div><div className="l">Ferientage</div></div>
+                        <div className="stat"><div className="n">{fmtHours(totals.krankheit)}</div><div className="l">Kranktage</div></div>
+                        <div className="stat"><div className="n">{fmtHours(totals.unfall)}</div><div className="l">Unfalltage</div></div>
+                        <div className={`stat ${ferienRest < 0 ? "warn" : ""}`}><div className="n">{fmtHours(ferienRest)}</div><div className="l">Ferien Rest {viewYear}</div></div>
+                        <div className="stat"><div className="n">{fmtHours(totals.spesen)}</div><div className="l">Spesen CHF</div></div>
+                      </div>
+                    );
+                  })()}
+
+                  <p className="hint">
+                    Direkt in eine leere Tages-Zelle klicken und Stunden eintippen (Objekt unten im Formular vorher wählen). Zellen mit mehreren Objekten pro Tag über "+" aufklappen.
+                  </p>
+                  <div className="sheet sheet-wide matrix-sheet">
+                    <table className="matrix-table">
+                      <thead>
+                        <tr>
+                          <th className="matrix-name-col">Tag</th>
+                          {monthDayNumbers(viewYear, viewMonth).map((d) => {
+                            const wd = new Date(viewYear, viewMonth, d).getDay();
+                            return (
+                              <th key={d} className={`matrix-day-col ${wd === 0 || wd === 6 ? "weekend" : ""}`}>
+                                <div className="matrix-day-wd">{WEEKDAY_SHORT[wd]}</div>
+                                <div className="matrix-day-num">{pad(d)}</div>
+                              </th>
+                            );
+                          })}
+                          <th className="matrix-total-col">Arbeit</th>
+                          <th className="matrix-total-col">Ferien</th>
+                          <th className="matrix-total-col">Krank</th>
+                          <th className="matrix-total-col">Unfall</th>
+                          <th className="matrix-total-col">Sonst.</th>
+                          <th className="matrix-total-col">Spesen</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <EmployeeMatrixRow
+                          e={emp}
+                          days={monthDayNumbers(viewYear, viewMonth)}
+                          year={viewYear}
+                          month={viewMonth}
+                          monthEntries={entriesForMonth(emp.id, viewYear, viewMonth)}
+                          totals={monthTotals(emp.id, viewYear, viewMonth)}
+                          objekteById={objekteById}
+                          isExpanded={expandedEmployees.has(emp.id)}
+                          onToggleExpand={() => setExpandedEmployees((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(emp.id)) next.delete(emp.id); else next.add(emp.id);
+                            return next;
+                          })}
+                          onDayClick={(d) => setNewDate(d)}
+                          activeDate={newDate}
+                          onCellChange={(dateISO, existingEntry, rawValue) => updateOrCreateArbeitEntry({
+                            employeeId: emp.id, objektId: newObjektId, date: dateISO, existingEntry, rawValue,
+                          })}
+                          onSpesenChange={(employeeId, existingEntry, rawValue) => updateOrCreateSpesenEntry(employeeId, existingEntry, rawValue)}
+                        />
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="sheet">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th style={{ width: 120 }}>Datum</th>
+                          <th style={{ width: 140 }}>Typ</th>
+                          <th style={{ width: 160 }}>Objekt</th>
+                          <th style={{ width: 90 }}>Wert</th>
+                          <th>Notiz</th>
+                          <th style={{ width: 70 }}></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="entry-form-row">
+                          <td>
+                            <input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
+                            <label className="range-toggle">
+                              <input type="checkbox" checked={rangeMode} onChange={(e) => setRangeMode(e.target.checked)} /> Zeitraum
+                            </label>
+                            {rangeMode && (
+                              <>
+                                <input type="date" className="range-end" value={newRangeEnd} min={newDate} onChange={(e) => setNewRangeEnd(e.target.value)} placeholder="bis" />
+                                <div className="range-weekdays">
+                                  {WEEKDAY_SHORT.map((label, idx) => (
+                                    <button
+                                      key={idx}
+                                      type="button"
+                                      className={`range-wd-btn ${rangeWeekdays.has(idx) ? "active" : ""}`}
+                                      onClick={() => toggleRangeWeekday(idx)}
+                                    >
+                                      {label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </td>
+                          <td>
+                            <select value={newType} onChange={(e) => setNewType(e.target.value)}>
+                              {Object.entries(TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                            </select>
+                          </td>
+                          <td>
+                            {newType === "arbeit" ? (
+                              <select value={newObjektId} onChange={(e) => setNewObjektId(e.target.value)}>
+                                <option value="">– wählen –</option>
+                                {objekte.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+                              </select>
+                            ) : (
+                              <span className="muted-cell">–</span>
+                            )}
+                          </td>
+                          <td><input type="number" min="0" step="0.25" value={newValue} onChange={(e) => setNewValue(e.target.value)} /></td>
+                          <td><input type="text" value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="Notiz (optional)" /></td>
+                          <td><button className="btn small full" onClick={handleAddStEntry}>{rangeMode && newRangeEnd ? "+ Zeitraum" : "+ Eintrag"}</button></td>
+                        </tr>
+                        {(() => {
+                          const list = entriesForMonth(emp.id, viewYear, viewMonth);
+                          if (!list.length) {
+                            return (
+                              <tr><td colSpan={6} className="empty">Noch keine Einträge in diesem Monat.</td></tr>
+                            );
+                          }
+                          return list.map((e) => {
+                            if (editingEntry && editingEntry.id === e.id) {
+                              return (
+                                <tr key={e.id} className="entry-form-row">
+                                  <td><input type="date" value={editingEntry.date} onChange={(ev) => setEditingEntry((p) => ({ ...p, date: ev.target.value }))} /></td>
+                                  <td>
+                                    <select value={editingEntry.type} onChange={(ev) => setEditingEntry((p) => ({ ...p, type: ev.target.value }))}>
+                                      {Object.entries(TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                                    </select>
+                                  </td>
+                                  <td>
+                                    {editingEntry.type === "arbeit" ? (
+                                      <select value={editingEntry.objektId} onChange={(ev) => setEditingEntry((p) => ({ ...p, objektId: ev.target.value }))}>
+                                        <option value="">– wählen –</option>
+                                        {objekte.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+                                      </select>
+                                    ) : (
+                                      <span className="muted-cell">–</span>
+                                    )}
+                                  </td>
+                                  <td><input type="number" min="0" step="0.25" value={editingEntry.value} onChange={(ev) => setEditingEntry((p) => ({ ...p, value: ev.target.value }))} /></td>
+                                  <td><input type="text" value={editingEntry.note} onChange={(ev) => setEditingEntry((p) => ({ ...p, note: ev.target.value }))} /></td>
+                                  <td className="row-actions">
+                                    <button className="btn small" onClick={saveEditEntry}>Speichern</button>
+                                    <button className="btn small ghost" onClick={cancelEditEntry}>Abbr.</button>
+                                  </td>
+                                </tr>
+                              );
+                            }
+                            const obj = e.objekt_id ? objekte.find((o) => o.id === e.objekt_id) : null;
+                            return (
+                              <tr key={e.id}>
+                                <td>{formatDate(e.date)}</td>
+                                <td><span className={`type-pill ${TYPES[e.type].cls}`}>{TYPES[e.type].label}</span></td>
+                                <td>{obj ? obj.name : "–"}</td>
+                                <td>{fmtHours(e.value)} {TYPES[e.type].unit}</td>
+                                <td>{e.note || "–"}</td>
+                                <td className="row-actions">
+                                  <button className="edit-row" onClick={() => startEditEntry(e)}>Bearbeiten</button>
+                                  <button className="del-row" onClick={() => setConfirmDelete({ kind: "entry", id: e.id })}>Löschen</button>
+                                </td>
+                              </tr>
+                            );
+                          });
+                        })()}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )
+          ) : stTab === "uebersicht" ? (
+            !employees.length ? (
+              <div className="main-content">
+                <div className="card empty" style={{ marginTop: 20 }}>
+                  <p style={{ fontSize: 14, color: "var(--text)", fontWeight: 600, marginBottom: 8 }}>Noch keine Mitarbeiter erfasst</p>
+                  <p style={{ marginBottom: 16 }}>Füge den ersten Mitarbeiter hinzu, um mit der Erfassung zu starten.</p>
+                  <button className="btn" style={{ maxWidth: 220, margin: "0 auto" }} onClick={() => setStTab("stammdaten")}>
+                    + Mitarbeiter hinzufügen
+                  </button>
+                </div>
+              </div>
+            ) : (
+            <>
+              <div className="main-header">
+                <div className="month-nav">
+                  <button onClick={() => shiftMonth(-1)}>←</button>
+                  <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · Alle Mitarbeiter</div>
+                  <button onClick={() => shiftMonth(1)}>→</button>
+                </div>
+              </div>
+              <div className="main-content">
+                <div className="legend-item matrix-legend-hint"><span className="legend-dot" style={{ background: "var(--orange-light)", border: "1px solid var(--orange)" }}></span>Monatslohn</div>
+                <div className="sheet sheet-wide matrix-sheet">
+                  <table className="matrix-table">
+                    <thead>
+                      <tr>
+                        <th className="matrix-name-col">Mitarbeiter</th>
+                        {monthDayNumbers(viewYear, viewMonth).map((d) => {
+                          const wd = new Date(viewYear, viewMonth, d).getDay();
+                          return (
+                            <th key={d} className={`matrix-day-col ${wd === 0 || wd === 6 ? "weekend" : ""}`}>
+                              <div className="matrix-day-wd">{WEEKDAY_SHORT[wd]}</div>
+                              <div className="matrix-day-num">{pad(d)}</div>
+                            </th>
+                          );
+                        })}
+                        <th className="matrix-total-col">Arbeit</th>
+                        <th className="matrix-total-col">Ferien</th>
+                        <th className="matrix-total-col">Krank</th>
+                        <th className="matrix-total-col">Unfall</th>
+                        <th className="matrix-total-col">Sonst.</th>
+                        <th className="matrix-total-col">Spesen</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {employees.map((e) => (
+                        <EmployeeMatrixRow
+                          key={e.id}
+                          e={e}
+                          days={monthDayNumbers(viewYear, viewMonth)}
+                          year={viewYear}
+                          month={viewMonth}
+                          monthEntries={entriesForMonth(e.id, viewYear, viewMonth)}
+                          totals={monthTotals(e.id, viewYear, viewMonth)}
+                          objekteById={objekteById}
+                          isExpanded={expandedEmployees.has(e.id)}
+                          onToggleExpand={() => setExpandedEmployees((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(e.id)) next.delete(e.id); else next.add(e.id);
+                            return next;
+                          })}
+                          onNameClick={() => { setSelectedEmployee(e.id); setStTab("erfassung"); }}
+                          onSpesenChange={(employeeId, existingEntry, rawValue) => updateOrCreateSpesenEntry(employeeId, existingEntry, rawValue)}
+                        />
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="matrix-foot-row">
+                        <td className="matrix-name-col">Monatstotal</td>
+                        {monthDayNumbers(viewYear, viewMonth).map((d) => {
+                          const dateISO = `${viewYear}-${pad(viewMonth + 1)}-${pad(d)}`;
+                          const total = entries
+                            .filter((en) => en.type === "arbeit" && en.date === dateISO)
+                            .reduce((s, en) => s + Number(en.value), 0);
+                          return <td key={d} className="matrix-cell">{total ? fmtHours(total) : ""}</td>;
+                        })}
+                        <td className="matrix-total-col">
+                          {fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).arbeit, 0))}
+                        </td>
+                        <td className="matrix-total-col">
+                          {fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).ferien, 0))}
+                        </td>
+                        <td className="matrix-total-col">
+                          {fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).krankheit, 0))}
+                        </td>
+                        <td className="matrix-total-col">
+                          {fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).unfall, 0))}
+                        </td>
+                        <td className="matrix-total-col">
+                          {fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).sonstiges + monthTotals(e.id, viewYear, viewMonth).feiertag, 0))}
+                        </td>
+                        <td className="matrix-total-col">
+                          {fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).spesen, 0))}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </>
+            )
+          ) : (
+            <>
+              <div className="main-header">
+                <div className="page-title">Mitarbeiterdaten</div>
+              </div>
+              <div className="main-content">
+                <EmployeeMasterTable
+                  employees={employees}
+                  onUpdateField={updateEmployeeField}
+                  onCreate={createEmployee}
+                  onDelete={(id) => setConfirmDelete({ kind: "employee", id })}
+                />
+              </div>
+            </>
+          )
+        ) : !objekte.length ? (
           <div className="main-content">
             <div className="card empty" style={{ marginTop: 20 }}>
-              <p style={{ fontSize: 14, color: "var(--text)", fontWeight: 600, marginBottom: 8 }}>Noch keine Mitarbeiter erfasst</p>
-              <p style={{ marginBottom: 16 }}>Füge den ersten Mitarbeiter hinzu, um mit der Erfassung zu starten.</p>
-              <button className="btn" style={{ maxWidth: 220, margin: "0 auto" }} onClick={() => setShowNewEmployee(true)}>
-                + Mitarbeiter hinzufügen
+              <p style={{ fontSize: 14, color: "var(--text)", fontWeight: 600, marginBottom: 8 }}>Noch keine Objekte erfasst</p>
+              <p style={{ marginBottom: 16 }}>Füge das erste Objekt hinzu, um Stunden pro Standort zu erfassen.</p>
+              <button className="btn" style={{ maxWidth: 220, margin: "0 auto" }} onClick={() => setShowNewObjekt(true)}>
+                + Objekt hinzufügen
               </button>
             </div>
           </div>
-        ) : tab === "erfassung" ? (
-          !emp ? (
-            <div className="main-content"><div className="card empty">Mitarbeiter auswählen</div></div>
+        ) : objTab === "erfassung" ? (
+          !objekt ? (
+            <div className="main-content"><div className="card empty">Objekt auswählen</div></div>
           ) : (
             <>
               <div className="main-header">
                 <div className="month-nav">
                   <button onClick={() => shiftMonth(-1)}>←</button>
-                  <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · {emp.name}</div>
+                  <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · {objekt.name}</div>
                   <button onClick={() => shiftMonth(1)}>→</button>
-                </div>
-                <div className="emp-meta">
-                  <div className="emp-meta-field">
-                    <label>Ferienanspruch/Jahr</label>
-                    <input
-                      type="number" min="0" step="0.5" defaultValue={emp.ferienanspruch}
-                      key={"fer-" + emp.id}
-                      onBlur={(e) => updateEmployeeField("ferienanspruch", parseFloat(e.target.value) || 0)}
-                    />
-                  </div>
-                  <div className="emp-meta-field">
-                    <label>Soll-Std./Tag</label>
-                    <input
-                      type="number" min="0" step="0.1" defaultValue={emp.soll_pro_tag}
-                      key={"soll-" + emp.id}
-                      onBlur={(e) => updateEmployeeField("soll_pro_tag", parseFloat(e.target.value) || 8.4)}
-                    />
-                  </div>
                 </div>
               </div>
 
               <div className="main-content">
+                <div className="card objekt-meta-card">
+                  <div className="row2">
+                    <div className="field">
+                      <label>Strasse</label>
+                      <input defaultValue={objekt.strasse || ""} key={"str-" + objekt.id} onBlur={(e) => updateObjektField(objekt.id, "strasse", e.target.value.trim() || null)} />
+                    </div>
+                    <div className="field">
+                      <label>Kunde/Ansprechperson</label>
+                      <input defaultValue={objekt.kunde || ""} key={"kd-" + objekt.id} onBlur={(e) => updateObjektField(objekt.id, "kunde", e.target.value.trim() || null)} />
+                    </div>
+                  </div>
+                  <div className="row2">
+                    <div className="field">
+                      <label>PLZ</label>
+                      <input defaultValue={objekt.plz || ""} key={"plz-" + objekt.id} onBlur={(e) => updateObjektField(objekt.id, "plz", e.target.value.trim() || null)} />
+                    </div>
+                    <div className="field">
+                      <label>Ort</label>
+                      <input defaultValue={objekt.ort || ""} key={"ort-" + objekt.id} onBlur={(e) => updateObjektField(objekt.id, "ort", e.target.value.trim() || null)} />
+                    </div>
+                  </div>
+                  <div className="field" style={{ marginBottom: 0 }}>
+                    <label>Notizen</label>
+                    <textarea rows={2} defaultValue={objekt.notizen || ""} key={"not-" + objekt.id} onBlur={(e) => updateObjektField(objekt.id, "notizen", e.target.value.trim() || null)} />
+                  </div>
+                </div>
+
                 {(() => {
-                  const totals = monthTotals(emp.id, viewYear, viewMonth);
-                  const ferienJahr = yearFerienUsed(emp.id, viewYear);
-                  const ferienRest = emp.ferienanspruch - ferienJahr;
+                  const list = entriesForObjektMonth(objekt.id, viewYear, viewMonth);
+                  const totalStd = list.reduce((s, e) => s + Number(e.value), 0);
+                  const empCount = new Set(list.map((e) => e.employee_id)).size;
                   return (
                     <div className="stats">
-                      <div className="stat"><div className="n">{fmtHours(totals.arbeit)}</div><div className="l">Std. gearbeitet</div></div>
-                      <div className="stat"><div className="n">{fmtHours(totals.ferien)}</div><div className="l">Ferientage</div></div>
-                      <div className="stat"><div className="n">{fmtHours(totals.krankheit)}</div><div className="l">Kranktage</div></div>
-                      <div className="stat"><div className="n">{fmtHours(totals.unfall)}</div><div className="l">Unfalltage</div></div>
-                      <div className={`stat ${ferienRest < 0 ? "warn" : ""}`}><div className="n">{fmtHours(ferienRest)}</div><div className="l">Ferien Rest {viewYear}</div></div>
+                      <div className="stat"><div className="n">{fmtHours(totalStd)}</div><div className="l">Std. total</div></div>
+                      <div className="stat"><div className="n">{empCount}</div><div className="l">Mitarbeiter beteiligt</div></div>
                     </div>
                   );
                 })()}
 
-                <div className="card calendar-card">
-                  <MonthCalendar
-                    year={viewYear}
-                    month={viewMonth}
-                    entries={entriesForMonth(emp.id, viewYear, viewMonth)}
-                    activeDate={newDate}
-                    onDayClick={(d) => setNewDate(d)}
-                  />
+                <p className="hint">Direkt in eine Tages-Zelle klicken und Stunden eintippen, um sie diesem Objekt zuzuordnen.</p>
+                <div className="sheet sheet-wide matrix-sheet">
+                  <table className="matrix-table">
+                    <thead>
+                      <tr>
+                        <th className="matrix-name-col">Mitarbeiter</th>
+                        {monthDayNumbers(viewYear, viewMonth).map((d) => {
+                          const wd = new Date(viewYear, viewMonth, d).getDay();
+                          return (
+                            <th key={d} className={`matrix-day-col ${wd === 0 || wd === 6 ? "weekend" : ""}`}>
+                              <div className="matrix-day-wd">{WEEKDAY_SHORT[wd]}</div>
+                              <div className="matrix-day-num">{pad(d)}</div>
+                            </th>
+                          );
+                        })}
+                        <th className="matrix-total-col">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {employees.map((emp2) => {
+                        const entriesByDate = {};
+                        entriesForObjektMonth(objekt.id, viewYear, viewMonth)
+                          .filter((en) => en.employee_id === emp2.id)
+                          .forEach((en) => { entriesByDate[en.date] = en; });
+                        return (
+                          <ObjektMatrixRow
+                            key={emp2.id}
+                            emp={emp2}
+                            days={monthDayNumbers(viewYear, viewMonth)}
+                            year={viewYear}
+                            month={viewMonth}
+                            entriesByDate={entriesByDate}
+                            onCellChange={(dateISO, existingEntry, rawValue) => updateOrCreateArbeitEntry({
+                              employeeId: emp2.id, objektId: objekt.id, date: dateISO, existingEntry, rawValue,
+                            })}
+                          />
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
 
                 <div className="sheet">
                   <table>
                     <thead>
                       <tr>
-                        <th style={{ width: 130 }}>Datum</th>
-                        <th style={{ width: 150 }}>Typ</th>
-                        <th style={{ width: 110 }}>Wert</th>
+                        <th style={{ width: 120 }}>Datum</th>
+                        <th style={{ width: 170 }}>Mitarbeiter</th>
+                        <th style={{ width: 100 }}>Stunden</th>
                         <th>Notiz</th>
                         <th style={{ width: 70 }}></th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="entry-form-row">
-                        <td><input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} /></td>
                         <td>
-                          <select value={newType} onChange={(e) => setNewType(e.target.value)}>
-                            {Object.entries(TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                          <input type="date" value={newObjDate} onChange={(e) => setNewObjDate(e.target.value)} />
+                          <label className="range-toggle">
+                            <input type="checkbox" checked={objRangeMode} onChange={(e) => setObjRangeMode(e.target.checked)} /> Zeitraum
+                          </label>
+                          {objRangeMode && (
+                            <>
+                              <input type="date" className="range-end" value={newObjRangeEnd} min={newObjDate} onChange={(e) => setNewObjRangeEnd(e.target.value)} placeholder="bis" />
+                              <div className="range-weekdays">
+                                {WEEKDAY_SHORT.map((label, idx) => (
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    className={`range-wd-btn ${objRangeWeekdays.has(idx) ? "active" : ""}`}
+                                    onClick={() => toggleObjRangeWeekday(idx)}
+                                  >
+                                    {label}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </td>
+                        <td>
+                          <select value={newObjEmployeeId} onChange={(e) => setNewObjEmployeeId(e.target.value)}>
+                            <option value="">– wählen –</option>
+                            {employees.map((e2) => <option key={e2.id} value={e2.id}>{e2.name}</option>)}
                           </select>
                         </td>
-                        <td><input type="number" min="0" step="0.25" value={newValue} onChange={(e) => setNewValue(e.target.value)} /></td>
-                        <td><input type="text" value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="z.B. Auftrag Zürich" /></td>
-                        <td><button className="btn small full" onClick={addEntry}>+ Eintrag</button></td>
+                        <td><input type="number" min="0" step="0.25" value={newObjValue} onChange={(e) => setNewObjValue(e.target.value)} /></td>
+                        <td><input type="text" value={newObjNote} onChange={(e) => setNewObjNote(e.target.value)} placeholder="z.B. Fensterreinigung" /></td>
+                        <td><button className="btn small full" onClick={handleAddObjEntry}>{objRangeMode && newObjRangeEnd ? "+ Zeitraum" : "+ Eintrag"}</button></td>
                       </tr>
                       {(() => {
-                        const list = entriesForMonth(emp.id, viewYear, viewMonth);
+                        const list = entriesForObjektMonth(objekt.id, viewYear, viewMonth);
                         if (!list.length) {
                           return (
                             <tr><td colSpan={5} className="empty">Noch keine Einträge in diesem Monat.</td></tr>
                           );
                         }
-                        return list.map((e) => (
-                          <tr key={e.id}>
-                            <td>{formatDate(e.date)}</td>
-                            <td><span className={`type-pill ${TYPES[e.type].cls}`}>{TYPES[e.type].label}</span></td>
-                            <td>{fmtHours(e.value)} {TYPES[e.type].unit}</td>
-                            <td>{e.note || "–"}</td>
-                            <td><button className="del-row" onClick={() => setConfirmDelete({ kind: "entry", id: e.id })}>Löschen</button></td>
-                          </tr>
-                        ));
+                        return list.map((e) => {
+                          if (editingEntry && editingEntry.id === e.id) {
+                            return (
+                              <tr key={e.id} className="entry-form-row">
+                                <td><input type="date" value={editingEntry.date} onChange={(ev) => setEditingEntry((p) => ({ ...p, date: ev.target.value }))} /></td>
+                                <td>
+                                  <select value={editingEntry.employeeId} onChange={(ev) => setEditingEntry((p) => ({ ...p, employeeId: ev.target.value }))}>
+                                    <option value="">– wählen –</option>
+                                    {employees.map((e2) => <option key={e2.id} value={e2.id}>{e2.name}</option>)}
+                                  </select>
+                                </td>
+                                <td><input type="number" min="0" step="0.25" value={editingEntry.value} onChange={(ev) => setEditingEntry((p) => ({ ...p, value: ev.target.value }))} /></td>
+                                <td><input type="text" value={editingEntry.note} onChange={(ev) => setEditingEntry((p) => ({ ...p, note: ev.target.value }))} /></td>
+                                <td className="row-actions">
+                                  <button className="btn small" onClick={saveEditEntry}>Speichern</button>
+                                  <button className="btn small ghost" onClick={cancelEditEntry}>Abbr.</button>
+                                </td>
+                              </tr>
+                            );
+                          }
+                          const owner = employees.find((x) => x.id === e.employee_id);
+                          return (
+                            <tr key={e.id}>
+                              <td>{formatDate(e.date)}</td>
+                              <td>{owner ? owner.name : "–"}</td>
+                              <td>{fmtHours(e.value)} Std.</td>
+                              <td>{e.note || "–"}</td>
+                              <td className="row-actions">
+                                <button className="edit-row" onClick={() => startEditEntry(e)}>Bearbeiten</button>
+                                <button className="del-row" onClick={() => setConfirmDelete({ kind: "entry", id: e.id })}>Löschen</button>
+                              </td>
+                            </tr>
+                          );
+                        });
                       })()}
                     </tbody>
                   </table>
@@ -533,25 +1531,30 @@ function MainApp({ session }) {
             <div className="main-header">
               <div className="month-nav">
                 <button onClick={() => shiftMonth(-1)}>←</button>
-                <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · Alle Mitarbeiter</div>
+                <div className="label">{MONTH_NAMES[viewMonth]} {viewYear} · Alle Objekte</div>
                 <button onClick={() => shiftMonth(1)}>→</button>
               </div>
             </div>
             <div className="main-content">
               <div className="sheet">
                 <table className="overview-table">
-                  <thead><tr><th>Mitarbeiter</th><th>Gearbeitet (Std.)</th><th>Ferien (Tage)</th><th>Krankheit</th><th>Unfall</th><th>Sonstiges</th></tr></thead>
+                  <thead><tr><th>Objekt</th><th>Std. total</th><th>Mitarbeiter beteiligt</th><th></th></tr></thead>
                   <tbody>
-                    {employees.map((e) => {
-                      const t = monthTotals(e.id, viewYear, viewMonth);
+                    {objekte.map((o) => {
+                      const list = entriesForObjektMonth(o.id, viewYear, viewMonth);
+                      const total = list.reduce((s, e) => s + Number(e.value), 0);
+                      const empCount = new Set(list.map((e) => e.employee_id)).size;
                       return (
-                        <tr key={e.id}>
-                          <td style={{ fontWeight: 600 }}>{e.name}</td>
-                          <td>{fmtHours(t.arbeit)}</td>
-                          <td>{fmtHours(t.ferien)}</td>
-                          <td>{fmtHours(t.krankheit)}</td>
-                          <td>{fmtHours(t.unfall)}</td>
-                          <td>{fmtHours(t.sonstiges + t.feiertag)}</td>
+                        <tr
+                          key={o.id}
+                          className="clickable-row"
+                          title="Zur Erfassung dieses Objekts"
+                          onClick={() => { setSelectedObjekt(o.id); setObjTab("erfassung"); }}
+                        >
+                          <td style={{ fontWeight: 600 }}>{o.name}</td>
+                          <td>{fmtHours(total)}</td>
+                          <td>{empCount}</td>
+                          <td className="row-arrow">→</td>
                         </tr>
                       );
                     })}
@@ -563,17 +1566,93 @@ function MainApp({ session }) {
         )}
       </div>
 
-      {showNewEmployee && <NewEmployeeModal onCancel={() => setShowNewEmployee(false)} onCreate={createEmployee} />}
+      {section === "stundentool" && (
+        <div id="print-area" className="print-only">
+          <div className="print-header">
+            <img src={delsLogo} alt="DELS Reinigung & Beratung" className="print-logo" />
+            <div className="print-title">Lohnabrechnung · {MONTH_NAMES[viewMonth]} {viewYear}</div>
+          </div>
+          <table className="matrix-table print-matrix-table">
+            <thead>
+              <tr>
+                <th className="matrix-name-col">Mitarbeiter</th>
+                {monthDayNumbers(viewYear, viewMonth).map((d) => {
+                  const wd = new Date(viewYear, viewMonth, d).getDay();
+                  return (
+                    <th key={d} className={`matrix-day-col ${wd === 0 || wd === 6 ? "weekend" : ""}`}>
+                      <div className="matrix-day-wd">{WEEKDAY_SHORT[wd]}</div>
+                      <div className="matrix-day-num">{pad(d)}</div>
+                    </th>
+                  );
+                })}
+                <th className="matrix-total-col">Arbeit</th>
+                <th className="matrix-total-col">Ferien</th>
+                <th className="matrix-total-col">Krank</th>
+                <th className="matrix-total-col">Unfall</th>
+                <th className="matrix-total-col">Sonst.</th>
+                <th className="matrix-total-col">Spesen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {employees.map((e) => (
+                <EmployeeMatrixRow
+                  key={e.id}
+                  e={e}
+                  days={monthDayNumbers(viewYear, viewMonth)}
+                  year={viewYear}
+                  month={viewMonth}
+                  monthEntries={entriesForMonth(e.id, viewYear, viewMonth)}
+                  totals={monthTotals(e.id, viewYear, viewMonth)}
+                  objekteById={objekteById}
+                  isExpanded={false}
+                />
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="matrix-foot-row">
+                <td className="matrix-name-col">Monatstotal</td>
+                {monthDayNumbers(viewYear, viewMonth).map((d) => {
+                  const dateISO = `${viewYear}-${pad(viewMonth + 1)}-${pad(d)}`;
+                  const total = entries
+                    .filter((en) => en.type === "arbeit" && en.date === dateISO)
+                    .reduce((s, en) => s + Number(en.value), 0);
+                  return <td key={d} className="matrix-cell">{total ? fmtHours(total) : ""}</td>;
+                })}
+                <td className="matrix-total-col">{fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).arbeit, 0))}</td>
+                <td className="matrix-total-col">{fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).ferien, 0))}</td>
+                <td className="matrix-total-col">{fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).krankheit, 0))}</td>
+                <td className="matrix-total-col">{fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).unfall, 0))}</td>
+                <td className="matrix-total-col">{fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).sonstiges + monthTotals(e.id, viewYear, viewMonth).feiertag, 0))}</td>
+                <td className="matrix-total-col">{fmtHours(employees.reduce((s, e) => s + monthTotals(e.id, viewYear, viewMonth).spesen, 0))}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      )}
+
+      {showNewObjekt && <NewObjektModal onCancel={() => setShowNewObjekt(false)} onCreate={createObjekt} />}
       {confirmDelete && (
         <ConfirmModal
-          text={confirmDelete.kind === "employee" ? "Mitarbeiter und alle seine Einträge unwiderruflich löschen?" : "Diesen Eintrag löschen?"}
+          text={
+            confirmDelete.kind === "employee" ? "Mitarbeiter und alle seine Einträge unwiderruflich löschen?" :
+            confirmDelete.kind === "objekt" ? "Objekt löschen? Das geht nur, wenn keine Stunden mehr darauf gebucht sind." :
+            "Diesen Eintrag löschen?"
+          }
           onCancel={() => setConfirmDelete(null)}
           onConfirm={async () => {
             if (confirmDelete.kind === "employee") await deleteEmployee(confirmDelete.id);
+            else if (confirmDelete.kind === "objekt") await deleteObjekt(confirmDelete.id);
             else await deleteEntry(confirmDelete.id);
             setConfirmDelete(null);
           }}
         />
+      )}
+      {lastBulkAdd && (
+        <div className="undo-banner">
+          <span>{lastBulkAdd.count} Einträge hinzugefügt</span>
+          <button className="undo-btn" onClick={undoBulkAdd}>Rückgängig</button>
+          <button className="undo-close" onClick={() => setLastBulkAdd(null)} title="Schliessen">✕</button>
+        </div>
       )}
       {toastMsg && <div className="toast show">{toastMsg}</div>}
     </div>
