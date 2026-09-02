@@ -17,8 +17,8 @@ function Feld({ wert, onSave, breit, text }) {
   useEffect(() => { setV(wert ?? ""); }, [wert]);
   return (
     <input
-      className="matrix-cell-input"
-      style={{ width: breit || 90, textAlign: text ? "left" : "right" }}
+      className="kalk-input"
+      style={{ width: breit || 96, textAlign: text ? "left" : "right" }}
       value={v}
       onChange={(e) => setV(e.target.value)}
       onBlur={() => {
@@ -242,14 +242,14 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
                 const o = objektById.get(x.o.objekt_id) || {};
                 const rel = z(Number(x.o.abo_betrag)) ? x.gew / Number(x.o.abo_betrag) : 0;
                 return (
-                  <tr key={x.o.objekt_id} className={!x.o.aktiv ? "cell-muted" : x.gew < -0.005 ? "del-row" : ""}>
+                  <tr key={x.o.objekt_id} className={!x.o.aktiv ? "row-inaktiv" : x.gew < -0.005 ? "row-neg" : ""}>
                     <td className="cell-muted">{o.objekt_nr || "–"}</td>
                     <td className="cell-name">{o.name}</td>
                     <td className="cell-muted">{o.kunde}</td>
                     <td className="cell-num"><Feld wert={x.o.abo_betrag} onSave={(v) => setzeObjekt(x.o.objekt_id, "abo_betrag", v)} /></td>
                     <td className="cell-num">
                       {x.ausErfassung
-                        ? <span title={`aus ${x.personen} erfassten Mitarbeitenden`}><b>{chf(x.std)}</b> ⏱</span>
+                        ? <span className="badge-erfasst" title={`aus ${x.personen} erfassten Mitarbeitenden`}>⏱ {chf(x.std)}</span>
                         : <Feld wert={x.o.std_manuell} onSave={(v) => setzeObjekt(x.o.objekt_id, "std_manuell", v)} />}
                     </td>
                     <td className="cell-num">
@@ -336,13 +336,13 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
                     <td className="cell-num">{cb("abzug_fak")}</td>
                     <td className="cell-num">
                       <Feld wert={x.p.fak_manuell} onSave={(v) => setzePerson(x.p.employee_id, "fak_manuell", v)} />
-                      <div className="cell-muted" style={{ fontSize: 11 }}>
+                      <div className="kalk-note">
                         {x.p.fak_manuell == null ? chf(x.fak) : "überschrieben"}</div>
                     </td>
                     <td className="cell-num">{cb("bvg")}</td>
                     <td className="cell-num">
                       <Feld wert={x.p.bvg_manuell} onSave={(v) => setzePerson(x.p.employee_id, "bvg_manuell", v)} />
-                      <div className="cell-muted" style={{ fontSize: 11 }}>
+                      <div className="kalk-note">
                         {x.p.bvg_manuell == null ? chf(x.bvg) : "überschrieben"}</div>
                     </td>
                     <td className="cell-num cell-muted">{chf(x.bu)}</td>
@@ -387,16 +387,16 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
   /* ---------- Ansaetze ---------- */
   if (tab === "ansaetze") {
     const satz = (label, feld, prozent) => (
-      <div className="edit-row" key={feld}>
-        <div className="field">{label}</div>
+      <div className="kv" key={feld}>
+        <div className="kv-key">{label}</div>
         <Feld wert={prozent ? Number((s[feld] * 100).toFixed(6)) : s[feld]}
               onSave={(v) => setzeAnsatz(feld, prozent ? (v ?? 0) / 100 : v)} />
-        <div className="cell-muted" style={{ width: 34 }}>{prozent ? "%" : "CHF"}</div>
+        <div className="kv-unit">{prozent ? "%" : "CHF"}</div>
       </div>
     );
     return (
       <>{kopf}<div className="main-content">
-        <div className="home-cards">
+        <div className="kalk-grid">
           <div className="sheet">
             <div className="page-title">Sozialabzüge</div>
             {satz("AHV", "ahv", true)}{satz("ALV", "alv", true)}
@@ -405,8 +405,8 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
             {satz("RPK", "rpk", true)}{satz("FAK Arbeitgeber", "fak", true)}
             {satz("13. Monatslohn", "ml13", true)}
             {satz("NBU-Schwelle (Std./Woche)", "nbu_schwelle", false)}
-            <div className="edit-row">
-              <div className="field">NBU trägt der Arbeitgeber</div>
+            <div className="kv">
+              <div className="kv-key">NBU trägt der Arbeitgeber</div>
               <input type="checkbox" checked={!!s.nbu_traegt_ag}
                      onChange={(e) => setzeAnsatz("nbu_traegt_ag", e.target.checked)} />
             </div>
@@ -433,8 +433,8 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
             {satz("Maschinen", "mas", false)}
             {satz("Transport / Kon. (Pauschale)", "trs", false)}
             {satz("Treibstoff total (wird verteilt)", "trs_topf", false)}
-            <div className="edit-row">
-              <div className="field">Treibstoff verteilen</div>
+            <div className="kv">
+              <div className="kv-key">Treibstoff verteilen</div>
               <select value={s.trs_schluessel} onChange={(e) => setzeAnsatz("trs_schluessel", e.target.value)}>
                 <option value="abos">nach Aboanteil</option>
                 <option value="objekt">gleichmässig pro Objekt</option>
@@ -450,17 +450,17 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
           <div className="sheet">
             <div className="page-title">Administration</div>
             {adminkosten.map((p) => (
-              <div className="edit-row" key={p.id}>
+              <div className="kv" key={p.id}>
                 <Feld wert={p.position} text breit={190} onSave={(v) => setzeAdmin(p.id, "position", v)} />
                 <Feld wert={p.betrag} onSave={(v) => setzeAdmin(p.id, "betrag", v ?? 0)} />
                 <button className="link-btn" onClick={() => adminWeg(p.id)}>×</button>
               </div>
             ))}
-            <div className="edit-row"><div className="field"><b>Zwischensumme</b></div>
-              <div className="cell-num"><b>{chf(zwischen)}</b></div></div>
+            <div className="kv"><div className="kv-key"><b>Zwischensumme</b></div>
+              <div className="kv-val"><b>{chf(zwischen)}</b></div></div>
             {satz("Reserve", "admin_reserve", true)}
-            <div className="edit-row"><div className="field"><b>Total (Umlage nach Aboanteil)</b></div>
-              <div className="cell-num"><b>{chf(t.admin)}</b></div></div>
+            <div className="kv"><div className="kv-key"><b>Total (Umlage nach Aboanteil)</b></div>
+              <div className="kv-val"><b>{chf(t.admin)}</b></div></div>
             <button className="btn" onClick={adminHinzu}>Position hinzufügen</button>
           </div>
         </div>
@@ -470,16 +470,16 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
 
   /* ---------- Ergebnis ---------- */
   const zeile = (k, v, klasse) => (
-    <div className={`edit-row ${klasse || ""}`} key={k}>
-      <div className="field">{k}</div>
-      <div className={`cell-num ${vorzeichen(v)}`}>{chf(v)}</div>
+    <div className={`kv ${klasse || ""}`} key={k}>
+      <div className="kv-key">{k}</div>
+      <div className={`kv-val ${vorzeichen(v)}`}>{chf(v)}</div>
     </div>
   );
   const kunden = new Set(objektMonat.map((o) => (objektById.get(o.objekt_id)?.kunde || "").trim()).filter(Boolean)).size;
 
   return (
     <>{kopf}<div className="main-content">{kpis}
-      <div className="home-cards">
+      <div className="kalk-grid">
         <div className="sheet">
           <div className="page-title">Ergebnis Gesamtbetrieb</div>
           {zeile("Abos (Umsatz)", t.abos)}
@@ -490,8 +490,8 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
           {zeile("Transport / Treibstoff", -t.trs)}
           {zeile("Administration", -t.admin)}
           {zeile("Ergebnis", r.ergebnis, "matrix-foot-row")}
-          <div className="edit-row"><div className="field">Marge</div>
-            <div className={`cell-num ${vorzeichen(r.marge)}`}>{pct(r.marge)}</div></div>
+          <div className="kv"><div className="kv-key">Marge</div>
+            <div className={`kv-val ${vorzeichen(r.marge)}`}>{pct(r.marge)}</div></div>
         </div>
 
         <div className="sheet">
@@ -505,15 +505,15 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
 
         <div className="sheet">
           <div className="page-title">Struktur</div>
-          <div className="edit-row"><div className="field">Kunden</div><div className="cell-num">{kunden}</div></div>
-          <div className="edit-row"><div className="field">Objekte</div><div className="cell-num">{objektMonat.length}</div></div>
-          <div className="edit-row"><div className="field">davon aus Stundenerfassung</div><div className="cell-num">{t.ausErfassung}</div></div>
-          <div className="edit-row"><div className="field">davon ohne Stunden</div><div className="cell-num">{r.ohneStd}</div></div>
-          <div className="edit-row"><div className="field">Abos ohne Gewinnrechnung</div><div className="cell-num">{chf(r.abosOhneGew)}</div></div>
-          <div className="edit-row"><div className="field">Festpersonal</div><div className="cell-num">{personMonat.length}</div></div>
-          <div className="edit-row"><div className="field">Stunden im Monat</div><div className="cell-num">{chf(t.stdTotal)}</div></div>
-          <div className="edit-row"><div className="field">Ø Ertrag pro Stunde</div>
-            <div className="cell-num">{t.stdTotal ? chf(t.abos / t.stdTotal) : "–"}</div></div>
+          <div className="kv"><div className="kv-key">Kunden</div><div className="kv-val">{kunden}</div></div>
+          <div className="kv"><div className="kv-key">Objekte</div><div className="kv-val">{objektMonat.length}</div></div>
+          <div className="kv"><div className="kv-key">davon aus Stundenerfassung</div><div className="kv-val">{t.ausErfassung}</div></div>
+          <div className="kv"><div className="kv-key">davon ohne Stunden</div><div className="kv-val">{r.ohneStd}</div></div>
+          <div className="kv"><div className="kv-key">Abos ohne Gewinnrechnung</div><div className="kv-val">{chf(r.abosOhneGew)}</div></div>
+          <div className="kv"><div className="kv-key">Festpersonal</div><div className="kv-val">{personMonat.length}</div></div>
+          <div className="kv"><div className="kv-key">Stunden im Monat</div><div className="kv-val">{chf(t.stdTotal)}</div></div>
+          <div className="kv"><div className="kv-key">Ø Ertrag pro Stunde</div>
+            <div className="kv-val">{t.stdTotal ? chf(t.abos / t.stdTotal) : "–"}</div></div>
         </div>
       </div>
 
@@ -529,7 +529,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
               const cc = rechne({ monat: m.s.monat, s: m.s, objektMonat: m.objektMonat,
                 personMonat: m.personMonat, adminkosten: m.adminkosten, entries, employees });
               return (
-                <tr key={m.s.monat} className={m.s.monat === monat ? "matrix-foot-row" : ""}>
+                <tr key={m.s.monat} className={m.s.monat === monat ? "row-aktuell" : ""}>
                   <td className="cell-name">{monatName(m.s.monat)}</td>
                   <td className="cell-num">{chf0(cc.t.abos)}</td>
                   <td className="cell-num">{m.objektMonat.length}</td>
