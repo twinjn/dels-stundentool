@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { supabase } from "./supabaseClient.js";
 import delsLogo from "./assets/dels-logo.png";
+import Kalkulation from "./Kalkulation.jsx";
 
 const TYPES = {
   arbeit: { label: "Gearbeitet", unit: "Std.", cls: "type-arbeit" },
@@ -250,7 +251,7 @@ function Login({ onLoggedIn }) {
 }
 
 // ---------- Dashboard (Startseite, Vollbild) ----------
-function Dashboard({ employees, objekte, monthTotals, yearFerienUsed, onEnterStundentool, onEnterObjekte, onLogout, email }) {
+function Dashboard({ employees, objekte, monthTotals, yearFerienUsed, onEnterStundentool, onEnterObjekte, onEnterKalkulation, onLogout, email }) {
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 60000);
@@ -299,6 +300,10 @@ function Dashboard({ employees, objekte, monthTotals, yearFerienUsed, onEnterStu
           <div className="home-card" onClick={onEnterObjekte}>
             <div className="home-card-title">Objekte</div>
             <div className="home-card-sub">Reinigungsobjekte verwalten und Stunden pro Standort erfassen</div>
+          </div>
+          <div className="home-card" onClick={onEnterKalkulation}>
+            <div className="home-card-title">Kalkulation</div>
+            <div className="home-card-sub">Deckungsbeitrag pro Objekt und Ergebnis des Monats</div>
           </div>
         </div>
       </div>
@@ -475,10 +480,12 @@ function Sidebar({
   section, onSwitchSection,
   stTab, setStTab, onNewEmployee,
   objTab, setObjTab, objekte, selectedObjekt, onSelectObjekt, onNewObjekt, onDeleteObjekt,
+  kalkTab, setKalkTab,
   onExportPdf, onExportBackup, onLogout, email,
 }) {
   const isSt = section === "stundentool";
   const isObj = section === "objekte";
+  const isKalk = section === "kalkulation";
   const [objSearch, setObjSearch] = useState("");
   const q = objSearch.trim().toLowerCase();
   const visibleObjekte = q
@@ -497,11 +504,19 @@ function Sidebar({
         <button className={`switch-btn ${section === "home" ? "active" : ""}`} onClick={() => onSwitchSection("home")}>Start</button>
         <button className={`switch-btn ${isSt ? "active" : ""}`} onClick={() => onSwitchSection("stundentool")}>Stundentool</button>
         <button className={`switch-btn ${isObj ? "active" : ""}`} onClick={() => onSwitchSection("objekte")}>Objekte</button>
+        <button className={`switch-btn ${isKalk ? "active" : ""}`} onClick={() => onSwitchSection("kalkulation")}>Kalkulation</button>
       </div>
 
       {section !== "home" && (
         <div className="sidebar-nav">
-          {isSt ? (
+          {isKalk ? (
+            <>
+              <div className={`nav-item ${kalkTab === "objekte" ? "active" : ""}`} onClick={() => setKalkTab("objekte")}>Objekte</div>
+              <div className={`nav-item ${kalkTab === "personal" ? "active" : ""}`} onClick={() => setKalkTab("personal")}>Festpersonal</div>
+              <div className={`nav-item ${kalkTab === "ansaetze" ? "active" : ""}`} onClick={() => setKalkTab("ansaetze")}>Ansätze &amp; Kosten</div>
+              <div className={`nav-item ${kalkTab === "ergebnis" ? "active" : ""}`} onClick={() => setKalkTab("ergebnis")}>Ergebnis</div>
+            </>
+          ) : isSt ? (
             <>
               <div className={`nav-item ${stTab === "uebersicht" ? "active" : ""}`} onClick={() => setStTab("uebersicht")}>Monatsübersicht</div>
               <div className={`nav-item ${stTab === "stammdaten" ? "active" : ""}`} onClick={() => setStTab("stammdaten")}>Mitarbeiterdaten</div>
@@ -550,7 +565,7 @@ function Sidebar({
           <button className="btn ghost full sidebar-add-btn" onClick={onNewObjekt}>+ Objekt</button>
         </div>
       )}
-      {(section === "home" || (isObj && objTab === "absenzen")) && <div className="sidebar-emp-section sidebar-home-spacer"></div>}
+      {(section === "home" || isKalk || (isObj && objTab === "absenzen")) && <div className="sidebar-emp-section sidebar-home-spacer"></div>}
 
       <div className="sidebar-footer">
         <button className="btn secondary full" onClick={onExportPdf}>PDF exportieren</button>
@@ -570,7 +585,8 @@ function MainApp({ session }) {
   const [objekte, setObjekte] = useState([]);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [section, setSection] = useState("home"); // home | stundentool | objekte
+  const [section, setSection] = useState("home"); // home | stundentool | objekte | kalkulation
+  const [kalkTab, setKalkTab] = useState("objekte"); // objekte | personal | ansaetze | ergebnis
   const [stTab, setStTab] = useState("uebersicht");
   const [objTab, setObjTab] = useState("erfassung");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -958,6 +974,7 @@ function MainApp({ session }) {
         yearFerienUsed={yearFerienUsed}
         onEnterStundentool={() => setSection("stundentool")}
         onEnterObjekte={() => setSection("objekte")}
+        onEnterKalkulation={() => setSection("kalkulation")}
         onLogout={handleLogout}
         email={session.user.email}
       />
@@ -978,6 +995,8 @@ function MainApp({ session }) {
       onSelectObjekt={setSelectedObjekt}
       onNewObjekt={() => setShowNewObjekt(true)}
       onDeleteObjekt={(id) => setConfirmDelete({ kind: "objekt", id })}
+      kalkTab={kalkTab}
+      setKalkTab={setKalkTab}
       onExportPdf={() => window.print()}
       onExportBackup={exportBackup}
       onLogout={handleLogout}
@@ -989,7 +1008,15 @@ function MainApp({ session }) {
     <div className="app-shell">
       {sidebar}
       <div className="main-area">
-        {section === "stundentool" ? (
+        {section === "kalkulation" ? (
+          <Kalkulation
+            tab={kalkTab}
+            objekte={objekte}
+            employees={employees}
+            entries={entries}
+            showToast={showToast}
+          />
+        ) : section === "stundentool" ? (
           stTab === "uebersicht" ? (
             !employees.length ? (
               <div className="main-content">
