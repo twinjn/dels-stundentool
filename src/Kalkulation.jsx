@@ -40,6 +40,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
   const [adminkosten, setAdminkosten] = useState([]);
   const [alleMonate, setAlleMonate] = useState([]);
   const [laedt, setLaedt] = useState(true);
+  const [details, setDetails] = useState(false);
 
   const objektById = useMemo(() => new Map(objekte.map((o) => [o.id, o])), [objekte]);
   const empById = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);
@@ -202,7 +203,15 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
         </select>
         <button className="btn" onClick={monatAnlegen}>Neuer Monat</button>
       </div>
-      <div className="page-title">Kalkulation · {monatName(monat)}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--s5)" }}>
+        {tab === "objekte" && (
+          <label style={{ display: "flex", alignItems: "center", gap: "var(--s2)", margin: 0, cursor: "pointer" }}>
+            <input type="checkbox" checked={details} onChange={(e) => setDetails(e.target.checked)} />
+            Kostenspalten zeigen
+          </label>
+        )}
+        <div className="page-title">Kalkulation · {monatName(monat)}</div>
+      </div>
     </div>
   );
 
@@ -229,13 +238,14 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
       (objektById.get(a.o.objekt_id)?.name || "").localeCompare(objektById.get(b.o.objekt_id)?.name || ""));
     return (
       <>{kopf}<div className="main-content">{kpis}
-        <div className="sheet sheet-wide">
+        <div className={`sheet sheet-wide ${details ? "" : "kalk-kompakt"}`}>
           <table className="overview-table">
             <thead><tr>
-              <th>Nr.</th><th>Objekt</th><th>Kunde</th>
+              <th>aktiv</th><th>Nr.</th><th>Objekt</th><th>Kunde</th>
               <th>Abo</th><th>Std.</th><th>Ansatz</th><th>MA</th>
               <th>Löhne</th><th>+ SZ</th><th>ZT</th>
-              <th>Mat</th><th>Mas</th><th>Trs</th><th>Admin</th><th>Gewinn</th><th>%</th><th>aktiv</th>
+              {details && <><th>Mat</th><th>Mas</th><th>Trs</th><th>Admin</th></>}
+              <th>%</th><th className="col-gewinn">Gewinn</th>
             </tr></thead>
             <tbody>
               {zeilen.map((x) => {
@@ -243,9 +253,13 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
                 const rel = z(Number(x.o.abo_betrag)) ? x.gew / Number(x.o.abo_betrag) : 0;
                 return (
                   <tr key={x.o.objekt_id} className={!x.o.aktiv ? "row-inaktiv" : x.gew < -0.005 ? "row-neg" : ""}>
+                    <td className="cell-num">
+                      <input type="checkbox" checked={!!x.o.aktiv}
+                        onChange={(e) => setzeObjekt(x.o.objekt_id, "aktiv", e.target.checked)} />
+                    </td>
                     <td className="cell-muted">{o.objekt_nr || "–"}</td>
-                    <td className="cell-name">{o.name}</td>
-                    <td className="cell-muted">{o.kunde}</td>
+                    <td className="cell-name cell-trunc" title={o.name}>{o.name}</td>
+                    <td className="cell-muted cell-trunc" title={o.kunde}>{o.kunde}</td>
                     <td className="cell-num"><Feld wert={x.o.abo_betrag} onSave={(v) => setzeObjekt(x.o.objekt_id, "abo_betrag", v)} /></td>
                     <td className="cell-num">
                       {x.ausErfassung
@@ -261,34 +275,34 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
                     <td className="cell-num">{chf(x.loehne)}</td>
                     <td className="cell-num">{chf(x.lohnSz)}</td>
                     <td className={`cell-num ${vorzeichen(x.zt)}`}>{chf(x.zt)}</td>
-                    <td className="cell-num cell-muted">{chf(x.mat)}</td>
-                    <td className="cell-num cell-muted">{chf(x.mas)}</td>
-                    <td className="cell-num cell-muted">{chf(x.trs)}</td>
-                    <td className="cell-num cell-muted">{chf(x.admin)}</td>
-                    <td className={`cell-num ${vorzeichen(x.gew)}`}><b>{chf(x.gew)}</b></td>
+                    {details && <>
+                      <td className="cell-num cell-muted">{chf(x.mat)}</td>
+                      <td className="cell-num cell-muted">{chf(x.mas)}</td>
+                      <td className="cell-num cell-muted">{chf(x.trs)}</td>
+                      <td className="cell-num cell-muted">{chf(x.admin)}</td>
+                    </>}
                     <td className="cell-num cell-muted">{pct(rel)}</td>
-                    <td className="cell-num">
-                      <input type="checkbox" checked={!!x.o.aktiv}
-                        onChange={(e) => setzeObjekt(x.o.objekt_id, "aktiv", e.target.checked)} />
-                    </td>
+                    <td className={`cell-num col-gewinn ${vorzeichen(x.gew)}`}><b>{chf(x.gew)}</b></td>
                   </tr>
                 );
               })}
             </tbody>
             <tfoot><tr className="matrix-foot-row">
-              <td></td><td>Total</td><td></td>
+              <td></td><td></td><td>Total</td><td></td>
               <td className="cell-num">{chf(t.abos)}</td>
               <td className="cell-num">{chf(t.stdTotal)}</td><td></td>
               <td className="cell-num">{chf0(t.maTotal)}</td>
               <td className="cell-num">{chf(t.loehne)}</td>
               <td className="cell-num">{chf(t.lohnSzAlle)}</td>
               <td className={`cell-num ${vorzeichen(t.zt)}`}>{chf(t.zt)}</td>
-              <td className="cell-num">{chf(t.mat)}</td>
-              <td className="cell-num">{chf(t.mas)}</td>
-              <td className="cell-num">{chf(t.trs)}</td>
-              <td className="cell-num">{chf(t.admin)}</td>
-              <td className={`cell-num ${vorzeichen(t.gew)}`}>{chf(t.gew)}</td>
-              <td className="cell-num">{pct(r.gewProzent)}</td><td></td>
+              {details && <>
+                <td className="cell-num">{chf(t.mat)}</td>
+                <td className="cell-num">{chf(t.mas)}</td>
+                <td className="cell-num">{chf(t.trs)}</td>
+                <td className="cell-num">{chf(t.admin)}</td>
+              </>}
+              <td className="cell-num">{pct(r.gewProzent)}</td>
+              <td className={`cell-num col-gewinn ${vorzeichen(t.gew)}`}>{chf(t.gew)}</td>
             </tr></tfoot>
           </table>
         </div>
@@ -310,12 +324,12 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
     const offen = employees.filter((e) => !personMonat.some((p) => p.employee_id === e.id));
     return (
       <>{kopf}<div className="main-content">{kpis}
-        <div className="sheet sheet-wide">
+        <div className="sheet sheet-wide kalk-kompakt">
           <table className="overview-table">
             <thead><tr>
               <th>Name</th><th>Lohn</th><th>Spesen</th><th>13. ML</th>
               <th>AHV</th><th>ALV</th><th>RPK</th><th>FAK</th><th>FAK CHF</th>
-              <th>BVG</th><th>BVG CHF</th><th>BU</th><th>KTG</th><th>Löhne + SZ</th><th></th>
+              <th>BVG</th><th>BVG CHF</th><th>BU</th><th>KTG</th><th></th><th className="col-gewinn">Löhne + SZ</th>
             </tr></thead>
             <tbody>
               {c.staff.map((x) => {
@@ -326,7 +340,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
                 );
                 return (
                   <tr key={x.p.employee_id}>
-                    <td className="cell-name">{e.name || "–"}</td>
+                    <td className="cell-name cell-trunc" title={e.name}>{e.name || "–"}</td>
                     <td className="cell-num"><Feld wert={x.p.lohn} onSave={(v) => setzePerson(x.p.employee_id, "lohn", v ?? 0)} /></td>
                     <td className="cell-num"><Feld wert={x.p.spesen} onSave={(v) => setzePerson(x.p.employee_id, "spesen", v ?? 0)} /></td>
                     <td className="cell-num">{cb("ml13")}</td>
@@ -347,8 +361,8 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
                     </td>
                     <td className="cell-num cell-muted">{chf(x.bu)}</td>
                     <td className="cell-num cell-muted">{chf(x.ktg)}</td>
-                    <td className="cell-num"><b>{chf(x.lohnSz)}</b></td>
-                    <td><button className="link-btn" onClick={() => personWeg(x.p.employee_id)}>×</button></td>
+                    <td><button className="del-row" onClick={() => personWeg(x.p.employee_id)}>×</button></td>
+                    <td className="cell-num col-gewinn"><b>{chf(x.lohnSz)}</b></td>
                   </tr>
                 );
               })}
@@ -362,7 +376,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
               <td className="cell-num">{chf(t.bvg)}</td>
               <td className="cell-num">{chf(c.staff.reduce((a, x) => a + x.bu, 0))}</td>
               <td className="cell-num">{chf(c.staff.reduce((a, x) => a + x.ktg, 0))}</td>
-              <td className="cell-num">{chf(t.lohnSzPers)}</td><td></td>
+              <td></td><td className="cell-num col-gewinn">{chf(t.lohnSzPers)}</td>
             </tr></tfoot>
           </table>
         </div>
@@ -386,12 +400,12 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
 
   /* ---------- Ansaetze ---------- */
   if (tab === "ansaetze") {
-    const satz = (label, feld, prozent) => (
+    const satz = (label, feld, prozent, einheit) => (
       <div className="kv" key={feld}>
         <div className="kv-key">{label}</div>
         <Feld wert={prozent ? Number((s[feld] * 100).toFixed(6)) : s[feld]}
               onSave={(v) => setzeAnsatz(feld, prozent ? (v ?? 0) / 100 : v)} />
-        <div className="kv-unit">{prozent ? "%" : "CHF"}</div>
+        <div className="kv-unit">{einheit || (prozent ? "%" : "CHF")}</div>
       </div>
     );
     return (
@@ -404,7 +418,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
             {satz("KTG Objekte", "ktg_objekt", true)}{satz("KTG Personal", "ktg_personal", true)}
             {satz("RPK", "rpk", true)}{satz("FAK Arbeitgeber", "fak", true)}
             {satz("13. Monatslohn", "ml13", true)}
-            {satz("NBU-Schwelle (Std./Woche)", "nbu_schwelle", false)}
+            {satz("NBU-Schwelle (Std./Woche)", "nbu_schwelle", false, "Std.")}
             <div className="kv">
               <div className="kv-key">NBU trägt der Arbeitgeber</div>
               <input type="checkbox" checked={!!s.nbu_traegt_ag}
@@ -489,7 +503,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
           {zeile("Maschinen", -t.mas)}
           {zeile("Transport / Treibstoff", -t.trs)}
           {zeile("Administration", -t.admin)}
-          {zeile("Ergebnis", r.ergebnis, "matrix-foot-row")}
+          {zeile("Ergebnis", r.ergebnis, "total")}
           <div className="kv"><div className="kv-key">Marge</div>
             <div className={`kv-val ${vorzeichen(r.marge)}`}>{pct(r.marge)}</div></div>
         </div>
@@ -499,7 +513,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
           {zeile("Deckungsbeitrag Objekte mit Stunden", t.gew)}
           {zeile("plus Beitrag Objekte ohne Stundenerfassung", r.beitragOhneStd)}
           {zeile("minus Personallöhne inkl. Sozialabgaben", -t.lohnSzPers)}
-          {zeile("Ergebnis Gesamtbetrieb", r.ergebnis, "matrix-foot-row")}
+          {zeile("Ergebnis Gesamtbetrieb", r.ergebnis, "total")}
           {zeile("Kontrolle (muss 0 sein)", (t.gew + r.beitragOhneStd - t.lohnSzPers) - r.ergebnis)}
         </div>
 
@@ -517,7 +531,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
         </div>
       </div>
 
-      <div className="sheet sheet-wide" style={{ marginTop: 16 }}>
+      <div className="sheet" style={{ marginTop: 24 }}>
         <div className="page-title">Monatsvergleich</div>
         <table className="overview-table">
           <thead><tr>

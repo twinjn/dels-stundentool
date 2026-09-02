@@ -55,7 +55,7 @@
   --sh: 0 2px 8px rgba(16, 30, 54, 0.06);
   --sh-lg: 0 12px 32px rgba(10, 29, 52, 0.22);
 
-  --matrix-name-w: 150px;
+  --matrix-name-w: 128px;
 }
 
 * { box-sizing: border-box; }
@@ -363,6 +363,24 @@ tbody tr:not(.entry-form-row):hover { background: var(--surface-2); }
 .cell-name { font-weight: 500; }
 .cell-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .cell-muted { color: var(--text-faint); }
+/* In breiten Tabellen kuerzen statt umbrechen -- sonst werden Zeilen
+   dreizeilig und die rechten Spalten rutschen aus dem Bild. */
+.cell-trunc {
+  max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Der Gewinn ist die Zahl, um die es geht. Er bleibt am rechten Rand
+   stehen, auch wenn die breite Tabelle seitlich gescrollt wird. */
+.col-gewinn {
+  position: sticky; right: 0; background: #fff;
+  box-shadow: -7px 0 9px -7px rgba(16, 30, 54, 0.22);
+}
+thead .col-gewinn { background: var(--surface-2); z-index: 3; }
+tfoot .col-gewinn { background: var(--surface-2); }
+tbody tr:hover .col-gewinn { background: var(--surface-2); }
+tr.row-neg .col-gewinn { background: var(--red-bg); }
+tr.row-neg:hover .col-gewinn { background: #fbe0de; }
+tr.row-inaktiv .col-gewinn { background: var(--surface-2); }
 
 .overview-table td, .overview-table th { padding: var(--s3) var(--s4); }
 .clickable-row { cursor: pointer; }
@@ -400,6 +418,12 @@ tbody tr:not(.entry-form-row):hover { background: var(--surface-2); }
 /* Die Monatsmatrix bestimmt ihre Breite selbst über die Tagesspalten und
    soll nicht auf die 1500px der übrigen breiten Tabellen gezwungen werden. */
 .matrix-sheet table { min-width: 0; }
+/* Ohne die Kostenspalten passt die Objekttabelle in die Breite und
+   soll nicht auf die 1500px gezwungen werden. */
+.kalk-kompakt table { min-width: 0; }
+.kalk-kompakt td input { min-width: 0; width: 76px; }
+.kalk-kompakt th, .kalk-kompakt td { padding-left: var(--s2); padding-right: var(--s2); }
+.kalk-kompakt .cell-trunc { max-width: 165px; }
 .matrix-sheet td input { min-width: 0; }
 
 .objekt-meta-card { margin-bottom: var(--s4); }
@@ -506,11 +530,16 @@ tr.row-aktuell td { background: #eef2f8; font-weight: 600; }
 }
 .dashboard-logo-big {
   height: 54px; width: auto; margin: 0 auto var(--s6); display: block;
-  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.28));
 }
 .dashboard-greeting { font-size: 30px; font-weight: 600; color: #fff; letter-spacing: -0.02em; }
 .dashboard-date { font-size: 14px; color: #cddaee; margin: var(--s2) 0 var(--s8); text-transform: capitalize; }
-.dashboard-stats { max-width: 720px; width: 100%; }
+/* Enger gerastert als im Hauptbereich, damit die vier Kacheln in einer
+   Reihe stehen statt eine allein umzubrechen. */
+.dashboard-stats {
+  max-width: 760px; width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
 .dashboard-warning-card {
   max-width: 720px; width: 100%; text-align: left;
   border-color: var(--orange-line); margin-bottom: var(--s6);
@@ -521,7 +550,7 @@ tr.row-aktuell td { background: #eef2f8; font-weight: 600; }
 
 .home-cards {
   display: flex; gap: var(--s5); flex-wrap: wrap;
-  margin-top: var(--s2); max-width: 720px; width: 100%;
+  margin-top: var(--s2); max-width: 760px; width: 100%;
 }
 .home-card {
   background: var(--card); border: 1px solid transparent; border-radius: var(--r-lg);
@@ -539,7 +568,7 @@ tr.row-aktuell td { background: #eef2f8; font-weight: 600; }
 .matrix-table { border-collapse: collapse; }
 .matrix-table th, .matrix-table td {
   border: 1px solid var(--line); font-size: 12px; text-align: center;
-  padding: var(--s2) var(--s1);
+  padding: var(--s2) 2px;
 }
 .matrix-table thead th { background: var(--surface-2); color: var(--text-dim); font-weight: 600; }
 .matrix-day-wd { font-size: 10px; color: var(--text-faint); font-weight: 500; }
@@ -571,7 +600,7 @@ thead .matrix-name-col, tfoot .matrix-name-col {
   flex-shrink: 0; padding: 0; font-family: inherit;
 }
 .matrix-expand-btn:hover { border-color: var(--orange); color: var(--orange); }
-.matrix-day-col { min-width: 34px; width: 34px; }
+.matrix-day-col { min-width: 30px; width: 30px; }
 .matrix-day-col.weekend { background: #eaeef6; }
 .matrix-total-col { min-width: 62px; font-weight: 600; background: var(--surface-2); }
 .matrix-spesen-col { background: var(--violet-bg); }
