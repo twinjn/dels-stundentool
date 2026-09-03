@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { supabase } from "./supabaseClient.js";
+import { supabase, supabaseKonfiguriert } from "./supabaseClient.js";
 import delsLogo from "./assets/dels-logo.png";
 import Kalkulation from "./Kalkulation.jsx";
 
@@ -194,6 +194,36 @@ function ObjektMatrixRow({ emp, days, year, month, entriesByDate, absencesByDate
       <td className="matrix-total-col">{fmtHours(total)}</td>
     </tr>
   );
+}
+
+// ---------- Alle Zeilen einer Tabelle laden ----------
+// Supabase liefert pro Anfrage hoechstens so viele Zeilen, wie in den
+// API-Einstellungen unter "Max rows" stehen (Standard 1000). Ohne Blaettern
+// fehlten ab dieser Grenze still Eintraege -- und damit stimmten saemtliche
+// Monatstotale und die Kalkulation nicht mehr, ohne jede Fehlermeldung.
+// Deshalb seitenweise laden, bis nichts mehr kommt.
+const PAGE = 500;
+const MAX_ZEILEN = 200000; // Notbremse gegen eine Endlosschleife
+
+async function ladeAlle(tabelle, sortierFeld) {
+  const alle = [];
+  for (let von = 0; von < MAX_ZEILEN; ) {
+    const { data, error } = await supabase
+      .from(tabelle)
+      .select("*")
+      // Stabile Sortierung, sonst kann dieselbe Zeile auf zwei Seiten landen.
+      .order(sortierFeld)
+      .order("id")
+      .range(von, von + PAGE - 1);
+    if (error) return { data: null, error };
+    const seite = data || [];
+    alle.push(...seite);
+    if (!seite.length) break;
+    // Um die tatsaechliche Seitengroesse weiterruecken: liegt das serverseitige
+    // Limit unter PAGE, blaettern wir trotzdem korrekt weiter.
+    von += seite.length;
+  }
+  return { data: alle, error: null };
 }
 
 // ---------- Toast ----------
@@ -568,7 +598,9 @@ function Sidebar({
       {(section === "home" || isKalk || (isObj && objTab === "absenzen")) && <div className="sidebar-emp-section sidebar-home-spacer"></div>}
 
       <div className="sidebar-footer">
-        <button className="btn secondary full" onClick={onExportPdf}>PDF exportieren</button>
+        {/* Der Druckbereich existiert nur im Stundentool. Anderswo kaeme eine
+            leere Seite aus dem Drucker, deshalb der Knopf nur dort. */}
+        {isSt && <button className="btn secondary full" onClick={onExportPdf}>PDF exportieren</button>}
         <button className="btn ghost full sidebar-backup-btn" onClick={onExportBackup} title="Alle Daten als JSON-Datei sichern">Backup erstellen</button>
         <div className="sidebar-user">
           <span className="who">{email}</span>
@@ -643,9 +675,9 @@ function MainApp({ session }) {
   const loadAll = useCallback(async () => {
     setLoading(true);
     const [{ data: emps, error: empErr }, { data: ents, error: entErr }, { data: objs, error: objErr }] = await Promise.all([
-      supabase.from("employees").select("*").order("name"),
-      supabase.from("entries").select("*"),
-      supabase.from("objekte").select("*").order("name"),
+      ladeAlle("employees", "name"),
+      ladeAlle("entries", "date"),
+      ladeAlle("objekte", "name"),
     ]);
     if (empErr || entErr || objErr) {
       showToast("Fehler beim Laden der Daten.");
@@ -729,7 +761,6 @@ function MainApp({ session }) {
     if (error) { showToast("Fehler beim Anlegen."); return; }
     setEmployees((prev) => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
     setSelectedEmployee(data.id);
-    setShowNewEmployee(false);
     showToast("Mitarbeiter hinzugefügt");
   }
 
@@ -1683,10 +1714,28 @@ export default function App() {
   const [session, setSession] = useState(undefined); // undefined = noch am prüfen
 
   useEffect(() => {
+    if (!supabaseKonfiguriert) return;
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
     const { data: listener } = supabase.auth.onAuthStateChange((_event, sess) => setSession(sess));
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  if (!supabaseKonfiguriert) {
+    return (
+      <div className="login-screen">
+        <div className="login-card">
+          <img src={delsLogo} alt="DELS Reinigung &amp; Beratung" className="login-logo" />
+          <div className="sub">Die Verbindung zur Datenbank ist nicht eingerichtet.</div>
+          <p className="hint">
+            Es fehlen <code>VITE_SUPABASE_URL</code> und/oder <code>VITE_SUPABASE_ANON_KEY</code>.
+            Lokal gehören sie in eine Datei <code>.env</code> (Vorlage: <code>.env.example</code>),
+            beim Hosting in die Umgebungsvariablen des Projekts. Nach dem Eintragen die App neu starten
+            bzw. neu deployen.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (session === undefined) {
     return <div className="loading">Lade …</div>;

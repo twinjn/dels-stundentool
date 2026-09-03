@@ -47,8 +47,24 @@ Die Datenbank ist per Row Level Security so eingestellt, dass nur eingeloggte Be
 
 ## Funktionen
 
-- Mitarbeiter anlegen/löschen, mit individuellem Ferienanspruch (Tage/Jahr) und Soll-Stunden pro Tag
-- Einträge erfassen: Gearbeitet (Std.), Ferien, Krankheit, Unfall, Feiertag, Sonstiges (Tage)
-- Monatsansicht pro Mitarbeiter inkl. verbleibendem Ferienguthaben
-- Gesamtübersicht aller Mitarbeiter für einen Monat
-- CSV-Export für die Lohnabrechnung
+- Mitarbeiter anlegen/löschen, mit Stammdaten, GAV-Stufe, individuellem Ferienanspruch (Tage/Jahr) und Soll-Stunden pro Tag
+- Einträge erfassen: Gearbeitet (Std.), Ferien, Krankheit, Unfall, Feiertag, Sonstiges (Tage), Spesen (CHF)
+- Erfassung über einen Zeitraum mit Wochentagsauswahl, inkl. Rückgängig-Machen
+- Objekte verwalten und Stunden pro Standort und Mitarbeiter buchen
+- Monatsmatrix (Mitarbeiter × Tage) für Stunden und Absenzen, pro Mitarbeiter auf Objekte aufklappbar
+- Kalkulation pro Monat: Deckungsbeitrag je Objekt, Sozialabgaben, Administrationsumlage und Ergebnis des Gesamtbetriebs
+- Druckansicht der Monatsmatrix für die Lohnabrechnung (Knopf «PDF exportieren» im Stundentool)
+- Backup aller Daten als JSON-Datei
+
+## Tests
+
+Der Rechenkern der Kalkulation (`src/kalkulation.js`) ist reine Rechenlogik ohne
+React und Datenbank und ist mit Tests abgedeckt:
+
+```bash
+npm test
+```
+
+Die Tests brauchen keine Zusatzpakete und laufen mit dem Testrunner von Node
+(ab Node 18). Wer an den Ansätzen oder der Umlage etwas ändert, sollte sie
+vorher und nachher laufen lassen — die Zahlen dort landen in der Lohnabrechnung.

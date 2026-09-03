@@ -74,7 +74,10 @@ export function rechne({ monat, s, objektMonat, personMonat, adminkosten, entrie
   const proPerson = stundenJePerson(entries, monat);
   const schwelleStd = z(s.nbu_schwelle) * 52 / 12;
 
-  const totalAbos = objektMonat.reduce((a, o) => a + z(o.abo_betrag), 0);
+  // Nur aktive Objekte zaehlen als Umsatz. Ein inaktives Objekt liefert in
+  // diesem Monat keine Leistung, also darf sein Abo weder in den Umsatz noch
+  // in die Verteilschluessel fuer Administration und Treibstoff einfliessen.
+  const totalAbos = objektMonat.reduce((a, o) => a + (o.aktiv ? z(o.abo_betrag) : 0), 0);
   const aktiveObj = objektMonat.filter((o) => o.aktiv).length;
 
   const trsAnteil = (o) => {
@@ -122,14 +125,18 @@ export function rechne({ monat, s, objektMonat, personMonat, adminkosten, entrie
     const ktg = loehne * z(s.ktg_objekt);
     const rpk = loehne * z(s.rpk);
     const lohnSz = o.aktiv ? loehne + ahv + alv + nbu + bu + ktg + rpk : 0;
-    const zt = z(o.abo_betrag) - lohnSz;
+    // Inaktiv heisst: weder Ertrag noch Kosten. Wuerde hier das Abo stehen
+    // bleiben, waehrend die Loehne wegfallen, ergaebe das Objekt einen
+    // Gewinn in voller Abohoehe aus dem Nichts.
+    const abo = o.aktiv ? z(o.abo_betrag) : 0;
+    const zt = abo - lohnSz;
     const mat = o.aktiv ? z(s.mat) : 0;
     const mas = o.aktiv ? z(s.mas) : 0;
     const trs = o.aktiv ? z(s.trs) + trsAnteil(o) : 0;
-    const admin = o.aktiv && totalAbos ? adminTopf * z(o.abo_betrag) / totalAbos : 0;
+    const admin = totalAbos ? adminTopf * abo / totalAbos : 0;
     const gew = std === 0 ? 0 : zt - mat - mas - trs - admin;
 
-    return { o, ausErfassung, personen: erfasst ? erfasst.personen.size : 0,
+    return { o, abo, ausErfassung, personen: erfasst ? erfasst.personen.size : 0,
              ohneLohn: erfasst ? erfasst.ohneLohn.size : 0,
              std, loehne, ahv, alv, nbu, bu, ktg, rpk, lohnSz, zt, mat, mas, trs, admin, gew };
   });
@@ -159,7 +166,7 @@ export function rechne({ monat, s, objektMonat, personMonat, adminkosten, entrie
 
   const t = {
     abos: totalAbos,
-    loehne: sumO("loehne") + sumP("lohn"),
+    loehne: obj.reduce((a, r) => a + (r.o.aktiv ? r.loehne : 0), 0) + sumP("lohn"),
     spesen: staff.reduce((a, r) => a + z(r.p.spesen), 0),
     ml13: sumP("ml13"),
     ahv: sumO("ahv") + sumP("ahv"),
@@ -176,15 +183,15 @@ export function rechne({ monat, s, objektMonat, personMonat, adminkosten, entrie
     mat: sumO("mat"), mas: sumO("mas"), trs: sumO("trs"),
     admin: adminTopf,
     gew: sumO("gew"),
-    stdTotal: obj.reduce((a, r) => a + r.std, 0),
-    maTotal: objektMonat.reduce((a, o) => a + z(o.ma), 0),
+    stdTotal: obj.reduce((a, r) => a + (r.o.aktiv ? r.std : 0), 0),
+    maTotal: objektMonat.reduce((a, o) => a + (o.aktiv ? z(o.ma) : 0), 0),
     ausErfassung: obj.filter((r) => r.ausErfassung).length,
     ohneLohnsatz: obj.reduce((a, r) => a + r.ohneLohn, 0),
   };
   t.zt = t.abos - t.lohnSzAlle;
 
   const ohneStd = obj.filter((r) => r.std === 0).length;
-  const abosOhneGew = obj.filter((r) => r.std === 0).reduce((a, r) => a + z(r.o.abo_betrag), 0);
+  const abosOhneGew = obj.filter((r) => r.std === 0).reduce((a, r) => a + r.abo, 0);
   const ergebnis = t.abos - t.lohnSzObj - t.lohnSzPers - t.mat - t.mas - t.trs - t.admin;
   const beitragOhneStd = sumO("zt") - t.mat - t.mas - t.trs - t.admin - t.gew;
 
