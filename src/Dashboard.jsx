@@ -72,6 +72,9 @@ export default function Dashboard({
   const jahr = jetzt.getFullYear();
   const monatIdx = jetzt.getMonth();
   const tag = jetzt.getDate();
+  const datumLang = jetzt.toLocaleDateString("de-CH", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  });
 
   const zahlen = useMemo(() => {
     const vorMonatIdx = monatIdx === 0 ? 11 : monatIdx - 1;
@@ -166,11 +169,36 @@ export default function Dashboard({
     });
   }
 
-  const bereiche = [
-    { titel: "Stunden erfassen", sub: "Arbeitszeit auf ein Objekt buchen", ziel: () => onGo("objekte", "erfassung") },
-    { titel: "Absenzen erfassen", sub: "Ferien, Krankheit, Unfall und Spesen", ziel: () => onGo("objekte", "absenzen") },
-    { titel: "Monatsübersicht", sub: "Alle Mitarbeitenden Tag für Tag", ziel: () => onGo("stundentool", "uebersicht") },
-    { titel: "Kalkulation", sub: "Deckungsbeitrag und Ergebnis des Monats", ziel: () => onGo("kalkulation", "objekte") },
+  /* Die drei Gebiete der Anwendung, jedes mit seinen Unterseiten. So ist
+     der ganze Aufbau von der Startseite aus sichtbar und direkt erreichbar. */
+  const gebiete = [
+    {
+      titel: "Stundentool",
+      zweck: "Arbeitszeit, Ferien und Absenzen pro Mitarbeiter",
+      seiten: [
+        { name: "Monatsübersicht", zu: ["stundentool", "uebersicht"] },
+        { name: "Mitarbeiterdaten", zu: ["stundentool", "stammdaten"] },
+      ],
+    },
+    {
+      titel: "Objekte",
+      zweck: "Reinigungsobjekte und die Stunden pro Standort",
+      seiten: [
+        { name: "Stunden erfassen", zu: ["objekte", "erfassung"] },
+        { name: "Monatsübersicht", zu: ["objekte", "uebersicht"] },
+        { name: "Absenzen und Spesen", zu: ["objekte", "absenzen"] },
+      ],
+    },
+    {
+      titel: "Kalkulation",
+      zweck: "Deckungsbeitrag und Ergebnis pro Monat",
+      seiten: [
+        { name: "Objekte", zu: ["kalkulation", "objekte"] },
+        { name: "Festpersonal", zu: ["kalkulation", "personal"] },
+        { name: "Ansätze und Kosten", zu: ["kalkulation", "ansaetze"] },
+        { name: "Ergebnis", zu: ["kalkulation", "ergebnis"] },
+      ],
+    },
   ];
 
   return (
@@ -185,10 +213,14 @@ export default function Dashboard({
 
       <main className="start-inhalt">
         <div className="start-titelzeile">
-          <h1 className="start-titel">Übersicht</h1>
+          <div>
+            <h1 className="start-titel">Willkommen zurück</h1>
+            <div className="start-datum">{datumLang}</div>
+          </div>
           <div className="start-monat">{MONTH_NAMES[monatIdx]} {jahr}</div>
         </div>
 
+        <h2 className="start-abschnitt">Dieser Monat</h2>
         <section className="kennzahlen">
           <Kennzahl
             label="Gearbeitete Stunden"
@@ -216,10 +248,29 @@ export default function Dashboard({
           />
         </section>
 
+        <h2 className="start-abschnitt">Bereiche</h2>
+        <section className="gebiete">
+          {gebiete.map((g) => (
+            <article key={g.titel} className="gebiet">
+              <button className="gebiet-kopf" onClick={() => onGo(...g.seiten[0].zu)}>
+                <span className="gebiet-titel">{g.titel}</span>
+                <span className="gebiet-zweck">{g.zweck}</span>
+              </button>
+              <div className="gebiet-seiten">
+                {g.seiten.map((seite) => (
+                  <button key={seite.name} className="gebiet-seite" onClick={() => onGo(...seite.zu)}>
+                    <span>{seite.name}</span>
+                    <span className="gebiet-pfeil" aria-hidden="true">→</span>
+                  </button>
+                ))}
+              </div>
+            </article>
+          ))}
+        </section>
+
         <div className="start-spalten">
-          <div className="start-spalte-links">
-            <section className="start-karte">
-              <h2 className="start-karte-titel">Zu erledigen</h2>
+          <section className="start-karte">
+            <h2 className="start-karte-titel">Zu erledigen</h2>
             {aufgaben.length ? (
               <div className="aufgaben">
                 {aufgaben.map((a) => (
@@ -234,51 +285,35 @@ export default function Dashboard({
             )}
           </section>
 
-            <section className="start-karte">
-              <h2 className="start-karte-titel">Stunden nach Objekt</h2>
-              {topObjekte.zeilen.length ? (
-                <>
-                  <div className="objektliste">
-                    {topObjekte.zeilen.map((o) => (
-                      <div key={o.id} className="objektzeile">
-                        <div className="objektzeile-kopf">
-                          <span className="objektzeile-name" title={o.name}>{o.name}</span>
-                          <span className="objektzeile-std">{fmtHours(o.std)}</span>
-                        </div>
-                        <div className="objektbalken">
-                          <div
-                            className="objektbalken-fuell"
-                            style={{ width: `${topObjekte.groesste ? (o.std / topObjekte.groesste) * 100 : 0}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {topObjekte.gesamt > topObjekte.zeilen.length && (
-                    <p className="objektliste-rest">
-                      und {topObjekte.gesamt - topObjekte.zeilen.length} weitere Objekte mit Stunden
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="start-leer">In diesem Monat sind noch keine Stunden auf Objekte gebucht.</p>
-              )}
-            </section>
-          </div>
-
           <section className="start-karte">
-            <h2 className="start-karte-titel">Bereiche</h2>
-            <div className="bereiche">
-              {bereiche.map((b) => (
-                <button key={b.titel} className="bereich" onClick={b.ziel}>
-                  <span className="bereich-text">
-                    <span className="bereich-titel">{b.titel}</span>
-                    <span className="bereich-sub">{b.sub}</span>
-                  </span>
-                  <span className="bereich-pfeil" aria-hidden="true">→</span>
-                </button>
-              ))}
-            </div>
+            <h2 className="start-karte-titel">Stunden nach Objekt</h2>
+            {topObjekte.zeilen.length ? (
+              <>
+                <div className="objektliste">
+                  {topObjekte.zeilen.map((o) => (
+                    <div key={o.id} className="objektzeile">
+                      <div className="objektzeile-kopf">
+                        <span className="objektzeile-name" title={o.name}>{o.name}</span>
+                        <span className="objektzeile-std">{fmtHours(o.std)}</span>
+                      </div>
+                      <div className="objektbalken">
+                        <div
+                          className="objektbalken-fuell"
+                          style={{ width: `${topObjekte.groesste ? (o.std / topObjekte.groesste) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {topObjekte.gesamt > topObjekte.zeilen.length && (
+                  <p className="objektliste-rest">
+                    und {topObjekte.gesamt - topObjekte.zeilen.length} weitere Objekte mit Stunden
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="start-leer">In diesem Monat sind noch keine Stunden auf Objekte gebucht.</p>
+            )}
           </section>
         </div>
       </main>

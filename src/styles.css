@@ -531,6 +531,10 @@ tr.row-aktuell td { background: #eef2f8; font-weight: 600; }
 .start-logo { height: 30px; width: auto; display: block; }
 .start-band-rechts { display: flex; align-items: center; gap: var(--s4); }
 .start-user { font-size: 13px; color: var(--text-dim); }
+/* .link-btn ist auf die dunkle Seitenleiste abgestimmt und wuerde hier beim
+   Hover weiss auf Weiss werden. Auf dem hellen Band eigene Werte. */
+.start-band .link-btn { color: var(--text-dim); }
+.start-band .link-btn:hover { color: var(--orange-hover); }
 
 .start-inhalt {
   width: 100%; max-width: 1080px; margin: 0 auto;
@@ -539,14 +543,25 @@ tr.row-aktuell td { background: #eef2f8; font-weight: 600; }
 
 .start-titelzeile {
   display: flex; align-items: baseline; justify-content: space-between;
-  gap: var(--s5); margin-bottom: var(--s6);
-  border-bottom: 1px solid var(--line); padding-bottom: var(--s4);
+  gap: var(--s5); margin-bottom: var(--s7);
 }
 .start-titel {
-  margin: 0; font-size: 22px; font-weight: 650;
+  margin: 0; font-size: 24px; font-weight: 650;
   color: var(--text); letter-spacing: -0.02em;
 }
+.start-datum {
+  font-size: 14px; color: var(--text-dim); margin-top: var(--s1);
+  text-transform: capitalize;
+}
 .start-monat { font-size: 14px; color: var(--text-dim); font-weight: 500; }
+
+/* Ueberschrift ueber einem Block. Traegt die Gliederung der Seite, deshalb
+   klein und ruhig -- die Blockinhalte sollen fuehren, nicht die Beschriftung. */
+.start-abschnitt {
+  margin: 0 0 var(--s4); font-size: 12px; font-weight: 650;
+  color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.kennzahlen + .start-abschnitt { margin-top: var(--s7); }
 
 /* ---------- Kennzahlen ---------- */
 .kennzahlen {
@@ -575,12 +590,50 @@ tr.row-aktuell td { background: #eef2f8; font-weight: 600; }
 .kennzahl-hinweis.runter { color: var(--text-dim); }
 .kennzahl-hinweis.offen { color: var(--orange-hover); }
 
-/* ---------- Zwei Spalten: offene Punkte und Bereiche ---------- */
-.start-spalten {
-  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: var(--s5); align-items: start;
+/* ---------- Bereiche ---------- */
+.gebiete {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--s4); margin-bottom: var(--s7);
+  /* Jede Karte nur so hoch wie ihr Inhalt. Auf gleiche Hoehe gezogen
+     entstuende unter dem kuerzesten Bereich ein leeres Feld. */
+  align-items: start;
 }
-.start-spalte-links { display: flex; flex-direction: column; gap: var(--s5); min-width: 0; }
+.gebiet {
+  display: flex; flex-direction: column;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-lg); box-shadow: var(--sh-sm); overflow: hidden;
+  transition: border-color 0.12s;
+}
+.gebiet:hover { border-color: var(--line-strong); }
+.gebiet-kopf {
+  display: flex; flex-direction: column; gap: var(--s1);
+  text-align: left; background: none; border: 0; cursor: pointer;
+  font: inherit; padding: var(--s5) var(--s5) var(--s4);
+  border-bottom: 1px solid var(--line);
+}
+.gebiet-kopf:hover .gebiet-titel { color: var(--orange-hover); }
+.gebiet-titel {
+  font-size: 16px; font-weight: 650; color: var(--navy);
+  letter-spacing: -0.01em; transition: color 0.12s;
+}
+.gebiet-zweck { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+.gebiet-seiten { display: flex; flex-direction: column; padding: var(--s2) var(--s3) var(--s3); }
+.gebiet-seite {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  text-align: left; background: none; border: 0; cursor: pointer;
+  font: inherit; font-size: 13px; color: var(--text);
+  padding: var(--s3) var(--s3); border-radius: var(--r-sm);
+  transition: background-color 0.12s;
+}
+.gebiet-seite:hover { background: var(--surface-2); color: var(--navy); }
+.gebiet-pfeil { color: var(--text-faint); font-size: 13px; }
+.gebiet-seite:hover .gebiet-pfeil { color: var(--orange-hover); }
+
+/* ---------- Zwei Spalten: offene Punkte und Stunden nach Objekt ---------- */
+.start-spalten {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--s4); align-items: start;
+}
 .start-karte {
   background: var(--card); border: 1px solid var(--line);
   border-radius: var(--r-lg); padding: var(--s5) var(--s5) var(--s4);
@@ -642,24 +695,6 @@ tr.row-aktuell td { background: #eef2f8; font-weight: 600; }
 .objektbalken-fuell { height: 100%; background: var(--navy-light); border-radius: var(--r-pill); }
 .objektzeile:first-child .objektbalken-fuell { background: var(--orange); }
 .objektliste-rest { margin: var(--s4) 0 var(--s2); font-size: 12px; color: var(--text-faint); }
-
-/* ---------- Bereiche ---------- */
-.bereiche { display: flex; flex-direction: column; }
-.bereich {
-  display: flex; align-items: center; gap: var(--s4);
-  width: 100%; text-align: left; background: none; border: 0;
-  border-top: 1px solid var(--line);
-  padding: var(--s4) var(--s2); margin: 0; cursor: pointer;
-  font: inherit; color: inherit; border-radius: var(--r-sm);
-  transition: background-color 0.12s;
-}
-.bereich:first-child { border-top: 0; }
-.bereich:hover { background: var(--surface-2); }
-.bereich-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.bereich-titel { font-size: 13px; font-weight: 600; color: var(--navy); }
-.bereich-sub { font-size: 12px; color: var(--text-faint); }
-.bereich-pfeil { flex: none; color: var(--text-faint); font-size: 14px; }
-.bereich:hover .bereich-pfeil { color: var(--orange-hover); }
 
 /* ============================================================
    Monatsmatrix (Mitarbeiter x Tage)
