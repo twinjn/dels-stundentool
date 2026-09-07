@@ -73,9 +73,12 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
   }
   useEffect(() => { ladeMonat(monat); }, [monat]);
 
-  /* Alle Monate fuer den Vergleich */
+  /* Alle Monate fuer den Vergleich. Nur laden, wenn die Tabelle auch sichtbar
+     ist -- sonst wuerde jede einzelne Eingabe vier Tabellen neu abfragen. Der
+     gerade bearbeitete Monat wird beim Rendern aus dem lokalen Stand ersetzt,
+     damit die Zeile trotzdem sofort mitzieht. */
   useEffect(() => {
-    if (!monate.length) return;
+    if (!monate.length || tab !== "ergebnis") return;
     (async () => {
       const [mo, om, pm, ak] = await Promise.all([
         supabase.from("kalk_monat").select("*"),
@@ -90,7 +93,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
         adminkosten: (ak.data || []).filter((r) => r.monat === m.monat),
       })));
     })();
-  }, [monate, objektMonat, personMonat, adminkosten]);
+  }, [monate, tab]);
 
   /* ---------- Speichern ---------- */
   async function setzeAnsatz(feld, wert) {
@@ -127,6 +130,21 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
     if (error) return showToast("Fehler beim Löschen.");
     setAdminkosten((p) => p.filter((r) => r.id !== id));
   }
+  async function objektHinzu(objektId) {
+    const o = objektById.get(objektId);
+    const { data, error } = await supabase.from("kalk_objekt_monat")
+      .insert({ monat, objekt_id: objektId, abo_betrag: o?.abo_betrag ?? null, ma: 1, aktiv: true })
+      .select().single();
+    if (error) return showToast("Objekt ist in diesem Monat bereits erfasst.");
+    setObjektMonat((p) => [...p, data]);
+    showToast("Objekt hinzugefügt");
+  }
+  async function objektWeg(objektId) {
+    const { error } = await supabase.from("kalk_objekt_monat").delete()
+      .eq("monat", monat).eq("objekt_id", objektId);
+    if (error) return showToast("Fehler beim Löschen.");
+    setObjektMonat((p) => p.filter((r) => r.objekt_id !== objektId));
+  }
   async function personHinzu(employeeId) {
     const e = empById.get(employeeId);
     const { data, error } = await supabase.from("kalk_person_monat")
@@ -144,9 +162,21 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
   /** Neuen Monat aus den Stammdaten anlegen, Vormonat als Vorlage. */
   async function monatAnlegen() {
     const letzter = monate[monate.length - 1];
-    const d = letzter ? new Date(letzter) : new Date();
-    d.setMonth(d.getMonth() + 1);
-    const neu = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+    // Bewusst mit Zahlen statt mit Date gerechnet: `new Date("2026-02-01")`
+    // ist UTC-Mitternacht, `setMonth` rechnet aber lokal. Westlich von
+    // Greenwich sprang der Zaehler dadurch ueber einen Monat hinweg.
+    let jahr, monatNr;
+    if (letzter) {
+      const [jj, mm] = letzter.split("-").map(Number);
+      jahr = jj;
+      monatNr = mm + 1;              // der Monat nach dem letzten erfassten
+    } else {
+      const heute = new Date();
+      jahr = heute.getFullYear();
+      monatNr = heute.getMonth() + 1; // ohne Vorlage: der laufende Monat
+    }
+    if (monatNr > 12) { monatNr = 1; jahr += 1; }
+    const neu = `${jahr}-${String(monatNr).padStart(2, "0")}-01`;
     if (monate.includes(neu)) return showToast("Monat existiert bereits.");
 
     const vorlage = letzter ? { ...s, monat: neu, created_at: undefined, notiz: null } : { monat: neu };
@@ -234,6 +264,8 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
 
   /* ---------- Objekte ---------- */
   if (tab === "objekte") {
+    // Objekte aus den Stammdaten, die diesem Monat noch nicht zugeordnet sind.
+    const offeneObjekte = objekte.filter((o) => !objektMonat.some((r) => r.objekt_id === o.id));
     const zeilen = [...c.obj].sort((a, b) =>
       (objektById.get(a.o.objekt_id)?.name || "").localeCompare(objektById.get(b.o.objekt_id)?.name || ""));
     return (
@@ -245,12 +277,12 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
               <th>Abo</th><th>Std.</th><th>Ansatz</th><th>MA</th>
               <th>Löhne</th><th>+ SZ</th><th>ZT</th>
               {details && <><th>Mat</th><th>Mas</th><th>Trs</th><th>Admin</th></>}
-              <th>%</th><th className="col-gewinn">Gewinn</th>
+              <th>%</th><th className="col-gewinn">Gewinn</th><th></th>
             </tr></thead>
             <tbody>
               {zeilen.map((x) => {
                 const o = objektById.get(x.o.objekt_id) || {};
-                const rel = z(Number(x.o.abo_betrag)) ? x.gew / Number(x.o.abo_betrag) : 0;
+                const rel = x.abo ? x.gew / x.abo : 0;
                 return (
                   <tr key={x.o.objekt_id} className={!x.o.aktiv ? "row-inaktiv" : x.gew < -0.005 ? "row-neg" : ""}>
                     <td className="cell-num">
@@ -283,6 +315,8 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
                     </>}
                     <td className="cell-num cell-muted">{pct(rel)}</td>
                     <td className={`cell-num col-gewinn ${vorzeichen(x.gew)}`}><b>{chf(x.gew)}</b></td>
+                    <td><button className="del-row" title="Objekt aus diesem Monat nehmen"
+                                onClick={() => objektWeg(x.o.objekt_id)}>×</button></td>
                   </tr>
                 );
               })}
@@ -303,6 +337,7 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
               </>}
               <td className="cell-num">{pct(r.gewProzent)}</td>
               <td className={`cell-num col-gewinn ${vorzeichen(t.gew)}`}>{chf(t.gew)}</td>
+              <td></td>
             </tr></tfoot>
           </table>
         </div>
@@ -313,6 +348,19 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
           {t.ohneLohnsatz > 0 && (
             <> <b>Achtung:</b> {t.ohneLohnsatz} erfasste Person(en) haben keinen Stundenlohn hinterlegt
             und steuern deshalb 0 zur Lohnsumme bei.</>
+          )}
+          <div style={{ marginTop: 8 }}>
+            Ein <b>inaktives</b> Objekt zählt in diesem Monat weder Umsatz noch Kosten und bleibt
+            auch bei der Verteilung von Administration und Treibstoff aussen vor.
+          </div>
+          {offeneObjekte.length > 0 && (
+            <div style={{ marginTop: 8 }}>
+              Objekt in diesen Monat aufnehmen:{" "}
+              <select defaultValue="" onChange={(e) => { if (e.target.value) { objektHinzu(e.target.value); e.target.value = ""; } }}>
+                <option value="">Objekt wählen…</option>
+                {offeneObjekte.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+              </select>
+            </div>
           )}
         </div>
       </div></>
@@ -539,14 +587,17 @@ export default function Kalkulation({ tab, objekte, employees, entries, showToas
             <th>Deckungsbeitrag</th><th>Gew %</th><th>Administration</th><th>Ergebnis</th><th>Marge</th>
           </tr></thead>
           <tbody>
-            {alleMonate.map((m, i) => {
-              const cc = rechne({ monat: m.s.monat, s: m.s, objektMonat: m.objektMonat,
-                personMonat: m.personMonat, adminkosten: m.adminkosten, entries, employees });
+            {alleMonate.map((m) => {
+              // Fuer den offenen Monat den lokalen Stand nehmen, damit eine
+              // Aenderung sofort in der Vergleichszeile steht.
+              const q = m.s.monat === monat ? { s, objektMonat, personMonat, adminkosten } : m;
+              const cc = rechne({ monat: m.s.monat, s: q.s, objektMonat: q.objektMonat,
+                personMonat: q.personMonat, adminkosten: q.adminkosten, entries, employees });
               return (
                 <tr key={m.s.monat} className={m.s.monat === monat ? "row-aktuell" : ""}>
                   <td className="cell-name">{monatName(m.s.monat)}</td>
                   <td className="cell-num">{chf0(cc.t.abos)}</td>
-                  <td className="cell-num">{m.objektMonat.length}</td>
+                  <td className="cell-num">{q.objektMonat.length}</td>
                   <td className="cell-num">{chf0(cc.t.stdTotal)}</td>
                   <td className="cell-num">{chf0(cc.t.lohnSzAlle)}</td>
                   <td className={`cell-num ${vorzeichen(cc.t.gew)}`}>{chf0(cc.t.gew)}</td>
