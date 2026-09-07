@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { supabase, supabaseKonfiguriert } from "./supabaseClient.js";
 import delsLogo from "./assets/dels-logo.png";
 import Kalkulation from "./Kalkulation.jsx";
+import Dashboard from "./Dashboard.jsx";
+import { pad, todayISO, formatDate, fmtHours, MONTH_NAMES } from "./format.js";
 
 const TYPES = {
   arbeit: { label: "Gearbeitet", unit: "Std.", cls: "type-arbeit" },
@@ -12,7 +14,6 @@ const TYPES = {
   sonstiges: { label: "Sonstiges", unit: "Tage", cls: "type-sonstiges" },
   spesen: { label: "Spesen", unit: "CHF", cls: "type-spesen" },
 };
-const MONTH_NAMES = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 const WEEKDAY_SHORT = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const ABSENCE_SHORT = { ferien: "F", krankheit: "K", unfall: "U", feiertag: "FT", sonstiges: "S" };
 
@@ -37,6 +38,10 @@ const MITARBEITERSTUFEN = [
 ];
 
 const STAMMDATEN_COLUMNS = [
+  // Die Loehne stehen bewusst weit vorne: ohne sie rechnet die Kalkulation
+  // die Person mit 0 Franken Lohnkosten mit.
+  { key: "stundenlohn", label: "Stundenlohn", type: "number", width: 110, num: true, step: "0.01" },
+  { key: "monatslohn", label: "Monatslohn", type: "number", width: 110, num: true, step: "0.05" },
   { key: "personalnummer", label: "Personal-Nr.", type: "text", width: 110 },
   { key: "geburtsdatum", label: "Geburtsdatum", type: "date", width: 140 },
   { key: "eintrittsdatum", label: "Eintritt", type: "date", width: 140 },
@@ -48,19 +53,6 @@ const STAMMDATEN_COLUMNS = [
   { key: "ahv_nummer", label: "AHV-Nr.", type: "text", width: 150 },
   { key: "iban", label: "IBAN", type: "text", width: 200 },
 ];
-
-function pad(n) { return n < 10 ? "0" + n : "" + n; }
-function todayISO() {
-  const d = new Date();
-  return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
-}
-function formatDate(iso) {
-  const d = new Date(iso + "T00:00:00");
-  return pad(d.getDate()) + "." + pad(d.getMonth() + 1) + "." + d.getFullYear();
-}
-function fmtHours(n) {
-  return (Math.round(Number(n) * 100) / 100).toString().replace(".", ",");
-}
 
 // ---------- Legende für die Matrix-Farben und Kürzel ----------
 function MatrixLegend({ showArbeit = true }) {
@@ -280,67 +272,6 @@ function Login({ onLoggedIn }) {
   );
 }
 
-// ---------- Dashboard (Startseite, Vollbild) ----------
-function Dashboard({ employees, objekte, monthTotals, yearFerienUsed, onEnterStundentool, onEnterObjekte, onEnterKalkulation, onLogout, email }) {
-  const [now, setNow] = useState(new Date());
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60000);
-    return () => clearInterval(id);
-  }, []);
-
-  const y = now.getFullYear(), m = now.getMonth();
-  const totalArbeitThisMonth = employees.reduce((s, e) => s + monthTotals(e.id, y, m).arbeit, 0);
-  const ferienWarnings = employees.filter((e) => (e.ferienanspruch - yearFerienUsed(e.id, y)) < 0);
-  const dateLabel = now.toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-
-  return (
-    <div className="dashboard-screen">
-      <div className="dashboard-topbar">
-        <span className="who">{email}</span>
-        <button className="link-btn" onClick={onLogout}>Abmelden</button>
-      </div>
-      <div className="dashboard-center">
-        <img src={delsLogo} alt="DELS Reinigung & Beratung" className="dashboard-logo-big" />
-        <div className="dashboard-greeting">Willkommen zurück</div>
-        <div className="dashboard-date">{dateLabel}</div>
-
-        <div className="stats dashboard-stats">
-          <div className="stat"><div className="n">{employees.length}</div><div className="l">Mitarbeiter</div></div>
-          <div className="stat"><div className="n">{objekte.length}</div><div className="l">Objekte</div></div>
-          <div className="stat"><div className="n">{fmtHours(totalArbeitThisMonth)}</div><div className="l">Std. diesen Monat</div></div>
-          <div className={`stat ${ferienWarnings.length ? "warn" : ""}`}><div className="n">{ferienWarnings.length}</div><div className="l">Ferien-Warnungen</div></div>
-        </div>
-
-        {ferienWarnings.length > 0 && (
-          <div className="card dashboard-warning-card">
-            <div className="dashboard-warning-title">Negativer Ferien-Saldo {y}</div>
-            <ul className="dashboard-warning-list">
-              {ferienWarnings.map((e) => (
-                <li key={e.id}>{e.name}: {fmtHours(e.ferienanspruch - yearFerienUsed(e.id, y))} Tage</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className="home-cards">
-          <div className="home-card" onClick={onEnterStundentool}>
-            <div className="home-card-title">Stundentool</div>
-            <div className="home-card-sub">Arbeitszeit, Ferien und Absenzen pro Mitarbeiter erfassen</div>
-          </div>
-          <div className="home-card" onClick={onEnterObjekte}>
-            <div className="home-card-title">Objekte</div>
-            <div className="home-card-sub">Reinigungsobjekte verwalten und Stunden pro Standort erfassen</div>
-          </div>
-          <div className="home-card" onClick={onEnterKalkulation}>
-            <div className="home-card-title">Kalkulation</div>
-            <div className="home-card-sub">Deckungsbeitrag pro Objekt und Ergebnis des Monats</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ---------- Confirm modal ----------
 function ConfirmModal({ text, onCancel, onConfirm }) {
   return (
@@ -405,10 +336,19 @@ function NewObjektModal({ onCancel, onCreate }) {
 
 // ---------- Employee master data table ----------
 const EMPTY_NEW_EMPLOYEE = {
-  name: "", mitarbeiterstufe: "", personalnummer: "", geburtsdatum: "", eintrittsdatum: "",
+  name: "", mitarbeiterstufe: "", stundenlohn: "", monatslohn: "",
+  personalnummer: "", geburtsdatum: "", eintrittsdatum: "",
   telefon: "", email: "", strasse: "", plz: "", ort: "", ahv_nummer: "", iban: "",
   ferienanspruch: 25, soll_pro_tag: 8.4,
 };
+
+/** Leeres Feld bleibt leer, sonst wuerde aus "nicht erfasst" eine 0. */
+function zahlOderNull(v) {
+  const s = String(v ?? "").trim().replace(",", ".");
+  if (s === "") return null;
+  const n = parseFloat(s);
+  return isFinite(n) ? n : null;
+}
 
 function EmployeeMasterTable({ employees, onUpdateField, onCreate, onDelete }) {
   const [newRow, setNewRow] = useState(EMPTY_NEW_EMPLOYEE);
@@ -418,7 +358,9 @@ function EmployeeMasterTable({ employees, onUpdateField, onCreate, onDelete }) {
     if (!newRow.name.trim()) return;
     const payload = { name: newRow.name.trim() };
     payload.mitarbeiterstufe = newRow.mitarbeiterstufe || null;
-    STAMMDATEN_COLUMNS.forEach((c) => { payload[c.key] = String(newRow[c.key] || "").trim() || null; });
+    STAMMDATEN_COLUMNS.forEach((c) => {
+      payload[c.key] = c.num ? zahlOderNull(newRow[c.key]) : String(newRow[c.key] || "").trim() || null;
+    });
     payload.ferienanspruch = parseFloat(newRow.ferienanspruch) || 0;
     payload.soll_pro_tag = parseFloat(newRow.soll_pro_tag) || 8.4;
     onCreate(payload);
@@ -449,7 +391,10 @@ function EmployeeMasterTable({ employees, onUpdateField, onCreate, onDelete }) {
             </td>
             {STAMMDATEN_COLUMNS.map((c) => (
               <td key={c.key}>
-                <input type={c.type} value={newRow[c.key]} onChange={(e) => setField(c.key, e.target.value)} />
+                <input
+                  type={c.type} step={c.step} min={c.num ? "0" : undefined}
+                  value={newRow[c.key]} onChange={(e) => setField(c.key, e.target.value)}
+                />
               </td>
             ))}
             <td><input type="number" min="0" step="0.5" value={newRow.ferienanspruch} onChange={(e) => setField("ferienanspruch", e.target.value)} /></td>
@@ -475,10 +420,13 @@ function EmployeeMasterTable({ employees, onUpdateField, onCreate, onDelete }) {
               {STAMMDATEN_COLUMNS.map((c) => (
                 <td key={c.key}>
                   <input
-                    type={c.type}
-                    defaultValue={emp[c.key] || ""}
+                    type={c.type} step={c.step} min={c.num ? "0" : undefined}
+                    defaultValue={emp[c.key] ?? ""}
                     key={c.key + "-" + emp.id}
-                    onBlur={(e) => onUpdateField(emp.id, c.key, e.target.value.trim() || null)}
+                    onBlur={(e) => onUpdateField(
+                      emp.id, c.key,
+                      c.num ? zahlOderNull(e.target.value) : e.target.value.trim() || null
+                    )}
                   />
                 </td>
               ))}
@@ -979,6 +927,13 @@ function MainApp({ session }) {
     URL.revokeObjectURL(url);
   }
 
+  function gehZu(zielSection, zielTab) {
+    if (zielSection === "stundentool" && zielTab) setStTab(zielTab);
+    if (zielSection === "objekte" && zielTab) setObjTab(zielTab);
+    if (zielSection === "kalkulation" && zielTab) setKalkTab(zielTab);
+    setSection(zielSection);
+  }
+
   async function handleLogout() {
     try {
       const today = todayISO();
@@ -1001,11 +956,10 @@ function MainApp({ session }) {
       <Dashboard
         employees={employees}
         objekte={objekte}
+        entries={entries}
         monthTotals={monthTotals}
         yearFerienUsed={yearFerienUsed}
-        onEnterStundentool={() => setSection("stundentool")}
-        onEnterObjekte={() => setSection("objekte")}
-        onEnterKalkulation={() => setSection("kalkulation")}
+        onGo={gehZu}
         onLogout={handleLogout}
         email={session.user.email}
       />

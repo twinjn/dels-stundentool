@@ -512,55 +512,154 @@ tr.row-aktuell td { background: #eef2f8; font-weight: 600; }
 
 /* ============================================================
    Startseite
-   ============================================================ */
-.dashboard-screen {
-  min-height: 100vh; display: flex; flex-direction: column;
-  background: linear-gradient(160deg, var(--navy-light) 0%, var(--navy) 45%, var(--navy-dark) 100%);
-}
-.dashboard-topbar {
-  display: flex; align-items: center; justify-content: flex-end; gap: var(--s4);
-  padding: var(--s5) var(--s7);
-}
-.dashboard-topbar .who { font-size: 13px; color: #b9c5d6; }
-.dashboard-topbar .link-btn { color: #b9c5d6; }
-.dashboard-topbar .link-btn:hover { color: #fff; }
-.dashboard-center {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: var(--s6) var(--s5) var(--s9); text-align: center;
-}
-.dashboard-logo-big {
-  height: 54px; width: auto; margin: 0 auto var(--s6); display: block;
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.28));
-}
-.dashboard-greeting { font-size: 30px; font-weight: 600; color: #fff; letter-spacing: -0.02em; }
-.dashboard-date { font-size: 14px; color: #cddaee; margin: var(--s2) 0 var(--s8); text-transform: capitalize; }
-/* Enger gerastert als im Hauptbereich, damit die vier Kacheln in einer
-   Reihe stehen statt eine allein umzubrechen. */
-.dashboard-stats {
-  max-width: 760px; width: 100%;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-}
-.dashboard-warning-card {
-  max-width: 720px; width: 100%; text-align: left;
-  border-color: var(--orange-line); margin-bottom: var(--s6);
-}
-.dashboard-warning-title { font-weight: 600; color: var(--red); font-size: 14px; margin-bottom: var(--s2); }
-.dashboard-warning-list { margin: 0; padding-left: var(--s5); font-size: 13px; color: var(--text); }
-.dashboard-warning-list li { margin-bottom: var(--s1); }
 
-.home-cards {
-  display: flex; gap: var(--s5); flex-wrap: wrap;
-  margin-top: var(--s2); max-width: 760px; width: 100%;
+   Bewusst dieselbe helle Flaeche wie der Rest der Anwendung. Ein
+   dunkler Farbverlauf mit Begruessung sieht nach Anmeldeseite aus,
+   nicht nach Arbeitsmittel. Die Marke sitzt im schmalen Kopfband,
+   darunter zaehlt nur der Inhalt.
+   ============================================================ */
+.start { min-height: 100vh; background: var(--bg); display: flex; flex-direction: column; }
+
+/* Das Logo ist dunkles Navy auf transparentem Grund. Auf einer navyblauen
+   Flaeche waere es kaum zu erkennen, deshalb ein weisses Markenband --
+   dieselbe Loesung wie am Kopf der Seitenleiste. */
+.start-band {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s5); padding: 0 var(--s7); height: 64px;
+  background: var(--card); border-bottom: 1px solid var(--line); flex: none;
 }
-.home-card {
-  background: var(--card); border: 1px solid transparent; border-radius: var(--r-lg);
-  padding: var(--s6); flex: 1; min-width: 200px; cursor: pointer; text-align: left;
-  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
-  box-shadow: var(--sh-lg);
+.start-logo { height: 30px; width: auto; display: block; }
+.start-band-rechts { display: flex; align-items: center; gap: var(--s4); }
+.start-user { font-size: 13px; color: var(--text-dim); }
+
+.start-inhalt {
+  width: 100%; max-width: 1080px; margin: 0 auto;
+  padding: var(--s8) var(--s7) var(--s9); flex: 1;
 }
-.home-card:hover { transform: translateY(-3px); border-color: var(--orange); }
-.home-card-title { font-size: 17px; font-weight: 600; color: var(--navy); margin-bottom: var(--s1); }
-.home-card-sub { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+.start-titelzeile {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s5); margin-bottom: var(--s6);
+  border-bottom: 1px solid var(--line); padding-bottom: var(--s4);
+}
+.start-titel {
+  margin: 0; font-size: 22px; font-weight: 650;
+  color: var(--text); letter-spacing: -0.02em;
+}
+.start-monat { font-size: 14px; color: var(--text-dim); font-weight: 500; }
+
+/* ---------- Kennzahlen ---------- */
+.kennzahlen {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--s4); margin-bottom: var(--s7);
+}
+.kennzahl {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: var(--s5);
+  box-shadow: var(--sh-sm);
+}
+.kennzahl-label {
+  font-size: 12px; font-weight: 600; color: var(--text-dim);
+  letter-spacing: 0.02em; margin-bottom: var(--s2);
+}
+.kennzahl-wert {
+  font-size: 28px; font-weight: 650; color: var(--navy);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1.1;
+}
+.kennzahl-einheit {
+  font-size: 14px; font-weight: 500; color: var(--text-faint);
+  margin-left: var(--s2); letter-spacing: 0;
+}
+.kennzahl-hinweis { font-size: 12px; color: var(--text-faint); margin-top: var(--s2); }
+.kennzahl-hinweis.hoch { color: var(--green); }
+.kennzahl-hinweis.runter { color: var(--text-dim); }
+.kennzahl-hinweis.offen { color: var(--orange-hover); }
+
+/* ---------- Zwei Spalten: offene Punkte und Bereiche ---------- */
+.start-spalten {
+  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--s5); align-items: start;
+}
+.start-spalte-links { display: flex; flex-direction: column; gap: var(--s5); min-width: 0; }
+.start-karte {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: var(--s5) var(--s5) var(--s4);
+  box-shadow: var(--sh-sm);
+}
+.start-karte-titel {
+  margin: 0 0 var(--s4); font-size: 13px; font-weight: 650;
+  color: var(--text); letter-spacing: 0.01em;
+}
+.start-leer {
+  margin: 0 0 var(--s2); font-size: 13px; color: var(--text-dim);
+  line-height: 1.6; max-width: 46ch;
+}
+
+/* ---------- Offene Punkte ---------- */
+.aufgaben { display: flex; flex-direction: column; }
+.aufgabe {
+  display: flex; align-items: flex-start; gap: var(--s4);
+  width: 100%; text-align: left; background: none; border: 0;
+  border-top: 1px solid var(--line);
+  padding: var(--s4) var(--s2); margin: 0; cursor: pointer;
+  font: inherit; color: inherit; border-radius: var(--r-sm);
+  transition: background-color 0.12s;
+}
+.aufgabe:first-child { border-top: 0; }
+.aufgabe:hover { background: var(--surface-2); }
+.aufgabe-zahl {
+  flex: none; min-width: 28px; height: 28px; padding: 0 var(--s2);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--orange-light); color: var(--orange-hover);
+  border: 1px solid var(--orange-line); border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.aufgabe-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.aufgabe-titel { font-size: 13px; font-weight: 600; color: var(--text); }
+.aufgabe-namen {
+  font-size: 12px; color: var(--text-faint); line-height: 1.45;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.aufgabe-pfeil { flex: none; color: var(--text-faint); font-size: 14px; padding-top: 5px; }
+.aufgabe:hover .aufgabe-pfeil { color: var(--orange-hover); }
+
+/* ---------- Stunden nach Objekt ---------- */
+.objektliste { display: flex; flex-direction: column; gap: var(--s4); padding-bottom: var(--s2); }
+.objektzeile { min-width: 0; }
+.objektzeile-kopf {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s4); margin-bottom: var(--s2);
+}
+.objektzeile-name {
+  font-size: 13px; color: var(--text); min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.objektzeile-std {
+  flex: none; font-size: 13px; font-weight: 650; color: var(--navy);
+  font-variant-numeric: tabular-nums;
+}
+.objektbalken { height: 6px; background: var(--surface-2); border-radius: var(--r-pill); overflow: hidden; }
+.objektbalken-fuell { height: 100%; background: var(--navy-light); border-radius: var(--r-pill); }
+.objektzeile:first-child .objektbalken-fuell { background: var(--orange); }
+.objektliste-rest { margin: var(--s4) 0 var(--s2); font-size: 12px; color: var(--text-faint); }
+
+/* ---------- Bereiche ---------- */
+.bereiche { display: flex; flex-direction: column; }
+.bereich {
+  display: flex; align-items: center; gap: var(--s4);
+  width: 100%; text-align: left; background: none; border: 0;
+  border-top: 1px solid var(--line);
+  padding: var(--s4) var(--s2); margin: 0; cursor: pointer;
+  font: inherit; color: inherit; border-radius: var(--r-sm);
+  transition: background-color 0.12s;
+}
+.bereich:first-child { border-top: 0; }
+.bereich:hover { background: var(--surface-2); }
+.bereich-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.bereich-titel { font-size: 13px; font-weight: 600; color: var(--navy); }
+.bereich-sub { font-size: 12px; color: var(--text-faint); }
+.bereich-pfeil { flex: none; color: var(--text-faint); font-size: 14px; }
+.bereich:hover .bereich-pfeil { color: var(--orange-hover); }
 
 /* ============================================================
    Monatsmatrix (Mitarbeiter x Tage)
@@ -760,7 +859,7 @@ thead .matrix-name-col, tfoot .matrix-name-col {
 
 @media (max-width: 1024px) {
   .sidebar { width: 220px; }
-  .stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s3); }
+  .stats, .kennzahlen { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s3); }
   .stat { padding: var(--s4); }
   .stat .n, .stat .value { font-size: 21px; }
 }
@@ -780,11 +879,10 @@ thead .matrix-name-col, tfoot .matrix-name-col {
 
   .row2 { grid-template-columns: 1fr; }
   .kalk-grid { grid-template-columns: 1fr; }
-  .home-cards { flex-direction: column; }
-  .home-card { min-width: 0; }
-  .dashboard-greeting { font-size: 24px; }
-  .dashboard-logo-big { height: 42px; }
-  .dashboard-center { padding: var(--s4) var(--s4) var(--s8); }
+  .start-band { padding: 0 var(--s4); }
+  .start-inhalt { padding: var(--s5) var(--s4) var(--s8); }
+  .start-titelzeile { flex-direction: column; align-items: flex-start; gap: var(--s1); }
+  .start-spalten { grid-template-columns: 1fr; }
 
   .month-nav { flex-wrap: wrap; gap: var(--s2); }
   .emp-meta { flex-direction: column; align-items: flex-start; gap: var(--s3); }
@@ -801,5 +899,6 @@ thead .matrix-name-col, tfoot .matrix-name-col {
 @media (max-width: 420px) {
   .switch-btn { font-size: 11px; padding: var(--s2) var(--s1); }
   .stat .n, .stat .value { font-size: 19px; }
+  .kennzahl-wert { font-size: 23px; }
   .month-nav .label { font-size: 14px; }
 }
