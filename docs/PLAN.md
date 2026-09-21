@@ -44,7 +44,7 @@ Jede Phase endet mit etwas Lauffähigem.
 | | Phase | Inhalt | Stand |
 |---|---|---|---|
 | 0 | Fundament | Monorepo, TypeScript, Docker, Linter, CI | **fertig** |
-| 1 | Datenbank | Schema, Migrationen, Import der Bestandsdaten | **fertig** |
+| 1 | Datenbank | Schema, Migrationen, Importwerkzeug | **fertig**, Umzug der echten Daten offen |
 | 2 | Auth | Login, Sessions, Rollen, Benutzerverwaltung | offen |
 | 3 | Stammdaten | Mitarbeiter und Objekte, Layout, Navigation | offen |
 | 4 | Stundenerfassung | Schnellerfassung, mobiltauglich | offen |
@@ -98,6 +98,9 @@ API.
    Backup ist kein Backup
 
 ## Offene Punkte
+
+- Der Import ist gebaut und getestet, aber noch nicht ausgefuehrt. Dafür
+  wird `SUPABASE_DATABASE_URL` in der `.env` gebraucht
 
 - Dürfen `buero`-Benutzer IBAN, AHV-Nummer und Geburtsdatum sehen?
   Lohnfelder sind admin-only, der Rest ist zu klären (Phase 2)
