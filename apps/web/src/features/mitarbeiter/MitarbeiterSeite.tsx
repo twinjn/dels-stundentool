@@ -18,17 +18,24 @@ export type Mitarbeiter = {
   name: string;
   personalnummer: string | null;
   mitarbeiterstufe: string | null;
+  funktion: string | null;
+  einsatzort: string | null;
+  anrede: string | null;
   eintrittsdatum: string | null;
   austrittsdatum: string | null;
   aktiv: boolean;
   ferienanspruch: string;
   sollProTag: string;
   telefon: string | null;
+  mobil: string | null;
   email: string | null;
   strasse: string | null;
   plz: string | null;
   ort: string | null;
   geburtsdatum: string | null;
+  nationalitaet: string | null;
+  ferienSaldo: string | null;
+  ferienSaldoStand: string | null;
   ahvNummer: string | null;
   iban: string | null;
   notizen: string | null;
@@ -40,17 +47,24 @@ const LEER = {
   name: "",
   personalnummer: "",
   mitarbeiterstufe: "",
+  funktion: "",
+  einsatzort: "",
+  anrede: "",
   eintrittsdatum: "",
   austrittsdatum: "",
   aktiv: true,
   ferienanspruch: "25",
   sollProTag: "8.4",
   telefon: "",
+  mobil: "",
   email: "",
   strasse: "",
   plz: "",
   ort: "",
   geburtsdatum: "",
+  nationalitaet: "",
+  ferienSaldo: "",
+  ferienSaldoStand: "",
   ahvNummer: "",
   iban: "",
   notizen: "",
@@ -140,7 +154,7 @@ export function MitarbeiterSeite() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Stufe</th>
+                <th>Funktion</th>
                 <th>Ort</th>
                 {darfLoehne && <th className="rechts">Monatslohn</th>}
               </tr>
@@ -159,7 +173,7 @@ export function MitarbeiterSeite() {
                     {m.name}
                     {!m.aktiv && <span className="schild">inaktiv</span>}
                   </td>
-                  <td>{m.mitarbeiterstufe ?? ""}</td>
+                  <td>{m.funktion ?? m.mitarbeiterstufe ?? ""}</td>
                   <td>{m.ort ?? ""}</td>
                   {darfLoehne && <td className="rechts">{m.monatslohn ?? ""}</td>}
                 </tr>
@@ -274,11 +288,33 @@ function MitarbeiterFormular({
           deaktiviert={!darfSchreiben}
         />
         <Feld
+          id="anrede"
+          beschriftung="Anrede"
+          wert={werte.anrede}
+          onChange={(w) => setze("anrede", w)}
+          deaktiviert={!darfSchreiben}
+        />
+        <Feld
+          id="nationalitaet"
+          beschriftung="Nationalitaet"
+          wert={werte.nationalitaet}
+          onChange={(w) => setze("nationalitaet", w)}
+          deaktiviert={!darfSchreiben}
+        />
+        <Feld
           id="telefon"
           beschriftung="Telefon"
           typ="tel"
           wert={werte.telefon}
           onChange={(w) => setze("telefon", w)}
+          deaktiviert={!darfSchreiben}
+        />
+        <Feld
+          id="mobil"
+          beschriftung="Mobil"
+          typ="tel"
+          wert={werte.mobil}
+          onChange={(w) => setze("mobil", w)}
           deaktiviert={!darfSchreiben}
         />
         <Feld
@@ -320,6 +356,21 @@ function MitarbeiterFormular({
           beschriftung="Personalnummer"
           wert={werte.personalnummer}
           onChange={(w) => setze("personalnummer", w)}
+          deaktiviert={!darfSchreiben}
+        />
+        <Feld
+          id="funktion"
+          beschriftung="Funktion"
+          wert={werte.funktion}
+          onChange={(w) => setze("funktion", w)}
+          hinweis="Manager, Aussendienst, Buero, UHR I-III, Hauswart"
+          deaktiviert={!darfSchreiben}
+        />
+        <Feld
+          id="einsatzort"
+          beschriftung="Einsatzort"
+          wert={werte.einsatzort}
+          onChange={(w) => setze("einsatzort", w)}
           deaktiviert={!darfSchreiben}
         />
         <Feld
@@ -369,6 +420,19 @@ function MitarbeiterFormular({
           wert={werte.aktiv}
           onChange={(w) => setze("aktiv", w)}
         />
+
+        {vorhanden?.ferienSaldo != null && (
+          <p className="feldhinweis feld-breit">
+            Ferien-Saldo <strong>{vorhanden.ferienSaldo}</strong> Tage, uebernommen aus dem Excel
+            mit Stand{" "}
+            {vorhanden.ferienSaldoStand
+              ? new Date(vorhanden.ferienSaldoStand).toLocaleDateString("de-CH")
+              : "unbekannt"}
+            . Was seither bezogen wurde, steht in der Stundenerfassung. Die laufende Fortschreibung
+            ist noch nicht gebaut, weil dafuer eure Regeln zu Uebertrag und anteiligem Anspruch
+            feststehen muessen.
+          </p>
+        )}
       </Feldgruppe>
 
       <Feldgruppe titel="Zahlungen und Sozialversicherung">

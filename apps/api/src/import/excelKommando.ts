@@ -17,11 +17,13 @@
  *                         vorher loeschen (sonst bricht es ab)
  *   --fehlende-anlegen    Mitarbeiter und Objekte anlegen, die es in der
  *                         Datenbank noch nicht gibt
+ *   --stammdaten          zusaetzlich das Blatt "Personal" uebernehmen
+ *                         (Funktion, Einsatzort, Adresse, Ferien-Saldo)
  *   --jahr 2026           Jahr vorgeben, falls es in der Datei fehlt
  */
 import fs from "node:fs";
 import path from "node:path";
-import { and, gte, lt, sql } from "drizzle-orm";
+import { and, eq, gte, lt, sql } from "drizzle-orm";
 import XLSX from "xlsx";
 import { datenbankSchliessen, db } from "../db/index.js";
 import { eintraege as eintraegeTabelle, mitarbeiter, objekte } from "../db/schema.js";
@@ -29,7 +31,9 @@ import { protokolliere } from "../protokoll.js";
 import { MONATSNAMEN, leseVerwaltungsblatt, summenNachrechnen } from "./excel.js";
 import type { ExcelEintrag, ExcelSummen } from "./excel.js";
 import { leseObjektblatt, zusammenfuehren } from "./excelObjekt.js";
-import { erkenneDatei } from "./dateiInfo.js";
+import { erkenneDatei, standAusDatei } from "./dateiInfo.js";
+import { lesePersonalblatt } from "./personal.js";
+import type { PersonalZeile } from "./personal.js";
 
 XLSX.set_fs(fs);
 
@@ -50,6 +54,7 @@ const jahrVorgabe = Number(argument("jahr")) || null;
 const schreiben = schalter("schreiben");
 const ersetzen = schalter("ersetzen");
 const fehlendeAnlegen = schalter("fehlende-anlegen");
+const stammdaten = schalter("stammdaten");
 
 if (!ordner && !einzeldatei) {
   console.error(`
@@ -81,6 +86,8 @@ type Gelesen = {
   eintraege: ExcelEintrag[];
   summenLautExcel: ExcelSummen[];
   warnungen: string[];
+  personal: PersonalZeile[];
+  stand: string | null;
 };
 
 function dateiLesen(pfad: string): Gelesen | null {
@@ -117,7 +124,19 @@ function dateiLesen(pfad: string): Gelesen | null {
     warnungen.push(...ergebnis.warnungen);
   }
 
-  return { datei: name, typ: info.typ, jahr, eintraege, summenLautExcel: summen, warnungen };
+  const personal = mappe.Sheets["Personal"] ? lesePersonalblatt(mappe) : null;
+  if (personal) warnungen.push(...personal.warnungen);
+
+  return {
+    datei: name,
+    typ: info.typ,
+    jahr,
+    eintraege,
+    summenLautExcel: summen,
+    warnungen,
+    personal: personal?.zeilen ?? [],
+    stand: standAusDatei(mappe),
+  };
 }
 
 // --- Ablauf --------------------------------------------------------------
@@ -251,6 +270,29 @@ if (fehlendePersonen.size > 0 && !fehlendeAnlegen) {
 
 // --- Trockenlauf endet hier ----------------------------------------------
 
+/**
+ * Personalstamm aus allen Dateien, je Personalnummer einmal.
+ * Alle Objektdateien tragen dasselbe Blatt, also genuegt das erste.
+ */
+const personalstamm = new Map<string, PersonalZeile>();
+let stichtag: string | null = null;
+for (const g of gelesen) {
+  if (g.stand && !stichtag) stichtag = g.stand;
+  for (const zeile of g.personal) {
+    if (!personalstamm.has(zeile.personalnummer)) personalstamm.set(zeile.personalnummer, zeile);
+  }
+}
+
+if (personalstamm.size > 0) {
+  const aktive = [...personalstamm.values()].filter((z) => z.aktiv).length;
+  console.log(
+    `\nPersonalstamm im Blatt "Personal": ${personalstamm.size} Personen (${aktive} aktiv), Stand ${stichtag ?? "unbekannt"}.`,
+  );
+  if (!stammdaten) {
+    console.log("  Wird nicht uebernommen. Dafuer --stammdaten dazusetzen.");
+  }
+}
+
 const monate = [...new Set(alleEintraege.map((e) => e.datum.slice(0, 7)))].sort();
 console.log(`\nBetroffene Monate: ${monate.join(", ") || "keine"}`);
 
@@ -265,24 +307,33 @@ if (!schreiben) {
 
 // --- Schreiben -----------------------------------------------------------
 
-if (monate.length === 0) {
+const sollStammdaten = stammdaten && personalstamm.size > 0;
+
+if (monate.length === 0 && !sollStammdaten) {
   console.log("\nNichts zu schreiben.\n");
   await datenbankSchliessen();
   process.exit(0);
 }
 
-const vonDatum = `${monate[0]}-01`;
-const letzterMonat = monate[monate.length - 1]!;
-const bisDatum = (() => {
-  const [j, m] = letzterMonat.split("-").map(Number);
-  const naechster = m === 12 ? `${j! + 1}-01` : `${j}-${String(m! + 1).padStart(2, "0")}`;
-  return `${naechster}-01`;
-})();
+// Zeitraum nur bestimmen, wenn ueberhaupt Stunden vorliegen. Eine Datei
+// ohne erfasste Stunden kann trotzdem einen Personalstamm mitbringen.
+const vonDatum = monate.length > 0 ? `${monate[0]}-01` : null;
+const bisDatum =
+  monate.length > 0
+    ? (() => {
+        const [j, m] = monate[monate.length - 1]!.split("-").map(Number);
+        const naechster = m === 12 ? `${j! + 1}-01` : `${j}-${String(m! + 1).padStart(2, "0")}`;
+        return `${naechster}-01`;
+      })()
+    : null;
 
-const [vorhanden] = await db
-  .select({ anzahl: sql<number>`count(*)::int` })
-  .from(eintraegeTabelle)
-  .where(and(gte(eintraegeTabelle.datum, vonDatum), lt(eintraegeTabelle.datum, bisDatum)));
+const [vorhanden] =
+  vonDatum && bisDatum
+    ? await db
+        .select({ anzahl: sql<number>`count(*)::int` })
+        .from(eintraegeTabelle)
+        .where(and(gte(eintraegeTabelle.datum, vonDatum), lt(eintraegeTabelle.datum, bisDatum)))
+    : [{ anzahl: 0 }];
 
 if ((vorhanden?.anzahl ?? 0) > 0 && !ersetzen) {
   console.error(
@@ -296,7 +347,72 @@ if ((vorhanden?.anzahl ?? 0) > 0 && !ersetzen) {
 
 try {
   await db.transaction(async (tx) => {
-    if (fehlendeAnlegen) {
+    /**
+     * Personalstamm uebernehmen.
+     *
+     * Regel: Excel gewinnt dort, wo es einen Wert hat. Leere Felder
+     * lassen die Datenbank unangetastet. Sonst wuerde ein Import alles
+     * ueberschreiben, was jemand in der Anwendung nachgetragen hat, nur
+     * weil die Spalte im Excel leer ist.
+     *
+     * Name und Status gelten dagegen immer: das sind die Angaben, die im
+     * Excel gepflegt werden.
+     */
+    if (stammdaten && personalstamm.size > 0) {
+      let neuAngelegt = 0;
+      let aktualisiert = 0;
+
+      for (const zeile of personalstamm.values()) {
+        const nurGefuellte = Object.fromEntries(
+          Object.entries({
+            gruppe: zeile.gruppe,
+            anrede: zeile.anrede,
+            funktion: zeile.funktion,
+            einsatzort: zeile.einsatzort,
+            notizen: zeile.notizen,
+            austrittsdatum: zeile.austrittsdatum,
+            ferienanspruch: zeile.ferienanspruch,
+            ferienSaldo: zeile.ferienSaldo,
+            ferienSaldoStand: zeile.ferienSaldo !== null ? stichtag : null,
+            plz: zeile.plz,
+            ort: zeile.ort,
+            strasse: zeile.strasse,
+            email: zeile.email,
+            telefon: zeile.telefon,
+            mobil: zeile.mobil,
+            geburtsdatum: zeile.geburtsdatum,
+            nationalitaet: zeile.nationalitaet,
+          }).filter(([, wert]) => wert !== null && wert !== undefined),
+        );
+
+        const vorhandeneId = personNachNr.get(zeile.personalnummer);
+
+        if (vorhandeneId) {
+          await tx
+            .update(mitarbeiter)
+            .set({ name: zeile.name, aktiv: zeile.aktiv, ...nurGefuellte })
+            .where(eq(mitarbeiter.id, vorhandeneId));
+          aktualisiert++;
+        } else {
+          const [angelegt] = await tx
+            .insert(mitarbeiter)
+            .values({
+              name: zeile.name,
+              personalnummer: zeile.personalnummer,
+              aktiv: zeile.aktiv,
+              ...nurGefuellte,
+            })
+            .returning({ id: mitarbeiter.id });
+          personNachNr.set(zeile.personalnummer, angelegt!.id);
+          fehlendePersonen.delete(zeile.personalnummer);
+          neuAngelegt++;
+        }
+      }
+
+      console.log(`\nPersonalstamm: ${neuAngelegt} neu angelegt, ${aktualisiert} aktualisiert.`);
+    }
+
+    if (fehlendeAnlegen && (fehlendePersonen.size > 0 || fehlendeObjekte.size > 0)) {
       for (const [nr, name] of fehlendePersonen) {
         const [neu] = await tx
           .insert(mitarbeiter)
@@ -316,7 +432,7 @@ try {
       );
     }
 
-    if ((vorhanden?.anzahl ?? 0) > 0) {
+    if ((vorhanden?.anzahl ?? 0) > 0 && vonDatum && bisDatum) {
       await tx
         .delete(eintraegeTabelle)
         .where(and(gte(eintraegeTabelle.datum, vonDatum), lt(eintraegeTabelle.datum, bisDatum)));

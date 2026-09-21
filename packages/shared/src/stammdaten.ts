@@ -140,6 +140,11 @@ const mitarbeiterFelder = {
 
   personalnummer: optionalerText(40),
   mitarbeiterstufe: optionalerText(40),
+  /** Manager, Aussendienst, Teamleiter, Buero, Hauswart, UHR I-III, Temporaer. */
+  funktion: optionalerText(40),
+  einsatzort: optionalerText(80),
+  gruppe: optionalerText(40),
+  anrede: optionalerText(20),
   eintrittsdatum: optionalesDatum("Eintritt"),
   austrittsdatum: optionalesDatum("Austritt"),
   aktiv: z.boolean().optional(),
@@ -152,6 +157,7 @@ const mitarbeiterFelder = {
   monatslohn: optionaleDezimalzahl(10, 2, "Monatslohn"),
 
   telefon: optionalerText(40),
+  mobil: optionalerText(40),
   email: optionalerText(120).refine(
     (w) => w === null || w === undefined || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(w),
     "Das sieht nicht nach einer E-Mail-Adresse aus.",
@@ -161,6 +167,11 @@ const mitarbeiterFelder = {
   ort: optionalerText(80),
 
   geburtsdatum: optionalesDatum("Geburtsdatum"),
+  nationalitaet: optionalerText(60),
+
+  /** Aus dem Excel uebernommener Ferien-Saldo, mit dem Stand dazu. */
+  ferienSaldo: optionaleDezimalzahl(4, 2, "Ferien-Saldo"),
+  ferienSaldoStand: optionalesDatum("Stand des Ferien-Saldos"),
   ahvNummer: optionalerText(20)
     .transform((w) => (w ? ahvFormatieren(w) : w))
     .refine(

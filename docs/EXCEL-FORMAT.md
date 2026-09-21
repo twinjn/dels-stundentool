@@ -141,3 +141,67 @@ Das ist weniger schlimm, als es klingt: der Import rechnet die Summen nach
 und vergleicht sie mit den Spalten AI bis AM, die Excel selbst füllt.
 Stimmt etwas nicht, meldet der Trockenlauf es sofort. Man muss dem Leser
 also nicht glauben, er prüft sich selbst.
+
+---
+
+# Das Blatt `Personal`
+
+Steckt in jeder Objektdatei und ist die eigentliche Personalverwaltung der
+bestehenden Lösung. In der geprüften Datei: **130 Personen, 31 aktiv.**
+
+```
+Zeile 2:  Spaltenüberschriften
+Zeile 3+: je eine Person
+
+A=PersNr.  B=Gruppe  C=Status  D=Anrede  E=Name  F=Vorname
+G=Funktion H=Einsatzort I=Bemerkungen J=Datum (Austritt)
+K=Ferien (Anspruch)  L=F-Saldo
+M=PLZ  N=Ort  O=Strasse  P=Nr  Q=Mail  R=Mail2  S=Tf  T=Mobil
+U=Geburtstag  V=Nation  W=Jahrestag
+```
+
+Funktionen: Manager, Aussendienst, Teamleiter, Büro, Hauswart, UHR I,
+UHR II, UHR III, Temporär.
+
+## Wie vollständig die Daten wirklich sind
+
+| Feld | gefüllt bei |
+|---|---|
+| Funktion | 123 von 130 |
+| Ferien-Saldo | 130 von 130 |
+| Einsatzort | 62 |
+| Adresse | 38 |
+| Nationalität | 36 |
+| Mobil | 31 |
+| Austrittsdatum | 27 |
+| E-Mail | 24 |
+| **Ferienanspruch** | **3** |
+| Geburtsdatum | 3 |
+
+Der Ferienanspruch ist also praktisch nirgends gepflegt, der Saldo
+dagegen überall. Gepflegt wird offenbar nur der Saldo, von Hand.
+
+## Warum der Saldo übernommen und nicht gerechnet wird
+
+Gespeichert werden `ferien_saldo` und `ferien_saldo_stand`: der Wert aus
+dem Excel mit dem Datum, auf das er sich bezieht.
+
+Eine laufende Fortschreibung wäre erst möglich, wenn feststeht, wie der
+Saldo sich bildet: anteiliger Anspruch bei Ein- und Austritt, Übertrag
+ins Folgejahr, Behandlung von Halbtagen. Das sind Firmenregeln. Sie hier
+zu erfinden hiesse, eine Zahl auszurechnen, die niemand geprüft hat, und
+davon hängen Lohnabrechnungen ab.
+
+## Excel-Datumswerte
+
+Excel speichert Daten als Tageszahl ab dem **30.12.1899**. Nachgerechnete
+Eckwerte, nicht aus dem Gedächtnis:
+
+| Seriennummer | Datum |
+|---|---|
+| 44927 | 2023-01-01 |
+| 45000 | 2023-03-15 |
+| 45292 | 2024-01-01 |
+
+Umgerechnet wird über UTC, nicht über ein lokales `Date`. Sonst rutscht
+ein Geburtstag je nach Zeitzone auf den Vortag.

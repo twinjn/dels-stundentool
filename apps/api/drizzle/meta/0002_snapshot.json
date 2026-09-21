@@ -1,0 +1,1284 @@
+{
+  "id": "91ad8b06-de20-4fd5-877b-84b5c905ab7b",
+  "prevId": "7ecd9842-2569-4964-80fd-521edcb6c22e",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.benutzer": {
+      "name": "benutzer",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "passwort_hash": {
+          "name": "passwort_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rolle": {
+          "name": "rolle",
+          "type": "rolle",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'buero'"
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "erstellt_am": {
+          "name": "erstellt_am",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "letzter_login_am": {
+          "name": "letzter_login_am",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "benutzer_email_eindeutig": {
+          "name": "benutzer_email_eindeutig",
+          "columns": [
+            {
+              "expression": "lower(\"email\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.eintraege": {
+      "name": "eintraege",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "mitarbeiter_id": {
+          "name": "mitarbeiter_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "objekt_id": {
+          "name": "objekt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "datum": {
+          "name": "datum",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "art": {
+          "name": "art",
+          "type": "eintragsart",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "wert": {
+          "name": "wert",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notiz": {
+          "name": "notiz",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "erfasst_von": {
+          "name": "erfasst_von",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "erstellt_am": {
+          "name": "erstellt_am",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "geaendert_am": {
+          "name": "geaendert_am",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "eintraege_mitarbeiter_datum_idx": {
+          "name": "eintraege_mitarbeiter_datum_idx",
+          "columns": [
+            {
+              "expression": "mitarbeiter_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "datum",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "eintraege_datum_idx": {
+          "name": "eintraege_datum_idx",
+          "columns": [
+            {
+              "expression": "datum",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "eintraege_objekt_idx": {
+          "name": "eintraege_objekt_idx",
+          "columns": [
+            {
+              "expression": "objekt_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "eintraege_mitarbeiter_id_mitarbeiter_id_fk": {
+          "name": "eintraege_mitarbeiter_id_mitarbeiter_id_fk",
+          "tableFrom": "eintraege",
+          "tableTo": "mitarbeiter",
+          "columnsFrom": [
+            "mitarbeiter_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "eintraege_objekt_id_objekte_id_fk": {
+          "name": "eintraege_objekt_id_objekte_id_fk",
+          "tableFrom": "eintraege",
+          "tableTo": "objekte",
+          "columnsFrom": [
+            "objekt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "eintraege_erfasst_von_benutzer_id_fk": {
+          "name": "eintraege_erfasst_von_benutzer_id_fk",
+          "tableFrom": "eintraege",
+          "tableTo": "benutzer",
+          "columnsFrom": [
+            "erfasst_von"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "eintraege_arbeit_braucht_objekt": {
+          "name": "eintraege_arbeit_braucht_objekt",
+          "value": "\"eintraege\".\"art\" <> 'arbeit' OR \"eintraege\".\"objekt_id\" IS NOT NULL"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.kalk_adminkosten": {
+      "name": "kalk_adminkosten",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "monat": {
+          "name": "monat",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "betrag": {
+          "name": "betrag",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "sortierung": {
+          "name": "sortierung",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "kalk_adminkosten_monat_idx": {
+          "name": "kalk_adminkosten_monat_idx",
+          "columns": [
+            {
+              "expression": "monat",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "kalk_adminkosten_monat_kalk_monat_monat_fk": {
+          "name": "kalk_adminkosten_monat_kalk_monat_monat_fk",
+          "tableFrom": "kalk_adminkosten",
+          "tableTo": "kalk_monat",
+          "columnsFrom": [
+            "monat"
+          ],
+          "columnsTo": [
+            "monat"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.kalk_monat": {
+      "name": "kalk_monat",
+      "schema": "",
+      "columns": {
+        "monat": {
+          "name": "monat",
+          "type": "date",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "ahv": {
+          "name": "ahv",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.053'"
+        },
+        "alv": {
+          "name": "alv",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.011'"
+        },
+        "nbu": {
+          "name": "nbu",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.0138'"
+        },
+        "bu": {
+          "name": "bu",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.014494'"
+        },
+        "ktg_objekt": {
+          "name": "ktg_objekt",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.00796'"
+        },
+        "ktg_personal": {
+          "name": "ktg_personal",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.00825'"
+        },
+        "rpk": {
+          "name": "rpk",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.002'"
+        },
+        "fak": {
+          "name": "fak",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.012'"
+        },
+        "ml13": {
+          "name": "ml13",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.0833'"
+        },
+        "nbu_schwelle": {
+          "name": "nbu_schwelle",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'8'"
+        },
+        "nbu_traegt_ag": {
+          "name": "nbu_traegt_ag",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "bvg_satz": {
+          "name": "bvg_satz",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.07'"
+        },
+        "bvg_eintritt": {
+          "name": "bvg_eintritt",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'22680'"
+        },
+        "bvg_koord": {
+          "name": "bvg_koord",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'26460'"
+        },
+        "bvg_min": {
+          "name": "bvg_min",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'3780'"
+        },
+        "bvg_max": {
+          "name": "bvg_max",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'64260'"
+        },
+        "mat": {
+          "name": "mat",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'15'"
+        },
+        "mas": {
+          "name": "mas",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'15'"
+        },
+        "trs": {
+          "name": "trs",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "trs_topf": {
+          "name": "trs_topf",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "trs_schluessel": {
+          "name": "trs_schluessel",
+          "type": "verteilschluessel",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'abos'"
+        },
+        "admin_reserve": {
+          "name": "admin_reserve",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0.10'"
+        },
+        "notiz": {
+          "name": "notiz",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "erstellt_am": {
+          "name": "erstellt_am",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.kalk_objekt_monat": {
+      "name": "kalk_objekt_monat",
+      "schema": "",
+      "columns": {
+        "monat": {
+          "name": "monat",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "objekt_id": {
+          "name": "objekt_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "abo_betrag": {
+          "name": "abo_betrag",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "std_manuell": {
+          "name": "std_manuell",
+          "type": "numeric(8, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lohn_manuell": {
+          "name": "lohn_manuell",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ma": {
+          "name": "ma",
+          "type": "numeric(6, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'1'"
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "kalk_objekt_monat_monat_kalk_monat_monat_fk": {
+          "name": "kalk_objekt_monat_monat_kalk_monat_monat_fk",
+          "tableFrom": "kalk_objekt_monat",
+          "tableTo": "kalk_monat",
+          "columnsFrom": [
+            "monat"
+          ],
+          "columnsTo": [
+            "monat"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "kalk_objekt_monat_objekt_id_objekte_id_fk": {
+          "name": "kalk_objekt_monat_objekt_id_objekte_id_fk",
+          "tableFrom": "kalk_objekt_monat",
+          "tableTo": "objekte",
+          "columnsFrom": [
+            "objekt_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "kalk_objekt_monat_monat_objekt_id_pk": {
+          "name": "kalk_objekt_monat_monat_objekt_id_pk",
+          "columns": [
+            "monat",
+            "objekt_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.kalk_person_monat": {
+      "name": "kalk_person_monat",
+      "schema": "",
+      "columns": {
+        "monat": {
+          "name": "monat",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mitarbeiter_id": {
+          "name": "mitarbeiter_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lohn": {
+          "name": "lohn",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "spesen": {
+          "name": "spesen",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "ml13": {
+          "name": "ml13",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "abzug_ahv": {
+          "name": "abzug_ahv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "abzug_alv": {
+          "name": "abzug_alv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "abzug_rpk": {
+          "name": "abzug_rpk",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "abzug_fak": {
+          "name": "abzug_fak",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "fak_manuell": {
+          "name": "fak_manuell",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bvg": {
+          "name": "bvg",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "bvg_manuell": {
+          "name": "bvg_manuell",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "kalk_person_monat_monat_kalk_monat_monat_fk": {
+          "name": "kalk_person_monat_monat_kalk_monat_monat_fk",
+          "tableFrom": "kalk_person_monat",
+          "tableTo": "kalk_monat",
+          "columnsFrom": [
+            "monat"
+          ],
+          "columnsTo": [
+            "monat"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "kalk_person_monat_mitarbeiter_id_mitarbeiter_id_fk": {
+          "name": "kalk_person_monat_mitarbeiter_id_mitarbeiter_id_fk",
+          "tableFrom": "kalk_person_monat",
+          "tableTo": "mitarbeiter",
+          "columnsFrom": [
+            "mitarbeiter_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "kalk_person_monat_monat_mitarbeiter_id_pk": {
+          "name": "kalk_person_monat_monat_mitarbeiter_id_pk",
+          "columns": [
+            "monat",
+            "mitarbeiter_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mitarbeiter": {
+      "name": "mitarbeiter",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "personalnummer": {
+          "name": "personalnummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mitarbeiterstufe": {
+          "name": "mitarbeiterstufe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "eintrittsdatum": {
+          "name": "eintrittsdatum",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "austrittsdatum": {
+          "name": "austrittsdatum",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "ferienanspruch": {
+          "name": "ferienanspruch",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'25'"
+        },
+        "soll_pro_tag": {
+          "name": "soll_pro_tag",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'8.4'"
+        },
+        "ferien_saldo": {
+          "name": "ferien_saldo",
+          "type": "numeric(6, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ferien_saldo_stand": {
+          "name": "ferien_saldo_stand",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stundenlohn": {
+          "name": "stundenlohn",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "monatslohn": {
+          "name": "monatslohn",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "funktion": {
+          "name": "funktion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "einsatzort": {
+          "name": "einsatzort",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gruppe": {
+          "name": "gruppe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "anrede": {
+          "name": "anrede",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "telefon": {
+          "name": "telefon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mobil": {
+          "name": "mobil",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "strasse": {
+          "name": "strasse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "plz": {
+          "name": "plz",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ort": {
+          "name": "ort",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geburtsdatum": {
+          "name": "geburtsdatum",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nationalitaet": {
+          "name": "nationalitaet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ahv_nummer": {
+          "name": "ahv_nummer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "iban": {
+          "name": "iban",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notizen": {
+          "name": "notizen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "erstellt_am": {
+          "name": "erstellt_am",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.objekte": {
+      "name": "objekte",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "objekt_nr": {
+          "name": "objekt_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kunde": {
+          "name": "kunde",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "strasse": {
+          "name": "strasse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "plz": {
+          "name": "plz",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ort": {
+          "name": "ort",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "abo_betrag": {
+          "name": "abo_betrag",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aktiv": {
+          "name": "aktiv",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "notizen": {
+          "name": "notizen",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "erstellt_am": {
+          "name": "erstellt_am",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.protokoll": {
+      "name": "protokoll",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "zeitpunkt": {
+          "name": "zeitpunkt",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "benutzer_id": {
+          "name": "benutzer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "benutzer_name": {
+          "name": "benutzer_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aktion": {
+          "name": "aktion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tabelle": {
+          "name": "tabelle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datensatz_id": {
+          "name": "datensatz_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vorher": {
+          "name": "vorher",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nachher": {
+          "name": "nachher",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "protokoll_zeitpunkt_idx": {
+          "name": "protokoll_zeitpunkt_idx",
+          "columns": [
+            {
+              "expression": "zeitpunkt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "protokoll_tabelle_idx": {
+          "name": "protokoll_tabelle_idx",
+          "columns": [
+            {
+              "expression": "tabelle",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "datensatz_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "protokoll_benutzer_id_benutzer_id_fk": {
+          "name": "protokoll_benutzer_id_benutzer_id_fk",
+          "tableFrom": "protokoll",
+          "tableTo": "benutzer",
+          "columnsFrom": [
+            "benutzer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sitzungen": {
+      "name": "sitzungen",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "benutzer_id": {
+          "name": "benutzer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "erstellt_am": {
+          "name": "erstellt_am",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "laeuft_ab_am": {
+          "name": "laeuft_ab_am",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "letzte_aktivitaet": {
+          "name": "letzte_aktivitaet",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "ip": {
+          "name": "ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "browser": {
+          "name": "browser",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "sitzungen_benutzer_idx": {
+          "name": "sitzungen_benutzer_idx",
+          "columns": [
+            {
+              "expression": "benutzer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "sitzungen_ablauf_idx": {
+          "name": "sitzungen_ablauf_idx",
+          "columns": [
+            {
+              "expression": "laeuft_ab_am",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "sitzungen_benutzer_id_benutzer_id_fk": {
+          "name": "sitzungen_benutzer_id_benutzer_id_fk",
+          "tableFrom": "sitzungen",
+          "tableTo": "benutzer",
+          "columnsFrom": [
+            "benutzer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.eintragsart": {
+      "name": "eintragsart",
+      "schema": "public",
+      "values": [
+        "arbeit",
+        "ferien",
+        "krankheit",
+        "unfall",
+        "feiertag",
+        "frei",
+        "sonstiges",
+        "spesen"
+      ]
+    },
+    "public.rolle": {
+      "name": "rolle",
+      "schema": "public",
+      "values": [
+        "admin",
+        "buero"
+      ]
+    },
+    "public.verteilschluessel": {
+      "name": "verteilschluessel",
+      "schema": "public",
+      "values": [
+        "abos",
+        "objekt"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

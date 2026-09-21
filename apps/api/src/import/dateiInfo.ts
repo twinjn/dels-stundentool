@@ -7,6 +7,7 @@
  */
 import XLSX from "xlsx";
 import { alsText, alsZahl, zelle } from "./excel.js";
+import { excelDatum } from "./personal.js";
 
 export type Dateityp = "verwaltung" | "objekt" | "unbekannt";
 
@@ -33,6 +34,27 @@ function ausDatenblatt(mappe: XLSX.WorkBook, beschriftung: string): string {
     }
   }
   return "";
+}
+
+/**
+ * Der Stand, auf den sich die Zahlen der Datei beziehen.
+ *
+ * Der Wert im Blatt "Daten" ist ein Datumswert, kein Text. Deshalb
+ * dieselbe Umrechnung wie beim Personalblatt statt einer Textpruefung:
+ * String(new Date(...)) ergibt "Mon Dec 29 2025 ..." und passt auf kein
+ * ISO-Muster.
+ */
+export function standAusDatei(mappe: XLSX.WorkBook): string | null {
+  const blatt = mappe.Sheets["Daten"];
+  if (!blatt) return null;
+
+  const bereich = XLSX.utils.decode_range(blatt["!ref"] ?? "A1:A1");
+  for (let zeile = 1; zeile <= Math.min(bereich.e.r + 1, 60); zeile++) {
+    if (alsText(zelle(blatt, zeile, 1)).toLowerCase() === "aktuelles datum") {
+      return excelDatum(zelle(blatt, zeile, 2));
+    }
+  }
+  return null;
 }
 
 export function erkenneDatei(mappe: XLSX.WorkBook, dateiname = ""): DateiInfo {

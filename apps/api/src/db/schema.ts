@@ -127,12 +127,32 @@ export const mitarbeiter = pgTable("mitarbeiter", {
   ferienanspruch: numeric("ferienanspruch", { precision: 5, scale: 2 }).notNull().default("25"),
   sollProTag: numeric("soll_pro_tag", { precision: 5, scale: 2 }).notNull().default("8.4"),
 
+  /**
+   * Ferien-Saldo, wie er bei der Uebernahme aus dem Excel galt, mit dem
+   * Stichtag dazu.
+   *
+   * Bewusst ein uebernommener Wert und keine laufende Rechnung: wie sich
+   * der Saldo genau bildet (anteiliger Anspruch bei Ein- und Austritt,
+   * Uebertrag ins Folgejahr, Halbtage), sind Firmenregeln, die hier
+   * niemand erfunden haben sollte. Was seit dem Stichtag bezogen wurde,
+   * steht in den Eintraegen und wird daneben angezeigt.
+   */
+  ferienSaldo: numeric("ferien_saldo", { precision: 6, scale: 2 }),
+  ferienSaldoStand: date("ferien_saldo_stand"),
+
   // Lohn (nur fuer die Rolle admin sichtbar)
   stundenlohn: geld("stundenlohn"),
   monatslohn: geld("monatslohn"),
 
+  /** Manager, Aussendienst, Teamleiter, Buero, Hauswart, UHR I-III, Temporaer. */
+  funktion: text("funktion"),
+  einsatzort: text("einsatzort"),
+  gruppe: text("gruppe"),
+
   // Kontakt
+  anrede: text("anrede"),
   telefon: text("telefon"),
+  mobil: text("mobil"),
   email: text("email"),
   strasse: text("strasse"),
   plz: text("plz"),
@@ -140,6 +160,7 @@ export const mitarbeiter = pgTable("mitarbeiter", {
 
   // Personendaten
   geburtsdatum: date("geburtsdatum"),
+  nationalitaet: text("nationalitaet"),
   ahvNummer: text("ahv_nummer"),
   iban: text("iban"),
 

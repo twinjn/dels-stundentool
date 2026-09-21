@@ -106,6 +106,7 @@ npm run db:import-excel -w @dels/api -- --ordner "/Pfad/zu/2026" --schreiben
 | `--ersetzen` | vorhandene Einträge der betroffenen Monate vorher löschen |
 | `--fehlende-anlegen` | Mitarbeiter und Objekte anlegen, die es noch nicht gibt |
 | `--jahr 2026` | Jahr vorgeben, falls es in der Datei fehlt |
+| `--stammdaten` | zusätzlich das Blatt `Personal` übernehmen |
 
 Der Trockenlauf vergleicht die eingelesenen Zahlen mit den Summenspalten,
 die Excel selbst füllt (Arbeit, Ferien, Krank, Unfall). Weicht etwas ab,
