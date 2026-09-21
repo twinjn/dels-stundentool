@@ -31,6 +31,8 @@ Oberfläche: http://localhost:5173
 | [docs/PLAN.md](docs/PLAN.md) | Was gebaut wird, in welcher Reihenfolge, und warum |
 | [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md) | Wie das Projekt aufgebaut ist und warum so |
 | [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md) | Einrichten, Befehle, Fehlersuche |
+| [docs/BETRIEB.md](docs/BETRIEB.md) | Deployment, TLS, Sicherungen, Ernstfall |
+| [docs/EXCEL-FORMAT.md](docs/EXCEL-FORMAT.md) | Aufbau der bestehenden Excel-Dateien |
 
 ## Vor jedem Commit
 

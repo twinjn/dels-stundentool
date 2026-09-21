@@ -1,0 +1,79 @@
+# Produktivbetrieb.
+#
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Erwartet eine .env im selben Ordner mit mindestens:
+#   POSTGRES_PASSWORD, SESSION_SECRET, WEB_ORIGIN
+#
+# WICHTIG: Vor diese Anwendung gehoert ein Webserver mit TLS (Caddy,
+# nginx, Traefik). Das Sitzungs-Cookie ist "secure" und wird ueber reines
+# http nie zurueckgeschickt, die Anmeldung funktioniert dann nicht. Die
+# Anwendung warnt beim Start, wenn WEB_ORIGIN auf http:// zeigt.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dels
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD fehlt}
+      POSTGRES_DB: dels
+    volumes:
+      - dels-db:/var/lib/postgresql/data
+    # Kein Port nach aussen: die Datenbank ist nur fuer die Anwendung da.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dels -d dels"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://dels:${POSTGRES_PASSWORD}@db:5432/dels
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET fehlt}
+      WEB_ORIGIN: ${WEB_ORIGIN:?WEB_ORIGIN fehlt}
+      # Anzahl Proxys davor. Hinter genau einem Reverse Proxy: 1.
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+    ports:
+      # Nur auf localhost. Nach aussen geht der Reverse Proxy.
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://localhost:3000/api/health'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # Sichert taeglich und prueft die Sicherung, indem sie wirklich
+  # zurueckgespielt wird. Eine ungepruefte Sicherung ist eine Hoffnung.
+  backup:
+    # Bewusst NICHT das alpine-Bild: die Sicherungsskripte brauchen bash,
+    # und Alpine bringt nur ash mit. Der Dienst waere beim ersten Lauf
+    # gescheitert, und zwar nachts um zwei, wo es niemand sieht.
+    image: postgres:16
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://dels:${POSTGRES_PASSWORD}@db:5432/dels
+      BACKUP_BEHALTEN_TAGE: ${BACKUP_BEHALTEN_TAGE:-30}
+      BACKUP_STUNDE: ${BACKUP_STUNDE:-2}
+    volumes:
+      - ./backups:/backups
+      - ./infra:/infra:ro
+    entrypoint: ["/bin/sh", "/infra/backup-dienst.sh"]
+
+volumes:
+  dels-db:

@@ -51,7 +51,7 @@ Jede Phase endet mit etwas Lauffähigem.
 | 5 | Matrix | Monatsmatrix und Dashboard | offen |
 | 6 | Kalkulation | Portierung mit Zahlenvergleich alt gegen neu | **fertig** |
 | 7 | Export | Excel und PDF, Lohnabrechnung | offen |
-| 8 | Betrieb | Backup mit getestetem Restore, Audit-Log, Deployment | offen |
+| 8 | Betrieb | Backup mit getestetem Restore, Audit-Log, Deployment | **fertig** |
 
 Das Altsystem in `legacy/` läuft parallel weiter, bis Phase 7 durch ist.
 Erst dann wird umgeschaltet.

@@ -939,3 +939,49 @@ button:focus-visible {
   border: 1px solid var(--farbe-linie);
   border-radius: 6px;
 }
+
+/* --- Protokoll -------------------------------------------------------- */
+
+.protokolltabelle {
+  font-size: 13px;
+}
+
+.protokolltabelle tbody tr {
+  cursor: default;
+}
+
+.protokolltabelle .zeitpunkt {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.unterschiede {
+  margin: 0;
+  padding-left: 14px;
+}
+
+.unterschiede .feldname {
+  color: var(--farbe-gedaempft);
+}
+
+.unterschiede .alt {
+  text-decoration: line-through;
+  color: var(--farbe-gedaempft);
+}
+
+.unterschiede .neu {
+  font-weight: 600;
+}
+
+.blaettern {
+  display: flex;
+  gap: var(--abstand-2);
+  margin-top: var(--abstand-3);
+}
+
+.protokollseite .filterzeile select {
+  padding: 6px var(--abstand-2);
+  font: inherit;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}

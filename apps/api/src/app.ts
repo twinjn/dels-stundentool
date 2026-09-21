@@ -9,12 +9,14 @@
  * Die Reihenfolge der app.use(...) Aufrufe ist keine Geschmacksfrage.
  * Express arbeitet sie von oben nach unten ab wie eine Kette.
  */
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import { sitzungLesen } from "./auth/guards.js";
-import { config } from "./config.js";
+import { config, istProduktion } from "./config.js";
 import { fehlerBehandlung, routeNichtGefunden } from "./fehler.js";
 import { authRouter } from "./routes/auth.js";
 import { benutzerRouter } from "./routes/benutzer.js";
@@ -22,6 +24,7 @@ import { healthRouter } from "./routes/health.js";
 import { kalkulationRouter } from "./routes/kalkulation.js";
 import { mitarbeiterRouter } from "./routes/mitarbeiter.js";
 import { objekteRouter } from "./routes/objekte.js";
+import { protokollRouter } from "./routes/protokoll.js";
 import { stundenRouter } from "./routes/stunden.js";
 
 export function baueApp() {
@@ -64,6 +67,44 @@ export function baueApp() {
   app.use("/api/objekte", objekteRouter);
   app.use("/api/stunden", stundenRouter);
   app.use("/api/kalkulation", kalkulationRouter);
+  app.use("/api/protokoll", protokollRouter);
+
+  // --- Oberflaeche ----------------------------------------------------
+  /**
+   * In Produktion liefert Express die gebaute Oberflaeche gleich mit aus.
+   *
+   * Dadurch kommen Oberflaeche und API von derselben Adresse. Das spart
+   * nicht nur einen zweiten Webserver, es erspart auch die ganze Klasse
+   * von Cookie-Problemen, die entsteht, wenn der Browser die beiden fuer
+   * verschiedene Websites haelt.
+   *
+   * Beim Entwickeln macht der Vite-Server dasselbe mit seinem Proxy.
+   */
+  if (istProduktion) {
+    const hier = path.dirname(fileURLToPath(import.meta.url));
+    const oberflaeche = path.resolve(hier, "../../web/dist");
+
+    // Die gebauten Dateien tragen einen Hash im Namen. Aendert sich der
+    // Inhalt, aendert sich der Name, also darf der Browser sie ewig
+    // behalten.
+    app.use(
+      express.static(oberflaeche, {
+        index: false,
+        maxAge: "1y",
+        immutable: true,
+      }),
+    );
+
+    // Alles, was keine API-Anfrage ist, bekommt die Startseite. Das
+    // braucht eine Anwendung mit eigenen Adressen: wer /kalkulation neu
+    // laedt, soll nicht auf einen 404 laufen.
+    // index.html darf NICHT zwischengespeichert werden, sonst bekommt der
+    // Browser nach einer neuen Fassung weiter die alten Dateinamen.
+    app.get(/^\/(?!api\/).*/, (_req, res) => {
+      res.setHeader("Cache-Control", "no-cache");
+      res.sendFile(path.join(oberflaeche, "index.html"));
+    });
+  }
 
   // --- Abschluss ------------------------------------------------------
   // Beides muss ganz unten stehen, sonst schluckt es die echten Routen.

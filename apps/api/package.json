@@ -15,7 +15,9 @@
     "db:studio": "drizzle-kit studio",
     "db:import": "tsx src/db/importieren.ts",
     "db:admin": "tsx src/db/adminAnlegen.ts",
-    "db:import-excel": "tsx src/import/excelKommando.ts"
+    "db:import-excel": "tsx src/import/excelKommando.ts",
+    "db:migrate:prod": "node dist/db/migrieren.js",
+    "db:admin:prod": "node dist/db/adminAnlegen.js"
   },
   "dependencies": {
     "@dels/shared": "*",

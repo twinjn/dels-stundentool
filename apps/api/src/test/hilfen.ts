@@ -9,8 +9,40 @@ import type { Express } from "express";
 import request from "supertest";
 import type { Rolle } from "@dels/shared";
 import { hashePasswort } from "../auth/passwort.js";
+import { config } from "../config.js";
 import { db } from "../db/index.js";
 import { benutzer } from "../db/schema.js";
+
+/**
+ * Schutz davor, Tests gegen die falsche Datenbank laufen zu lassen.
+ *
+ * Die Tests legen Benutzer an, aendern Stammdaten und raeumen hinterher
+ * auf. In einer Produktivdatenbank ist das eine Katastrophe, und ein
+ * vertippter oder vergessener DATABASE_URL ist schnell passiert.
+ *
+ * Deshalb laufen sie nur gegen eine Datenbank, deren Name sie als
+ * Spielwiese ausweist. Wer es trotzdem will, muss es ausdruecklich sagen:
+ *   TESTS_GEGEN_DIESE_DB=ja npm test
+ */
+function pruefeDatenbank(): void {
+  if (process.env.TESTS_GEGEN_DIESE_DB === "ja") return;
+
+  const url = config.DATABASE_URL;
+  const name = url.split("/").pop()?.split("?")[0] ?? "";
+
+  if (/test|probe|dev|lokal/i.test(name)) return;
+
+  throw new Error(
+    `\nDie Tests wuerden gegen die Datenbank "${name}" laufen.\n` +
+      "Das sieht nicht nach einer Testdatenbank aus, und die Tests legen\n" +
+      "Daten an und loeschen sie wieder.\n\n" +
+      "Entweder DATABASE_URL auf eine Datenbank mit test, dev oder probe\n" +
+      "im Namen zeigen lassen, oder, wenn es wirklich gewollt ist:\n" +
+      "  TESTS_GEGEN_DIESE_DB=ja npm test\n",
+  );
+}
+
+pruefeDatenbank();
 
 export const TESTPASSWORT = "ein-langes-testpasswort";
 
