@@ -21,6 +21,7 @@ import { benutzerRouter } from "./routes/benutzer.js";
 import { healthRouter } from "./routes/health.js";
 import { mitarbeiterRouter } from "./routes/mitarbeiter.js";
 import { objekteRouter } from "./routes/objekte.js";
+import { stundenRouter } from "./routes/stunden.js";
 
 export function baueApp() {
   const app = express();
@@ -60,6 +61,7 @@ export function baueApp() {
   app.use("/api/benutzer", benutzerRouter);
   app.use("/api/mitarbeiter", mitarbeiterRouter);
   app.use("/api/objekte", objekteRouter);
+  app.use("/api/stunden", stundenRouter);
 
   // --- Abschluss ------------------------------------------------------
   // Beides muss ganz unten stehen, sonst schluckt es die echten Routen.

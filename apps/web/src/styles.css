@@ -336,8 +336,9 @@ button:focus-visible {
 
 .inhalt {
   flex: 1;
-  padding: var(--abstand-4);
   min-width: 0;
+  overflow-x: hidden;
+  padding: var(--abstand-4);
 }
 
 /* --- Seitenaufbau ---------------------------------------------------- */
@@ -606,4 +607,199 @@ button:focus-visible {
   .feldraster {
     grid-template-columns: 1fr;
   }
+}
+
+/* --- Stundenraster ---------------------------------------------------- */
+
+.stundenseite .seitenkopf {
+  align-items: center;
+}
+
+.monatswahl {
+  display: flex;
+  gap: var(--abstand-2);
+  align-items: center;
+}
+
+.monatswahl h1 {
+  min-width: 190px;
+  margin: 0;
+  font-size: 20px;
+}
+
+.kopfhinweise {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: center;
+}
+
+.legende {
+  margin-bottom: var(--abstand-3);
+}
+
+/*
+ * Der Container scrollt waagrecht, die Namensspalte bleibt stehen.
+ * Ohne das verliert man bei 31 Tagesspalten sofort die Orientierung.
+ */
+/*
+ * min-width: 0 ist hier kein Zierrat. In einem Grid- oder Flex-Container
+ * ist die kleinste Breite eines Kindes standardmaessig sein INHALT. Eine
+ * Tabelle mit 31 Spalten sprengt damit das Raster, und statt der Tabelle
+ * scrollt die ganze Seite seitlich. Genau das ist am Handy passiert.
+ */
+.stundenseite {
+  min-width: 0;
+}
+
+.rastercontainer {
+  max-width: 100%;
+  overflow-x: auto;
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.raster {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.raster th,
+.raster td {
+  padding: 3px 4px;
+  text-align: center;
+  white-space: nowrap;
+  border-right: 1px solid var(--farbe-linie);
+  border-bottom: 1px solid var(--farbe-linie);
+}
+
+.raster thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--farbe-flaeche);
+  font-weight: 600;
+}
+
+.raster .haftend {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 190px;
+  max-width: 190px;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  background: var(--farbe-flaeche);
+}
+
+.raster thead .haftend {
+  z-index: 3;
+}
+
+.raster thead .wochentag {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--farbe-gedaempft);
+}
+
+.raster thead .tagnummer {
+  display: block;
+}
+
+.raster .wochenende {
+  background: var(--farbe-hintergrund);
+}
+
+.personenzeile .haftend {
+  font-weight: 600;
+  border-top: 2px solid var(--farbe-linie);
+}
+
+.personenzeile .zelle {
+  border-top: 2px solid var(--farbe-linie);
+}
+
+.pernr {
+  margin-left: var(--abstand-2);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--farbe-gedaempft);
+}
+
+.objektzeile .haftend {
+  padding-left: var(--abstand-4);
+  color: var(--farbe-gedaempft);
+}
+
+.objektnr {
+  margin-right: var(--abstand-1);
+  font-size: 11px;
+}
+
+.zelle {
+  min-width: 34px;
+  cursor: cell;
+}
+
+.zelle:hover {
+  background: #eef3f8;
+}
+
+.zelle:focus-visible {
+  outline: 2px solid var(--farbe-text);
+  outline-offset: -2px;
+}
+
+.zelle-abwesend {
+  font-weight: 600;
+  color: var(--farbe-rot);
+}
+
+.zelle-aktiv {
+  padding: 0;
+}
+
+.zelle-aktiv input {
+  width: 100%;
+  min-width: 34px;
+  padding: 3px 2px;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  border: 2px solid var(--farbe-text);
+  border-radius: 0;
+  outline: none;
+}
+
+.raster .summe {
+  min-width: 42px;
+  font-weight: 600;
+  background: var(--farbe-flaeche);
+}
+
+.zufuegenzeile td {
+  border-bottom: none;
+}
+
+.zufuegenzeile select {
+  padding: 2px 4px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+  background: transparent;
+  border: 1px dashed var(--farbe-linie);
+  border-radius: 4px;
+}
+
+.stundenseite .filterzeile input[type="search"] {
+  max-width: 340px;
+}
+
+.leerhinweis {
+  padding: var(--abstand-4);
+  text-align: center;
 }

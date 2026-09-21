@@ -40,8 +40,10 @@ export const MONATSNAMEN = [
   "Dezember",
 ] as const;
 
-export type Eintragsart =
-  "arbeit" | "ferien" | "krankheit" | "unfall" | "feiertag" | "frei" | "sonstiges" | "spesen";
+// Die Liste der Eintragsarten liegt in @dels/shared, damit Server, Browser
+// und Import dieselbe benutzen. Hier nur weiterreichen.
+import type { Eintragsart } from "@dels/shared";
+export type { Eintragsart };
 
 /**
  * Die Buchstaben aus den Tageszellen. Kleinschreibung und Leerzeichen

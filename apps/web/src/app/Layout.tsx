@@ -12,6 +12,7 @@ import { useAuth } from "./AuthKontext.js";
 type Eintrag = { pfad: string; text: string; recht?: Parameters<typeof hatRecht>[1] };
 
 const NAVIGATION: Eintrag[] = [
+  { pfad: "/stunden", text: "Stunden", recht: "stunden:lesen" },
   { pfad: "/mitarbeiter", text: "Mitarbeiter", recht: "stammdaten:lesen" },
   { pfad: "/objekte", text: "Objekte", recht: "stammdaten:lesen" },
   { pfad: "/benutzer", text: "Benutzer", recht: "benutzer:verwalten" },

@@ -88,6 +88,8 @@ export const api = {
   get: <T>(pfad: string) => anfrage<T>(pfad),
   post: <T>(pfad: string, daten?: unknown) =>
     anfrage<T>(pfad, { method: "POST", body: JSON.stringify(daten ?? {}) }),
+  put: <T>(pfad: string, daten?: unknown) =>
+    anfrage<T>(pfad, { method: "PUT", body: JSON.stringify(daten ?? {}) }),
   patch: <T>(pfad: string, daten?: unknown) =>
     anfrage<T>(pfad, { method: "PATCH", body: JSON.stringify(daten ?? {}) }),
   delete: <T>(pfad: string) => anfrage<T>(pfad, { method: "DELETE" }),

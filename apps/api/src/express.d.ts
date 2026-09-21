@@ -8,7 +8,6 @@
 import type { AngemeldeterBenutzer } from "./auth/sitzung.js";
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       /** Gesetzt von der Middleware sitzungLesen, wenn die Sitzung gilt. */

@@ -47,7 +47,7 @@ Jede Phase endet mit etwas Lauffähigem.
 | 1 | Datenbank | Schema, Migrationen, Importwerkzeug | **fertig**, Umzug der echten Daten offen |
 | 2 | Auth | Login, Sessions, Rollen, Benutzerverwaltung | **fertig** |
 | 3 | Stammdaten | Mitarbeiter und Objekte, Layout, Navigation | **fertig** |
-| 4 | Stundenerfassung | Schnellerfassung, mobiltauglich | offen |
+| 4 | Stundenerfassung | Excel-Import und Erfassungsraster | **fertig** |
 | 5 | Matrix | Monatsmatrix und Dashboard | offen |
 | 6 | Kalkulation | Portierung mit Zahlenvergleich alt gegen neu | offen |
 | 7 | Export | Excel und PDF, Lohnabrechnung | offen |
@@ -102,7 +102,9 @@ API.
 - Der Import ist gebaut und getestet, aber noch nicht ausgefuehrt. Dafür
   wird `SUPABASE_DATABASE_URL` in der `.env` gebraucht
 
-- Stunden laufen heute über **Excel**, WhatsApp und Telefon sind geplant.
-  Für Phase 4 heisst das: ein guter Excel-Import ist vermutlich mehr wert
-  als eine schöne Eingabemaske, und die Maske muss fürs Abtippen taugen
+- Die beiden vorliegenden Objektdateien (10001, 10019) sind vollständig
+  leer. Ob diese Ebene überhaupt benutzt wird, ist offen. Der Leser dafür
+  ist gebaut, aber nicht gegen echte Zahlen geprüft
+- Personalstamm aus den Objektdateien übernehmen (Funktion, Einsatzort,
+  Ferien-Saldo). Dafür fehlen in der Datenbank noch zwei Felder
 - Wo läuft das Ganze später? Noch offen, blockiert aber nichts (Phase 8)

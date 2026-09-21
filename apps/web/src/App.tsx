@@ -8,6 +8,7 @@ import { Anmeldung } from "./features/anmeldung/Anmeldung.js";
 import { BenutzerSeite } from "./features/benutzer/BenutzerSeite.js";
 import { MitarbeiterSeite } from "./features/mitarbeiter/MitarbeiterSeite.js";
 import { ObjekteSeite } from "./features/objekte/ObjekteSeite.js";
+import { StundenSeite } from "./features/stunden/StundenSeite.js";
 
 export default function App() {
   return (
@@ -46,11 +47,12 @@ function Inhalt() {
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
+          <Route path="/stunden" element={<StundenSeite />} />
           <Route path="/mitarbeiter" element={<MitarbeiterSeite />} />
           <Route path="/objekte" element={<ObjekteSeite />} />
           <Route path="/benutzer" element={<BenutzerSeite />} />
           {/* Alles Unbekannte landet auf der Startseite statt im Nichts. */}
-          <Route path="*" element={<Navigate to="/mitarbeiter" replace />} />
+          <Route path="*" element={<Navigate to="/stunden" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>
