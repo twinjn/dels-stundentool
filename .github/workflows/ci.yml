@@ -1,0 +1,70 @@
+# Laeuft bei jedem Push und jedem Pull Request.
+# Zweck: nichts kommt in den Hauptzweig, das nicht formatiert, fehlerfrei
+# typisiert und getestet ist. Das ersetzt "bei mir lief es".
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  pruefen:
+    name: Formatierung, Linter, Typen, Tests
+    runs-on: ubuntu-latest
+
+    # Eine echte Datenbank fuer die Tests. Wird ab Phase 1 gebraucht.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: dels
+          POSTGRES_PASSWORD: dels_ci_passwort
+          POSTGRES_DB: dels_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dels -d dels_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgres://dels:dels_ci_passwort@localhost:5432/dels_test
+      # Nur fuer die CI. Das echte Geheimnis liegt niemals im Repository.
+      SESSION_SECRET: ci-geheimnis-nur-fuer-tests-mindestens-32-zeichen
+      WEB_ORIGIN: http://localhost:5173
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # "ci" statt "install": installiert exakt das, was in package-lock.json
+      # steht, und bricht ab, wenn die Datei nicht dazu passt.
+      - name: Abhaengigkeiten installieren
+        run: npm ci
+
+      # Muss vor allem anderen laufen: api und web importieren das
+      # gebaute Ergebnis aus packages/shared/dist.
+      - name: Gemeinsames Paket bauen
+        run: npm run build -w @dels/shared
+
+      - name: Formatierung pruefen
+        run: npm run format:check
+
+      - name: Linter
+        run: npm run lint
+
+      - name: Typen pruefen
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm test
+
+      - name: Produktionsbau
+        run: npm run build

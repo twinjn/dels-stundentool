@@ -1,0 +1,135 @@
+/*
+ * Basis-Stile. Das richtige Design kommt in Phase 3, wenn die erste echte
+ * Seite steht. Hier nur so viel, dass die Statusseite lesbar ist.
+ *
+ * Farben und Abstaende liegen als Variablen ganz oben. So aendert man
+ * spaeter an EINER Stelle, statt 200 Zeilen zu durchsuchen.
+ */
+:root {
+  --farbe-text: #1a1d21;
+  --farbe-gedaempft: #5c6570;
+  --farbe-linie: #dfe3e8;
+  --farbe-flaeche: #ffffff;
+  --farbe-hintergrund: #f4f6f8;
+  --farbe-gruen: #1a7f4b;
+  --farbe-rot: #b3261e;
+
+  --abstand-1: 4px;
+  --abstand-2: 8px;
+  --abstand-3: 16px;
+  --abstand-4: 24px;
+  --abstand-5: 32px;
+
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--farbe-text);
+  background: var(--farbe-hintergrund);
+}
+
+.seite {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--abstand-5) var(--abstand-3);
+}
+
+.kopf h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.unterzeile {
+  margin: var(--abstand-1) 0 0;
+  color: var(--farbe-gedaempft);
+}
+
+.karte {
+  margin-top: var(--abstand-4);
+  padding: var(--abstand-4);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.karte h2 {
+  margin: 0 0 var(--abstand-3);
+  font-size: 17px;
+}
+
+.hinweis {
+  margin: 0 0 var(--abstand-3);
+  color: var(--farbe-gedaempft);
+  font-size: 13px;
+}
+
+.werte {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: var(--abstand-2) var(--abstand-3);
+  margin: 0;
+}
+
+.werte dt {
+  color: var(--farbe-gedaempft);
+}
+
+.werte dd {
+  margin: 0;
+}
+
+.status-gruen {
+  color: var(--farbe-gruen);
+  font-weight: 600;
+}
+
+.status-rot {
+  color: var(--farbe-rot);
+}
+
+.tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabelle th,
+.tabelle td {
+  padding: var(--abstand-2);
+  text-align: left;
+  border-bottom: 1px solid var(--farbe-linie);
+}
+
+.tabelle th {
+  font-weight: 600;
+  color: var(--farbe-gedaempft);
+}
+
+.tabelle .ja {
+  color: var(--farbe-gruen);
+}
+
+.tabelle .nein {
+  color: var(--farbe-gedaempft);
+}
+
+code {
+  padding: 1px 5px;
+  font-size: 0.9em;
+  background: var(--farbe-hintergrund);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 4px;
+}
