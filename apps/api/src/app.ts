@@ -19,6 +19,7 @@ import { fehlerBehandlung, routeNichtGefunden } from "./fehler.js";
 import { authRouter } from "./routes/auth.js";
 import { benutzerRouter } from "./routes/benutzer.js";
 import { healthRouter } from "./routes/health.js";
+import { kalkulationRouter } from "./routes/kalkulation.js";
 import { mitarbeiterRouter } from "./routes/mitarbeiter.js";
 import { objekteRouter } from "./routes/objekte.js";
 import { stundenRouter } from "./routes/stunden.js";
@@ -62,6 +63,7 @@ export function baueApp() {
   app.use("/api/mitarbeiter", mitarbeiterRouter);
   app.use("/api/objekte", objekteRouter);
   app.use("/api/stunden", stundenRouter);
+  app.use("/api/kalkulation", kalkulationRouter);
 
   // --- Abschluss ------------------------------------------------------
   // Beides muss ganz unten stehen, sonst schluckt es die echten Routen.

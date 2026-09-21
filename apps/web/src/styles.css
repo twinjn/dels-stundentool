@@ -803,3 +803,139 @@ button:focus-visible {
   padding: var(--abstand-4);
   text-align: center;
 }
+
+/* --- Kalkulation ------------------------------------------------------ */
+
+.kacheln {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--abstand-3);
+  margin-bottom: var(--abstand-4);
+}
+
+.kachel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--abstand-3);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.kachel-titel {
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+}
+
+.kachel-wert {
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.kachel-hinweis {
+  font-size: 11px;
+  color: var(--farbe-gedaempft);
+}
+
+.kachel-gross .kachel-wert {
+  font-size: 24px;
+}
+
+.kachel.pos .kachel-wert {
+  color: var(--farbe-gruen);
+}
+
+.kachel.neg .kachel-wert {
+  color: var(--farbe-rot);
+}
+
+.warnhinweis {
+  margin: 0 0 var(--abstand-3);
+  padding: var(--abstand-2) var(--abstand-3);
+  font-size: 13px;
+  background: #fff8e6;
+  border: 1px solid #f0dca8;
+  border-radius: 6px;
+}
+
+.kalkulationsseite h2 {
+  margin: var(--abstand-5) 0 var(--abstand-2);
+  font-size: 16px;
+}
+
+.ansaetze {
+  padding: var(--abstand-3);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.ansaetze summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ansatzraster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--abstand-2) var(--abstand-3);
+  margin-top: var(--abstand-3);
+}
+
+.ansatzfeld {
+  display: flex;
+  gap: var(--abstand-2);
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.ansatzfeld > span {
+  color: var(--farbe-gedaempft);
+}
+
+.wertfeld {
+  padding: 3px 6px;
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 4px;
+}
+
+.wertfeld.rechts {
+  text-align: right;
+}
+
+.wertfeld.links {
+  text-align: left;
+}
+
+.kalktabelle {
+  background: var(--farbe-flaeche);
+}
+
+.kalktabelle tbody tr {
+  cursor: default;
+}
+
+.kalktabelle.schmal {
+  max-width: 560px;
+}
+
+.kalktabelle .pos {
+  color: var(--farbe-gruen);
+}
+
+.kalktabelle .neg {
+  color: var(--farbe-rot);
+}
+
+.kalkulationsseite .monatswahl select {
+  padding: 5px var(--abstand-2);
+  font: inherit;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}

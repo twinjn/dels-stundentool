@@ -164,6 +164,32 @@ Antwortzeit. Bei unbekannter E-Mail rechnen wir absichtlich gegen einen
 Wegwerf-Hash, damit die Antwort nicht messbar schneller kommt. Sonst liesse
 sich herausfinden, welche Adressen überhaupt ein Konto haben.
 
+## Wie die Kalkulation portiert wurde
+
+Der Rechenkern liegt in `packages/shared/src/kalkulation.ts` und ist eine
+Zeile-für-Zeile-Übertragung von `legacy/src/kalkulation.js`, **in
+derselben Reihenfolge der Rechenschritte**.
+
+Das ist keine Bequemlichkeit. Gleitkommaaddition ist nicht assoziativ:
+`(a+b)+c` kann sich von `a+(b+c)` im letzten Rappen unterscheiden. Beim
+Portieren wurde das geprüft, indem absichtlich eine Klammer verschoben
+wurde. Ergebnis: `114.01220404500003` statt `114.01220404500002`. Eine
+Ziffer an der vierzehnten Stelle, allein durch Umstellen.
+
+Geprüft wird die Portierung durch einen **Vergleichstest**
+(`kalkulation.vergleich.test.ts`): 3000 zufällig erzeugte Szenarien
+laufen durch beide Fassungen, und jede einzelne Zahl muss exakt
+übereinstimmen. Das deckt mehr Fälle ab als ein einzelner echter Monat
+und braucht keine Personendaten.
+
+Der Test verschwindet zusammen mit `legacy/`. Genau dann wird er auch
+nicht mehr gebraucht.
+
+Dieselbe Funktion benutzen Browser und Server. Der Browser rechnet
+sofort, während jemand an einem Ansatz dreht, und der Export auf dem
+Server rechnet später mit derselben Logik. Es gibt keine zweite Fassung,
+die auseinanderlaufen könnte.
+
 ## Was wo NICHT hingehört
 
 - **Keine Datenbankzugriffe im Browser.** Der Browser kennt nur die API
