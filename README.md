@@ -33,6 +33,7 @@ Oberfläche: http://localhost:5173
 | [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md) | Einrichten, Befehle, Fehlersuche |
 | [docs/BETRIEB.md](docs/BETRIEB.md) | Deployment, TLS, Sicherungen, Ernstfall |
 | [docs/EXCEL-FORMAT.md](docs/EXCEL-FORMAT.md) | Aufbau der bestehenden Excel-Dateien |
+| [docs/EXPORT.md](docs/EXPORT.md) | Was exportiert wird, wer was bekommt, und der Weg zum PDF |
 
 ## Vor jedem Commit
 

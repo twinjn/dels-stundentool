@@ -32,6 +32,7 @@ const AKTION_TEXT: Record<string, string> = {
   anlegen: "angelegt",
   aendern: "geaendert",
   loeschen: "geloescht",
+  exportieren: "exportiert",
 };
 
 /** Zeigt die geaenderten Felder als "Feld: alt -> neu". */
@@ -159,6 +160,7 @@ export function ProtokollSeite() {
           <option value="anlegen">angelegt</option>
           <option value="aendern">geaendert</option>
           <option value="loeschen">geloescht</option>
+          <option value="exportieren">exportiert</option>
         </select>
         <select
           value={tage}

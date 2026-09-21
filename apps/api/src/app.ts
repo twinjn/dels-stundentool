@@ -20,6 +20,7 @@ import { config, istProduktion } from "./config.js";
 import { fehlerBehandlung, routeNichtGefunden } from "./fehler.js";
 import { authRouter } from "./routes/auth.js";
 import { benutzerRouter } from "./routes/benutzer.js";
+import { exportRouter } from "./routes/export.js";
 import { healthRouter } from "./routes/health.js";
 import { kalkulationRouter } from "./routes/kalkulation.js";
 import { mitarbeiterRouter } from "./routes/mitarbeiter.js";
@@ -68,6 +69,7 @@ export function baueApp() {
   app.use("/api/stunden", stundenRouter);
   app.use("/api/kalkulation", kalkulationRouter);
   app.use("/api/protokoll", protokollRouter);
+  app.use("/api/export", exportRouter);
 
   // --- Oberflaeche ----------------------------------------------------
   /**

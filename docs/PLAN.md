@@ -50,7 +50,7 @@ Jede Phase endet mit etwas Lauffähigem.
 | 4 | Stundenerfassung | Excel-Import und Erfassungsraster | **fertig** |
 | 5 | Matrix | Monatsmatrix und Dashboard | offen |
 | 6 | Kalkulation | Portierung mit Zahlenvergleich alt gegen neu | **fertig** |
-| 7 | Export | Excel und PDF, Lohnabrechnung | offen |
+| 7 | Export | Excel (Stunden, Kalkulation, Stammdaten), PDF über Drucken | **fertig**, Lohnabrechnung offen |
 | 8 | Betrieb | Backup mit getestetem Restore, Audit-Log, Deployment | **fertig** |
 
 Das Altsystem in `legacy/` läuft parallel weiter, bis Phase 7 durch ist.

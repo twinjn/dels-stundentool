@@ -985,3 +985,127 @@ button:focus-visible {
   border: 1px solid var(--farbe-linie);
   border-radius: 6px;
 }
+
+/* --- Export ------------------------------------------------------------ */
+
+.exportknopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exportknopf button {
+  padding: 6px var(--abstand-3);
+  font: inherit;
+  font-size: 0.9em;
+  color: var(--farbe-text);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.exportknopf button:hover:not(:disabled) {
+  border-color: var(--farbe-text);
+}
+
+.exportknopf button:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.exportfehler {
+  color: var(--farbe-rot);
+  font-size: 0.85em;
+}
+
+/* --- Drucken und "als PDF speichern" ----------------------------------- */
+/*
+ * Es gibt bewusst KEINEN PDF-Export auf dem Server. Ein PDF entsteht hier
+ * ueber den Druckdialog des Browsers ("Als PDF speichern"). Das erspart
+ * eine schwergewichtige Abhaengigkeit und liefert immer genau das, was
+ * am Bildschirm steht. Was es dafuer braucht, ist dieses Stylesheet:
+ * ohne das wandert die Navigation mit aufs Papier und die Tabelle wird
+ * auf halber Seite abgeschnitten.
+ */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  /* Papier ist weiss. Graue Flaechen kosten hier nur Toner. */
+  :root {
+    --farbe-hintergrund: #fff;
+    --farbe-flaeche: #fff;
+    --farbe-text: #000;
+    --farbe-gedaempft: #444;
+    --farbe-linie: #999;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  /* Alles, was nur zum Bedienen da ist, gehoert nicht aufs Papier. */
+  .seitenleiste,
+  .kopfleiste,
+  .filterzeile,
+  .legende,
+  .exportknopf,
+  .zufuegenzeile,
+  .blaettern,
+  button {
+    display: none !important;
+  }
+
+  .rahmen,
+  .hauptbereich,
+  .inhalt {
+    display: block;
+    height: auto;
+    overflow: visible;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Der Rastercontainer scrollt am Bildschirm. Auf Papier muss er
+     stattdessen umbrechen duerfen, sonst endet das Blatt beim 12. Tag. */
+  .rastercontainer {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.5pt;
+  }
+
+  /* Kopfzeile auf jeder Seite wiederholen. Ohne das weiss ab Seite 2
+     niemand mehr, welche Spalte welcher Tag ist. */
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  .kachel,
+  .ansatzfeld {
+    break-inside: avoid;
+  }
+
+  /* Am Bildschirm klebt die Namensspalte beim Scrollen fest. Auf Papier
+     wird daraus eine Spalte, die ueber dem Text schwebt. */
+  .haftend {
+    position: static !important;
+  }
+
+  .kacheln {
+    break-inside: avoid;
+  }
+
+  a[href]::after {
+    content: "";
+  }
+}
