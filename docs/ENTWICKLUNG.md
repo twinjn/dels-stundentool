@@ -75,6 +75,20 @@ npm test
 | `npm run db:down` | Postgres stoppen, Daten bleiben |
 | `docker compose down -v` | Postgres stoppen **und alle Daten löschen** |
 
+### Datenbank
+
+| Befehl | Wirkung |
+|---|---|
+| `npm run db:generate -w @dels/api` | Migration aus `src/db/schema.ts` erzeugen |
+| `npm run db:migrate -w @dels/api` | Migrationen anwenden (mehrfach ungefährlich) |
+| `npm run db:studio -w @dels/api` | Daten im Browser anschauen |
+| `npm run db:import -w @dels/api` | Daten aus dem Altsystem übernehmen |
+
+Ablauf beim Ändern des Schemas: `src/db/schema.ts` anpassen, dann
+`db:generate` (erzeugt eine SQL-Datei unter `apps/api/drizzle/`), diese
+Datei **lesen**, dann `db:migrate`. Die erzeugte SQL-Datei kommt mit in
+den Commit, sie ist der Nachweis, was an der Datenbank geändert wurde.
+
 Ein einzelnes Paket ansprechen geht mit `-w`:
 
 ```bash
@@ -105,6 +119,32 @@ in `docker-compose.yml` und `.env` auf einen freien Port wechseln.
 
 **Der Linter meckert über eine ungenutzte Variable, die du brauchst**
 Einen Unterstrich voranstellen: `_req` statt `req`.
+
+## Bekannte Meldung von `npm audit`
+
+`npm audit` meldet vier Funde mittlerer Stufe in `esbuild`, eingeschleppt
+über `drizzle-kit`:
+
+> esbuild enables any website to send any requests to the development
+> server and read the response
+
+**Das ist für uns kein Risiko, und `npm audit fix --force` wäre falsch.**
+Begründung:
+
+- Die Lücke betrifft esbuilds eigenen **Entwicklungsserver**
+  (`esbuild --serve`). Wir starten den nirgends
+- `drizzle-kit` nutzt esbuild nur, um TypeScript-Dateien zu übersetzen.
+  Nachprüfbar: `@esbuild-kit/core-utils` ruft ausschliesslich `transform`
+  und `transformSync` auf, nie einen Server
+- Der angebotene "Fix" würde `drizzle-kit` von 0.31 auf 0.18 zurückdrehen,
+  also auf einen Stand von 2023
+
+Wenn `drizzle-kit` die Abhängigkeit irgendwann ersetzt, verschwindet die
+Meldung von selbst. Bis dahin: bekannt, geprüft, akzeptiert.
+
+Die Lehre daraus gilt allgemein: ein Fund von `npm audit` ist ein Hinweis,
+kein Urteil. Das Werkzeug kennt nur die Abhängigkeitsliste, nicht die
+Frage, ob der verwundbare Code bei uns überhaupt läuft.
 
 ## Das Altsystem
 

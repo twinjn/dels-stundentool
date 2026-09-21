@@ -44,7 +44,7 @@ Jede Phase endet mit etwas Lauffähigem.
 | | Phase | Inhalt | Stand |
 |---|---|---|---|
 | 0 | Fundament | Monorepo, TypeScript, Docker, Linter, CI | **fertig** |
-| 1 | Datenbank | Schema, Migrationen, Import der Bestandsdaten | offen |
+| 1 | Datenbank | Schema, Migrationen, Import der Bestandsdaten | **fertig** |
 | 2 | Auth | Login, Sessions, Rollen, Benutzerverwaltung | offen |
 | 3 | Stammdaten | Mitarbeiter und Objekte, Layout, Navigation | offen |
 | 4 | Stundenerfassung | Schnellerfassung, mobiltauglich | offen |
@@ -55,6 +55,24 @@ Jede Phase endet mit etwas Lauffähigem.
 
 Das Altsystem in `legacy/` läuft parallel weiter, bis Phase 7 durch ist.
 Erst dann wird umgeschaltet.
+
+## Befund aus den Bestandsdaten (Stand September 2026)
+
+| Tabelle | Zeilen |
+|---|---|
+| `entries` | **0** |
+| `employees` | 9 |
+| `objekte` | 39 |
+| `kalk_monat` | 5 (Februar bis Juni 2026) |
+| `kalk_objekt_monat` | 170 |
+| `kalk_person_monat` | 45 |
+| `kalk_adminkosten` | 120 |
+
+Daraus folgt: die **Stundenerfassung wurde nie benutzt**, die Kalkulation
+schon. Phase 4 baut deshalb nichts nach, sondern fängt bei der Frage an,
+wie die Stunden heute wirklich ankommen.
+
+AHV-Nummer und IBAN sind bei allen neun Mitarbeitern leer.
 
 ## Rechte-Modell
 
@@ -81,8 +99,9 @@ API.
 
 ## Offene Punkte
 
-- Zugriff auf die Bestandsdaten für den Import (Phase 1)
 - Dürfen `buero`-Benutzer IBAN, AHV-Nummer und Geburtsdatum sehen?
   Lohnfelder sind admin-only, der Rest ist zu klären (Phase 2)
-- Wie werden Stunden heute tatsächlich erfasst? Entscheidet Phase 4
+- Stunden laufen heute über **Excel**, WhatsApp und Telefon sind geplant.
+  Für Phase 4 heisst das: ein guter Excel-Import ist vermutlich mehr wert
+  als eine schöne Eingabemaske, und die Maske muss fürs Abtippen taugen
 - Wo läuft das Ganze später? Noch offen, blockiert aber nichts (Phase 8)

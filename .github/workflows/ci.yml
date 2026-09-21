@@ -63,6 +63,11 @@ jobs:
       - name: Typen pruefen
         run: npm run typecheck
 
+      # Die Datenbanktests pruefen echte Fremdschluessel und Pruefregeln,
+      # dafuer muss das Schema in der Testdatenbank stehen.
+      - name: Datenbank migrieren
+        run: npm run db:migrate -w @dels/api
+
       - name: Tests
         run: npm test
 
