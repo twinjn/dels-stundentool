@@ -60,7 +60,7 @@ export type Eintragsart =
  * ("hier ist heute nichts zu tun"), nicht zur Person. Wer es mit Ferien in
  * einen Topf wirft, verfaelscht den Ferienanspruch.
  */
-const CODES_PERSON: Record<string, Eintragsart> = {
+export const CODES_PERSON: Record<string, Eintragsart> = {
   F: "ferien",
   K: "krankheit",
   U: "unfall",
@@ -68,7 +68,7 @@ const CODES_PERSON: Record<string, Eintragsart> = {
   FT: "feiertag",
 };
 
-const CODES_OBJEKT: Record<string, Eintragsart> = {
+export const CODES_OBJEKT: Record<string, Eintragsart> = {
   FR: "frei",
   FF: "frei",
 };
@@ -102,35 +102,36 @@ export type MonatsErgebnis = {
   warnungen: string[];
 };
 
-function zelle(blatt: XLSX.WorkSheet, zeile: number, spalte: number): unknown {
+export function zelle(blatt: XLSX.WorkSheet, zeile: number, spalte: number): unknown {
   const adresse = XLSX.utils.encode_cell({ r: zeile - 1, c: spalte - 1 });
   return (blatt[adresse] as { v?: unknown } | undefined)?.v;
 }
 
-function alsZahl(wert: unknown): number | null {
+export function alsZahl(wert: unknown): number | null {
   if (typeof wert === "number" && Number.isFinite(wert)) return wert;
   return null;
 }
 
-function alsText(wert: unknown): string {
+export function alsText(wert: unknown): string {
   return wert === null || wert === undefined ? "" : String(wert).trim();
 }
 
 /** Tage eines Monats, ohne Zeitzonenfallen: nur Jahr und Monat zaehlen. */
-function tageImMonat(jahr: number, monat: number): number {
+export function tageImMonat(jahr: number, monat: number): number {
   return new Date(Date.UTC(jahr, monat, 0)).getUTCDate();
 }
 
-function datumText(jahr: number, monat: number, tag: number): string {
+export function datumText(jahr: number, monat: number, tag: number): string {
   return `${jahr}-${String(monat).padStart(2, "0")}-${String(tag).padStart(2, "0")}`;
 }
 
 /**
- * Liest ein einzelnes Monatsblatt.
+ * Liest ein Monatsblatt der VERWALTUNGSDATEI
+ * (Stundenkontrolle_Verwaltung_JAHR_Mitarbeiter.xlsm).
  * Wirft nicht bei unsauberen Daten, sondern sammelt Warnungen: ein Import,
  * der beim ersten Tippfehler abbricht, hilft niemandem.
  */
-export function leseMonatsblatt(
+export function leseVerwaltungsblatt(
   mappe: XLSX.WorkBook,
   blattname: string,
   jahr: number,

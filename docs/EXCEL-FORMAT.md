@@ -85,3 +85,59 @@ Gegen die echte Datei, alle zwölf Monate 2026:
 
 Alle übrigen Summen stimmen exakt mit denen überein, die Excel rechts
 anzeigt.
+
+---
+
+# Die Objektdateien (`10002_2026.xlsm` … `10053_2026.xlsm`)
+
+Neben der Verwaltungsdatei gibt es eine Datei je Objekt und Jahr. Der
+Nummernbereich steht im Blatt `Daten` der Vorlage: **10002 bis 10053**,
+also rund 52 Objekte.
+
+Sie sind **genau andersherum** aufgebaut als die Verwaltungsdatei: dort
+steht eine Person mit ihren Objekten darunter, hier ein Objekt mit seinen
+Personen darunter.
+
+```
+Zeile 2:  A = Jahr   B = erster Tag des Monats   G = Objektnummer
+Zeile 3:  ab Spalte D die Wochentage
+Zeile 4:  A=PersNr. B=Name C=KA
+          ab Spalte D die 31 Tagesspalten
+          AI=Arbeit AJ=Ferien AK=Krank AL=Unfall AM=Sonst AN=Saldo AO=Bemerkungen
+Zeile 5+: je eine Person (19 Plätze), bis zur Zeile "Monatstotal"
+Zeile 25: Visum Objektleiter
+```
+
+Zusätzlich enthalten diese Dateien:
+
+| Blatt | Inhalt |
+|---|---|
+| `Personal` | vollständiger Personalstamm: PersNr, Status, Anrede, Name, Vorname, **Funktion**, Einsatzort, Austrittsdatum, **Ferienanspruch**, **Ferien-Saldo** |
+| `Objekte` | Objektstamm |
+| `Übersicht` | Jahreszahlen je Person |
+
+Die Funktionen aus dem Personalstamm: Manager, Aussendienst, Teamleiter,
+Büro, Hauswart, UHR I, UHR II, UHR III, Temporär.
+
+## Die Falle bei mehreren Dateien
+
+Wer auf fünf Objekten arbeitet, hat seine **Ferien in fünf Objektdateien**
+stehen. Ohne Entdopplung werden daraus fünf Ferientage.
+
+Deshalb entdoppelt nicht der einzelne Dateileser, sondern
+`zusammenfuehren()` über alle Dateien hinweg, und zwar nur die
+Abwesenheiten der Person. Gearbeitete Stunden bleiben alle erhalten, die
+gehören ja zu verschiedenen Objekten.
+
+## Stand der Prüfung
+
+Zwei echte Objektdateien lagen zum Prüfen vor (10001 und 10019). **Beide
+sind vollständig leer**: keine Person zugeordnet, null erfasste Zellen in
+allen zwölf Monaten. Der Leser kommt damit sauber zurecht (liest die
+Objektnummer richtig, meldet nichts), aber gegen **echte Zahlen** ist er
+noch nicht geprüft.
+
+Das ist weniger schlimm, als es klingt: der Import rechnet die Summen nach
+und vergleicht sie mit den Spalten AI bis AM, die Excel selbst füllt.
+Stimmt etwas nicht, meldet der Trockenlauf es sofort. Man muss dem Leser
+also nicht glauben, er prüft sich selbst.

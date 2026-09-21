@@ -11,7 +11,7 @@
  */
 import XLSX from "xlsx";
 import { describe, expect, test } from "vitest";
-import { leseMonatsblatt, summenNachrechnen } from "./excel.js";
+import { leseVerwaltungsblatt, summenNachrechnen } from "./excel.js";
 
 /** Spalte I ist der erste Tag. Davor liegen acht Spalten. */
 const VOR_DEN_TAGEN = 8;
@@ -66,7 +66,7 @@ describe("Stunden lesen", () => {
       zeile(2, "1001", "Objekt A", "10001", { 2: 8.4, 3: 8.4 }),
     ]);
 
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.warnungen).toEqual([]);
     expect(e.eintraege).toHaveLength(2);
     expect(e.eintraege[0]).toEqual({
@@ -83,12 +83,12 @@ describe("Stunden lesen", () => {
       zeile(1, "1001", "Person", "0", {}, [0]),
       zeile(2, "1001", "Objekt A", "10001", { 1: 0, 2: 0 }),
     ]);
-    expect(leseMonatsblatt(mappe, "Februar", 2026).eintraege).toHaveLength(0);
+    expect(leseVerwaltungsblatt(mappe, "Februar", 2026).eintraege).toHaveLength(0);
   });
 
   test("Personenzeilen ohne Namen sind leere Rasterplaetze", () => {
     const mappe = baueMappe([zeile(1, "1099", "0", "0", {}), zeile(2, "1099", "0", "0", {})]);
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.eintraege).toHaveLength(0);
     expect(e.summenLautExcel).toHaveLength(0);
   });
@@ -103,7 +103,7 @@ describe("Abwesenheiten der Person", () => {
       zeile(2, "1001", "Objekt B", "10002", { 2: "F", 3: "F" }),
     ]);
 
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.warnungen).toEqual([]);
     expect(e.eintraege).toHaveLength(2);
     expect(e.eintraege.every((x) => x.art === "ferien" && x.objektNr === null)).toBe(true);
@@ -117,7 +117,7 @@ describe("Abwesenheiten der Person", () => {
       zeile(2, "1001", "Objekt B", "10002", { 2: "F" }), // Tag 3 fehlt
     ]);
 
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.eintraege.filter((x) => x.art === "ferien")).toHaveLength(2);
     expect(e.warnungen).toHaveLength(1);
     expect(e.warnungen[0]).toMatch(/2026-02-03/);
@@ -129,7 +129,7 @@ describe("Abwesenheiten der Person", () => {
       zeile(1, "1001", "Person", "0", {}, [0, 1]),
       zeile(2, "1001", "Objekt A", "10001", { 5: "f" }),
     ]);
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.eintraege[0]?.art).toBe("ferien");
     expect(e.warnungen).toEqual([]);
   });
@@ -139,7 +139,7 @@ describe("Abwesenheiten der Person", () => {
       zeile(1, "1001", "Person", "0", {}, []),
       zeile(2, "1001", "Objekt A", "10001", { 2: "K", 3: "U", 4: "S" }),
     ]);
-    const arten = leseMonatsblatt(mappe, "Februar", 2026).eintraege.map((x) => x.art);
+    const arten = leseVerwaltungsblatt(mappe, "Februar", 2026).eintraege.map((x) => x.art);
     expect(arten).toEqual(["krankheit", "unfall", "sonstiges"]);
   });
 
@@ -149,7 +149,7 @@ describe("Abwesenheiten der Person", () => {
       zeile(2, "1001", "Objekt A", "10001", { 2: "F" }),
       zeile(2, "1001", "Objekt B", "10002", { 2: "K" }),
     ]);
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.eintraege.filter((x) => x.datum === "2026-02-02")).toHaveLength(1);
     expect(e.warnungen.some((w) => /zwei verschiedene/.test(w))).toBe(true);
   });
@@ -165,7 +165,7 @@ describe('"Frei" gehoert zum Objekt, nicht zur Person', () => {
       zeile(2, "1048", "Objekt B", "10024", { 7: "Fr" }),
     ]);
 
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.warnungen).toEqual([]);
     expect(e.eintraege).toHaveLength(2);
     expect(e.eintraege.map((x) => [x.art, x.objektNr, x.datum])).toEqual([
@@ -179,7 +179,7 @@ describe('"Frei" gehoert zum Objekt, nicht zur Person', () => {
       zeile(1, "1048", "Person", "0", {}, []),
       zeile(2, "1048", "Objekt A", "10012", { 5: "Fr" }),
     ]);
-    const summen = summenNachrechnen(leseMonatsblatt(mappe, "Februar", 2026).eintraege);
+    const summen = summenNachrechnen(leseVerwaltungsblatt(mappe, "Februar", 2026).eintraege);
     const zeileSumme = summen.get("1048");
     expect(zeileSumme?.ferien).toBe(0);
     expect(zeileSumme?.sonst).toBe(0);
@@ -194,7 +194,7 @@ describe("Raster und Randfaelle", () => {
       zeile(2, "1001", "Objekt A", "10001", { 28: 8, 30: 8 }),
     ]);
 
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.eintraege).toHaveLength(1);
     expect(e.eintraege[0]?.datum).toBe("2026-02-28");
     expect(e.warnungen.some((w) => /hinter dem Monatsende/.test(w))).toBe(true);
@@ -206,8 +206,8 @@ describe("Raster und Randfaelle", () => {
       zeile(2, "1001", "Objekt A", "10001", { 29: 8 }),
     ]);
     // 2028 ist ein Schaltjahr, 2026 nicht.
-    expect(leseMonatsblatt(mappe, "Februar", 2028).eintraege[0]?.datum).toBe("2028-02-29");
-    expect(leseMonatsblatt(mappe, "Februar", 2026).eintraege).toHaveLength(0);
+    expect(leseVerwaltungsblatt(mappe, "Februar", 2028).eintraege[0]?.datum).toBe("2028-02-29");
+    expect(leseVerwaltungsblatt(mappe, "Februar", 2026).eintraege).toHaveLength(0);
   });
 
   test("unbekannte Kuerzel werden gemeldet statt still verschluckt", () => {
@@ -215,7 +215,7 @@ describe("Raster und Randfaelle", () => {
       zeile(1, "1001", "Person", "0", {}, []),
       zeile(2, "1001", "Objekt A", "10001", { 2: "XY" }),
     ]);
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.eintraege).toHaveLength(0);
     expect(e.warnungen[0]).toMatch(/unbekanntes Kuerzel "XY"/);
   });
@@ -225,13 +225,13 @@ describe("Raster und Randfaelle", () => {
       zeile(1, "1001", "Person", "0", {}, []),
       zeile(2, "1001", "Ohne Objekt", "0", { 2: 8 }),
     ]);
-    const e = leseMonatsblatt(mappe, "Februar", 2026);
+    const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.eintraege).toHaveLength(0);
     expect(e.warnungen[0]).toMatch(/ohne Objektnummer/);
   });
 
   test("ein fehlendes Blatt ist kein Absturz", () => {
-    const e = leseMonatsblatt(baueMappe([]), "Dezember", 2026);
+    const e = leseVerwaltungsblatt(baueMappe([]), "Dezember", 2026);
     expect(e.eintraege).toEqual([]);
     expect(e.warnungen[0]).toMatch(/gibt es in dieser Datei nicht/);
   });
