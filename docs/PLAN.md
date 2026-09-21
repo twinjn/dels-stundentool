@@ -99,12 +99,43 @@ API.
 
 ## Offene Punkte
 
-- Der Import ist gebaut und getestet, aber noch nicht ausgefuehrt. Dafür
-  wird `SUPABASE_DATABASE_URL` in der `.env` gebraucht
+Braucht eine Antwort aus der Firma:
 
-- Die beiden vorliegenden Objektdateien (10001, 10019) sind vollständig
-  leer. Ob diese Ebene überhaupt benutzt wird, ist offen. Der Leser dafür
-  ist gebaut, aber nicht gegen echte Zahlen geprüft
-- Personalstamm aus den Objektdateien übernehmen (Funktion, Einsatzort,
-  Ferien-Saldo). Dafür fehlen in der Datenbank noch zwei Felder
-- Wo läuft das Ganze später? Noch offen, blockiert aber nichts (Phase 8)
+- **Wie bildet sich der Ferien-Saldo?** Anteiliger Anspruch bei Ein- und
+  Austritt, Übertrag ins Folgejahr, Halbtage. Ohne diese Regeln zeigt die
+  Anwendung den aus dem Excel übernommenen Saldo und daneben, was seither
+  bezogen wurde, rechnet aber keinen laufenden Saldo
+- **Werden die Objektdateien überhaupt benutzt?** Die beiden vorliegenden
+  (10001, 10019) sind vollständig leer. Der Leser dafür ist gebaut, aber
+  nie gegen echte Zahlen geprüft. Dafür braucht es eine Datei mit Inhalt
+- **Wo läuft das Ganze?** Siehe `docs/BETRIEB.md`. Wichtig dabei: es sind
+  Personendaten von Schweizer Angestellten, inklusive AHV-Nummer und IBAN
+- **Wer bekommt welche Rolle?**
+- **Wohin soll eine Meldung, wenn eine Sicherung scheitert?**
+
+Technisch offen:
+
+- **Der Docker-Bau ist nicht ausprobiert.** In der Umgebung, in der er
+  entstand, lief kein Docker-Daemon
+- **Keine Lohnabrechnung.** War in Phase 7 mitgedacht, braucht aber
+  Entscheide, die noch nicht gefallen sind
+
+### Geklärt: das Anzeigeformat der Datumsfelder
+
+Die Frage war, ob `<input type="date">` bei euch TT.MM.JJJJ zeigt.
+
+Geprüft, mit einem Ergebnis in zwei Teilen:
+
+1. **Der Wert ist immer ISO.** Egal wie der Browser das Feld darstellt,
+   an unseren Code und an den Server geht `JJJJ-MM-TT`. Nachgemessen im
+   Browser, auch nach einer Tastatureingabe. Ein Datenrisiko gibt es also
+   nicht, nur eine Anzeigefrage
+2. **Die Darstellung hängt an der Ländereinstellung des Betriebssystems**,
+   nicht an der Seite und nicht an der Browsersprache. In der Umgebung
+   hier gibt es nur die Locale `C`, deshalb zeigt der Browser MM/TT/JJJJ,
+   auch mit `--lang=de-CH` und deutschem Sprachpaket. Auf einem Windows,
+   das auf Deutsch (Schweiz) steht, wird TT.MM.JJJJ angezeigt
+
+Bestätigen lässt sich Punkt 2 nur auf einem eurer Rechner. Falls dort
+doch MM/TT/JJJJ steht, liegt es an der Windows-Regionseinstellung, nicht
+an der Anwendung.
