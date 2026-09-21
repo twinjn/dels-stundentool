@@ -1,0 +1,987 @@
+/*
+ * Basis-Stile. Das richtige Design kommt in Phase 3, wenn die erste echte
+ * Seite steht. Hier nur so viel, dass die Statusseite lesbar ist.
+ *
+ * Farben und Abstaende liegen als Variablen ganz oben. So aendert man
+ * spaeter an EINER Stelle, statt 200 Zeilen zu durchsuchen.
+ */
+:root {
+  --farbe-text: #1a1d21;
+  --farbe-gedaempft: #5c6570;
+  --farbe-linie: #dfe3e8;
+  --farbe-flaeche: #ffffff;
+  --farbe-hintergrund: #f4f6f8;
+  --farbe-gruen: #1a7f4b;
+  --farbe-rot: #b3261e;
+
+  --abstand-1: 4px;
+  --abstand-2: 8px;
+  --abstand-3: 16px;
+  --abstand-4: 24px;
+  --abstand-5: 32px;
+
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--farbe-text);
+  background: var(--farbe-hintergrund);
+}
+
+.seite {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--abstand-5) var(--abstand-3);
+}
+
+.kopf h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.unterzeile {
+  margin: var(--abstand-1) 0 0;
+  color: var(--farbe-gedaempft);
+}
+
+.karte {
+  margin-top: var(--abstand-4);
+  padding: var(--abstand-4);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.karte h2 {
+  margin: 0 0 var(--abstand-3);
+  font-size: 17px;
+}
+
+.hinweis {
+  margin: 0 0 var(--abstand-3);
+  color: var(--farbe-gedaempft);
+  font-size: 13px;
+}
+
+.werte {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: var(--abstand-2) var(--abstand-3);
+  margin: 0;
+}
+
+.werte dt {
+  color: var(--farbe-gedaempft);
+}
+
+.werte dd {
+  margin: 0;
+}
+
+.status-gruen {
+  color: var(--farbe-gruen);
+  font-weight: 600;
+}
+
+.status-rot {
+  color: var(--farbe-rot);
+}
+
+.tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabelle th,
+.tabelle td {
+  padding: var(--abstand-2);
+  text-align: left;
+  border-bottom: 1px solid var(--farbe-linie);
+}
+
+.tabelle th {
+  font-weight: 600;
+  color: var(--farbe-gedaempft);
+}
+
+.tabelle .ja {
+  color: var(--farbe-gruen);
+}
+
+.tabelle .nein {
+  color: var(--farbe-gedaempft);
+}
+
+code {
+  padding: 1px 5px;
+  font-size: 0.9em;
+  background: var(--farbe-hintergrund);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 4px;
+}
+
+/* --- Anmeldung ------------------------------------------------------- */
+
+.anmeldeseite {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--abstand-3);
+}
+
+.anmeldekarte {
+  width: 100%;
+  max-width: 380px;
+  padding: var(--abstand-5) var(--abstand-4);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.anmeldekarte h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.anmeldekarte .unterzeile {
+  margin: var(--abstand-1) 0 var(--abstand-4);
+}
+
+.anmeldekarte label {
+  display: block;
+  margin-bottom: var(--abstand-1);
+  font-size: 13px;
+  color: var(--farbe-gedaempft);
+}
+
+.anmeldekarte input {
+  width: 100%;
+  margin-bottom: var(--abstand-3);
+  padding: 10px var(--abstand-2);
+  font: inherit;
+  color: inherit;
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.anmeldekarte input:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--farbe-text);
+  outline-offset: 1px;
+}
+
+.anmeldekarte button {
+  width: 100%;
+  padding: 10px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--farbe-text);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.anmeldekarte button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.fehlermeldung {
+  margin: 0 0 var(--abstand-3);
+  padding: var(--abstand-2);
+  font-size: 13px;
+  color: var(--farbe-rot);
+  background: #fdf2f1;
+  border: 1px solid #f3c9c6;
+  border-radius: 6px;
+}
+
+/* --- Angemeldeter Bereich -------------------------------------------- */
+
+.kopfzeile {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.kopfzeile h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.knopf-leise {
+  padding: 6px var(--abstand-3);
+  font: inherit;
+  color: var(--farbe-text);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.knopf-leise:hover {
+  background: var(--farbe-hintergrund);
+}
+
+.rechteliste {
+  margin: 0;
+  padding-left: 18px;
+  columns: 2;
+  font-size: 14px;
+}
+
+@media (max-width: 520px) {
+  .rechteliste {
+    columns: 1;
+  }
+}
+
+.mittig {
+  margin-top: 25vh;
+  color: var(--farbe-gedaempft);
+  text-align: center;
+}
+
+/* --- Rahmen: Seitenleiste + Inhalt ----------------------------------- */
+
+.rahmen {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  min-height: 100vh;
+}
+
+.seitenleiste {
+  padding: var(--abstand-4) var(--abstand-3);
+  background: var(--farbe-flaeche);
+  border-right: 1px solid var(--farbe-linie);
+}
+
+.marke {
+  margin-bottom: var(--abstand-4);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.seitenleiste nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navlink {
+  padding: var(--abstand-2) var(--abstand-3);
+  color: var(--farbe-gedaempft);
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.navlink:hover {
+  background: var(--farbe-hintergrund);
+}
+
+.navlink.aktiv {
+  color: var(--farbe-text);
+  font-weight: 600;
+  background: var(--farbe-hintergrund);
+}
+
+.hauptbereich {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* ohne das sprengen breite Tabellen das Raster */
+}
+
+.kopfleiste {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--abstand-2) var(--abstand-4);
+  background: var(--farbe-flaeche);
+  border-bottom: 1px solid var(--farbe-linie);
+}
+
+.benutzername {
+  font-size: 14px;
+  color: var(--farbe-gedaempft);
+}
+
+.rollenschild {
+  margin-left: var(--abstand-1);
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--farbe-flaeche);
+  background: var(--farbe-gedaempft);
+  border-radius: 999px;
+}
+
+.inhalt {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
+  padding: var(--abstand-4);
+}
+
+/* --- Seitenaufbau ---------------------------------------------------- */
+
+.seitenraster {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: var(--abstand-4);
+  align-items: start;
+}
+
+.seite-schmal {
+  max-width: 900px;
+}
+
+.seitenkopf {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--abstand-3);
+}
+
+.seitenkopf h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.filterzeile {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: center;
+  margin-bottom: var(--abstand-3);
+}
+
+.filterzeile input[type="search"] {
+  flex: 1;
+  padding: 7px var(--abstand-2);
+  font: inherit;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.schalter {
+  display: flex;
+  gap: var(--abstand-1);
+  align-items: center;
+  font-size: 13px;
+  color: var(--farbe-gedaempft);
+  white-space: nowrap;
+}
+
+/* --- Knoepfe --------------------------------------------------------- */
+
+.knopf {
+  padding: 7px var(--abstand-3);
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--farbe-text);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.knopf:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.knopf-gefahr {
+  padding: 7px var(--abstand-3);
+  font: inherit;
+  color: var(--farbe-rot);
+  background: var(--farbe-flaeche);
+  border: 1px solid #f3c9c6;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* --- Tabellen -------------------------------------------------------- */
+
+.tabelle tbody tr {
+  cursor: pointer;
+}
+
+.tabelle tbody tr:hover {
+  background: var(--farbe-flaeche);
+}
+
+.tabelle tr.gewaehlt {
+  background: var(--farbe-flaeche);
+  box-shadow: inset 2px 0 0 var(--farbe-text);
+}
+
+.tabelle tr.inaktiv td {
+  color: var(--farbe-gedaempft);
+}
+
+.tabelle .rechts {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabelle tfoot td {
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.schild {
+  margin-left: var(--abstand-2);
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--farbe-gedaempft);
+  background: var(--farbe-hintergrund);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 999px;
+}
+
+/* --- Formulare ------------------------------------------------------- */
+
+.formular {
+  padding: var(--abstand-4);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.formular h2 {
+  margin: 0 0 var(--abstand-3);
+  font-size: 17px;
+}
+
+.feldgruppe {
+  margin: 0 0 var(--abstand-4);
+  padding: 0;
+  border: none;
+}
+
+.feldgruppe legend {
+  padding: 0;
+  margin-bottom: var(--abstand-2);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--farbe-gedaempft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.feldraster {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--abstand-3);
+}
+
+.feld {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.feld-breit {
+  grid-column: 1 / -1;
+}
+
+.feld label {
+  margin-bottom: 3px;
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+}
+
+.feld input,
+.feld select,
+.tabelle select {
+  padding: 7px var(--abstand-2);
+  font: inherit;
+  color: inherit;
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.feld input:disabled {
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-gedaempft);
+}
+
+.feld input[aria-invalid="true"] {
+  border-color: var(--farbe-rot);
+}
+
+.feld-kaestchen {
+  flex-direction: row;
+  gap: var(--abstand-2);
+  align-items: center;
+}
+
+.feld-kaestchen label {
+  margin: 0;
+  font-size: 14px;
+  color: var(--farbe-text);
+}
+
+.feldfehler {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--farbe-rot);
+}
+
+.feldhinweis {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+}
+
+.formularfuss {
+  display: flex;
+  gap: var(--abstand-2);
+  justify-content: flex-end;
+  padding-top: var(--abstand-3);
+  border-top: 1px solid var(--farbe-linie);
+}
+
+.erfolgsmeldung {
+  margin: 0 0 var(--abstand-3);
+  padding: var(--abstand-2);
+  font-size: 13px;
+  color: var(--farbe-gruen);
+  background: #f0f8f3;
+  border: 1px solid #c6e3d2;
+  border-radius: 6px;
+}
+
+/* --- Schmale Bildschirme --------------------------------------------- */
+
+@media (max-width: 900px) {
+  .seitenraster {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .rahmen {
+    grid-template-columns: 1fr;
+  }
+
+  .seitenleiste {
+    border-right: none;
+    border-bottom: 1px solid var(--farbe-linie);
+    padding: var(--abstand-3);
+  }
+
+  .seitenleiste nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .marke {
+    margin-bottom: var(--abstand-2);
+  }
+
+  .inhalt {
+    padding: var(--abstand-3);
+  }
+
+  .feldraster {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Stundenraster ---------------------------------------------------- */
+
+.stundenseite .seitenkopf {
+  align-items: center;
+}
+
+.monatswahl {
+  display: flex;
+  gap: var(--abstand-2);
+  align-items: center;
+}
+
+.monatswahl h1 {
+  min-width: 190px;
+  margin: 0;
+  font-size: 20px;
+}
+
+.kopfhinweise {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: center;
+}
+
+.legende {
+  margin-bottom: var(--abstand-3);
+}
+
+/*
+ * Der Container scrollt waagrecht, die Namensspalte bleibt stehen.
+ * Ohne das verliert man bei 31 Tagesspalten sofort die Orientierung.
+ */
+/*
+ * min-width: 0 ist hier kein Zierrat. In einem Grid- oder Flex-Container
+ * ist die kleinste Breite eines Kindes standardmaessig sein INHALT. Eine
+ * Tabelle mit 31 Spalten sprengt damit das Raster, und statt der Tabelle
+ * scrollt die ganze Seite seitlich. Genau das ist am Handy passiert.
+ */
+.stundenseite {
+  min-width: 0;
+}
+
+.rastercontainer {
+  max-width: 100%;
+  overflow-x: auto;
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.raster {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.raster th,
+.raster td {
+  padding: 3px 4px;
+  text-align: center;
+  white-space: nowrap;
+  border-right: 1px solid var(--farbe-linie);
+  border-bottom: 1px solid var(--farbe-linie);
+}
+
+.raster thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--farbe-flaeche);
+  font-weight: 600;
+}
+
+.raster .haftend {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: 190px;
+  max-width: 190px;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  background: var(--farbe-flaeche);
+}
+
+.raster thead .haftend {
+  z-index: 3;
+}
+
+.raster thead .wochentag {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--farbe-gedaempft);
+}
+
+.raster thead .tagnummer {
+  display: block;
+}
+
+.raster .wochenende {
+  background: var(--farbe-hintergrund);
+}
+
+.personenzeile .haftend {
+  font-weight: 600;
+  border-top: 2px solid var(--farbe-linie);
+}
+
+.personenzeile .zelle {
+  border-top: 2px solid var(--farbe-linie);
+}
+
+.pernr {
+  margin-left: var(--abstand-2);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--farbe-gedaempft);
+}
+
+.objektzeile .haftend {
+  padding-left: var(--abstand-4);
+  color: var(--farbe-gedaempft);
+}
+
+.objektnr {
+  margin-right: var(--abstand-1);
+  font-size: 11px;
+}
+
+.zelle {
+  min-width: 34px;
+  cursor: cell;
+}
+
+.zelle:hover {
+  background: #eef3f8;
+}
+
+.zelle:focus-visible {
+  outline: 2px solid var(--farbe-text);
+  outline-offset: -2px;
+}
+
+.zelle-abwesend {
+  font-weight: 600;
+  color: var(--farbe-rot);
+}
+
+.zelle-aktiv {
+  padding: 0;
+}
+
+.zelle-aktiv input {
+  width: 100%;
+  min-width: 34px;
+  padding: 3px 2px;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  border: 2px solid var(--farbe-text);
+  border-radius: 0;
+  outline: none;
+}
+
+.raster .summe {
+  min-width: 42px;
+  font-weight: 600;
+  background: var(--farbe-flaeche);
+}
+
+.zufuegenzeile td {
+  border-bottom: none;
+}
+
+.zufuegenzeile select {
+  padding: 2px 4px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+  background: transparent;
+  border: 1px dashed var(--farbe-linie);
+  border-radius: 4px;
+}
+
+.stundenseite .filterzeile input[type="search"] {
+  max-width: 340px;
+}
+
+.leerhinweis {
+  padding: var(--abstand-4);
+  text-align: center;
+}
+
+/* --- Kalkulation ------------------------------------------------------ */
+
+.kacheln {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--abstand-3);
+  margin-bottom: var(--abstand-4);
+}
+
+.kachel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--abstand-3);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.kachel-titel {
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+}
+
+.kachel-wert {
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.kachel-hinweis {
+  font-size: 11px;
+  color: var(--farbe-gedaempft);
+}
+
+.kachel-gross .kachel-wert {
+  font-size: 24px;
+}
+
+.kachel.pos .kachel-wert {
+  color: var(--farbe-gruen);
+}
+
+.kachel.neg .kachel-wert {
+  color: var(--farbe-rot);
+}
+
+.warnhinweis {
+  margin: 0 0 var(--abstand-3);
+  padding: var(--abstand-2) var(--abstand-3);
+  font-size: 13px;
+  background: #fff8e6;
+  border: 1px solid #f0dca8;
+  border-radius: 6px;
+}
+
+.kalkulationsseite h2 {
+  margin: var(--abstand-5) 0 var(--abstand-2);
+  font-size: 16px;
+}
+
+.ansaetze {
+  padding: var(--abstand-3);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.ansaetze summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ansatzraster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--abstand-2) var(--abstand-3);
+  margin-top: var(--abstand-3);
+}
+
+.ansatzfeld {
+  display: flex;
+  gap: var(--abstand-2);
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.ansatzfeld > span {
+  color: var(--farbe-gedaempft);
+}
+
+.wertfeld {
+  padding: 3px 6px;
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 4px;
+}
+
+.wertfeld.rechts {
+  text-align: right;
+}
+
+.wertfeld.links {
+  text-align: left;
+}
+
+.kalktabelle {
+  background: var(--farbe-flaeche);
+}
+
+.kalktabelle tbody tr {
+  cursor: default;
+}
+
+.kalktabelle.schmal {
+  max-width: 560px;
+}
+
+.kalktabelle .pos {
+  color: var(--farbe-gruen);
+}
+
+.kalktabelle .neg {
+  color: var(--farbe-rot);
+}
+
+.kalkulationsseite .monatswahl select {
+  padding: 5px var(--abstand-2);
+  font: inherit;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+/* --- Protokoll -------------------------------------------------------- */
+
+.protokolltabelle {
+  font-size: 13px;
+}
+
+.protokolltabelle tbody tr {
+  cursor: default;
+}
+
+.protokolltabelle .zeitpunkt {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.unterschiede {
+  margin: 0;
+  padding-left: 14px;
+}
+
+.unterschiede .feldname {
+  color: var(--farbe-gedaempft);
+}
+
+.unterschiede .alt {
+  text-decoration: line-through;
+  color: var(--farbe-gedaempft);
+}
+
+.unterschiede .neu {
+  font-weight: 600;
+}
+
+.blaettern {
+  display: flex;
+  gap: var(--abstand-2);
+  margin-top: var(--abstand-3);
+}
+
+.protokollseite .filterzeile select {
+  padding: 6px var(--abstand-2);
+  font: inherit;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}

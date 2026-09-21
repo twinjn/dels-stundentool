@@ -1,0 +1,32 @@
+# Entwicklungsumgebung: nur die Datenbank laeuft im Container.
+# API und Web startest du mit "npm run dev" direkt auf deinem Rechner,
+# das ist beim Entwickeln deutlich schneller als alles im Container.
+#
+#   docker compose up -d db     Datenbank starten
+#   docker compose down         Datenbank stoppen (Daten bleiben erhalten)
+#   docker compose down -v      Datenbank stoppen UND alle Daten loeschen
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: dels-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dels
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dels_dev_passwort}
+      POSTGRES_DB: dels
+      # Bewusst keine Schweizer Locale: das Alpine-Image kennt nur C.UTF-8.
+      # Wo Sortierung wirklich zaehlt, machen wir es pro Abfrage:
+      #   ORDER BY name COLLATE "de-CH-x-icu"
+    ports:
+      - "5432:5432"
+    volumes:
+      - dels-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dels -d dels"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  dels-db-data:

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+legacy/
+package-lock.json
+*.md
+
+# Von drizzle-kit erzeugt, nicht von Hand formatieren
+apps/api/drizzle/

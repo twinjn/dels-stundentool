@@ -1,0 +1,1 @@
+ALTER TYPE "public"."eintragsart" ADD VALUE 'frei' BEFORE 'sonstiges';

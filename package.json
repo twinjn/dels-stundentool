@@ -1,21 +1,38 @@
 {
   "name": "dels-stundentool",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "test": "node --test test/*.test.mjs"
+  "engines": {
+    "node": ">=22"
   },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.45.4",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n shared,api,web -c magenta,blue,green \"npm:dev:shared\" \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:shared": "npm run dev -w @dels/shared",
+    "dev:api": "npm run dev -w @dels/api",
+    "dev:web": "npm run dev -w @dels/web",
+    "build": "npm run build -w @dels/shared && npm run build -w @dels/api && npm run build -w @dels/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.4.2"
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^10.0.5",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.8",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0"
   }
 }
