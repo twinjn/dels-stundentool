@@ -8,6 +8,7 @@ Ansicht, aus der er stammt.
 |---|---|---|---|
 | Monatsblatt Stunden | `GET /api/export/stunden?monat=JJJJ-MM` | `stunden:lesen` (admin, büro) | `Stunden_2026-09.xlsx` |
 | Kalkulation | `GET /api/export/kalkulation?monat=JJJJ-MM` | `kalkulation:lesen` (nur admin) | `Kalkulation_2026-09.xlsx` |
+| Jahresübersicht | `GET /api/export/uebersicht?jahr=JJJJ` | `stunden:lesen` (admin, büro) | `Jahresuebersicht_2026.xlsx` |
 | Stammdaten | `GET /api/export/stammdaten` | `stammdaten:lesen` (admin, büro) | `Stammdaten_2026-09-21.xlsx` |
 
 ## Was in den Dateien steht
@@ -20,6 +21,15 @@ darunter je eine Zeile pro Objekt mit den Stunden. Rechts die Summen.
 Adminkosten. Die angewandten Ansätze stehen mit in der Zusammenfassung,
 damit ein exportierter Monat auch in einem Jahr noch erklärt, womit er
 gerechnet wurde.
+
+**Jahresübersicht** – ein Blatt je Eintragsart (Arbeit, Ferien,
+Krankheit, Unfall, Feiertag, Sonstiges) mit zwölf Monatsspalten je
+Person, dazu ein Blatt "Ferien Anspruch" mit Jahresanspruch, bezogenen
+Tagen und dem aus dem Excel übernommenen Saldo. Getrennte Blätter statt
+eines Blattes mit 72 Spalten: so lässt sich jedes einzeln filtern,
+sortieren und drucken. Wer in einer Art nichts hat, steht auf dem
+betreffenden Blatt gar nicht erst, sonst bestünde das Blatt "Unfall" aus
+140 Nullzeilen und zwei echten Werten.
 
 **Stammdaten** – zwei Blätter, Mitarbeiter und Objekte.
 

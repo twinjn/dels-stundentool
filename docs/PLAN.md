@@ -48,13 +48,13 @@ Jede Phase endet mit etwas Lauffähigem.
 | 2 | Auth | Login, Sessions, Rollen, Benutzerverwaltung | **fertig** |
 | 3 | Stammdaten | Mitarbeiter und Objekte, Layout, Navigation | **fertig** |
 | 4 | Stundenerfassung | Excel-Import und Erfassungsraster | **fertig** |
-| 5 | Matrix | Monatsmatrix und Dashboard | offen |
+| 5 | Matrix | Startseite mit Lagemeldung, Jahresübersicht je Person | **fertig** |
 | 6 | Kalkulation | Portierung mit Zahlenvergleich alt gegen neu | **fertig** |
 | 7 | Export | Excel (Stunden, Kalkulation, Stammdaten), PDF über Drucken | **fertig**, Lohnabrechnung offen |
 | 8 | Betrieb | Backup mit getestetem Restore, Audit-Log, Deployment | **fertig** |
 
-Das Altsystem in `legacy/` läuft parallel weiter, bis Phase 7 durch ist.
-Erst dann wird umgeschaltet.
+Alle acht Phasen sind gebaut. Das Altsystem in `legacy/` bleibt als
+Nachschlagewerk liegen, bis der Umstieg im Betrieb bestätigt ist.
 
 ## Befund aus den Bestandsdaten (Stand September 2026)
 

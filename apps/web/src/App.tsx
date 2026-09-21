@@ -6,11 +6,13 @@ import { AuthAnbieter, useAuth } from "./app/AuthKontext.js";
 import { Layout } from "./app/Layout.js";
 import { Anmeldung } from "./features/anmeldung/Anmeldung.js";
 import { BenutzerSeite } from "./features/benutzer/BenutzerSeite.js";
+import { DashboardSeite } from "./features/dashboard/DashboardSeite.js";
 import { KalkulationSeite } from "./features/kalkulation/KalkulationSeite.js";
 import { MitarbeiterSeite } from "./features/mitarbeiter/MitarbeiterSeite.js";
 import { ObjekteSeite } from "./features/objekte/ObjekteSeite.js";
 import { ProtokollSeite } from "./features/protokoll/ProtokollSeite.js";
 import { StundenSeite } from "./features/stunden/StundenSeite.js";
+import { UebersichtSeite } from "./features/uebersicht/UebersichtSeite.js";
 
 export default function App() {
   return (
@@ -49,14 +51,16 @@ function Inhalt() {
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
+          <Route path="/" element={<DashboardSeite />} />
           <Route path="/stunden" element={<StundenSeite />} />
+          <Route path="/uebersicht" element={<UebersichtSeite />} />
           <Route path="/mitarbeiter" element={<MitarbeiterSeite />} />
           <Route path="/objekte" element={<ObjekteSeite />} />
           <Route path="/kalkulation" element={<KalkulationSeite />} />
           <Route path="/benutzer" element={<BenutzerSeite />} />
           <Route path="/protokoll" element={<ProtokollSeite />} />
           {/* Alles Unbekannte landet auf der Startseite statt im Nichts. */}
-          <Route path="*" element={<Navigate to="/stunden" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -19,6 +19,7 @@ import { brauchtRecht } from "../auth/guards.js";
 import { kalkulationsmappeFuerMonat } from "../export/kalkulation.js";
 import { stammdatenmappe } from "../export/stammdaten.js";
 import { stundenblattFuerMonat } from "../export/stunden.js";
+import { uebersichtsmappeFuerJahr } from "../export/uebersicht.js";
 import { protokolliere } from "../protokoll.js";
 
 export const exportRouter = Router();
@@ -28,6 +29,12 @@ const XLSX_TYP = "application/vnd.openxmlformats-officedocument.spreadsheetml.sh
 const MonatSchema = z
   .string()
   .regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Monat im Format JJJJ-MM erwartet.");
+
+const JahrSchema = z.coerce
+  .number()
+  .int()
+  .min(2000, "Jahr ab 2000 erwartet.")
+  .max(2100, "Jahr bis 2100 erwartet.");
 
 /**
  * Nur Zeichen, die in jedem Dateisystem und in jedem Mailprogramm
@@ -61,6 +68,22 @@ exportRouter.get("/stunden", brauchtRecht("stunden:lesen"), async (req, res) => 
   });
 
   sendeMappe(res, inhalt, `Stunden_${monat}.xlsx`);
+});
+
+exportRouter.get("/uebersicht", brauchtRecht("stunden:lesen"), async (req, res) => {
+  const jahr = JahrSchema.parse(req.query.jahr ?? "");
+  const alleZeigen = req.query.alle === "true";
+
+  const inhalt = await uebersichtsmappeFuerJahr(jahr, alleZeigen);
+
+  await protokolliere({
+    benutzer: req.benutzer,
+    aktion: "exportieren",
+    tabelle: "eintraege",
+    nachher: { export: "uebersicht", jahr, alleMitarbeiter: alleZeigen },
+  });
+
+  sendeMappe(res, inhalt, `Jahresuebersicht_${jahr}.xlsx`);
 });
 
 exportRouter.get("/kalkulation", brauchtRecht("kalkulation:lesen"), async (req, res) => {
