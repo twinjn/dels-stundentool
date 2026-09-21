@@ -83,6 +83,27 @@ npm test
 | `npm run db:migrate -w @dels/api` | Migrationen anwenden (mehrfach ungefährlich) |
 | `npm run db:studio -w @dels/api` | Daten im Browser anschauen |
 | `npm run db:import -w @dels/api` | Daten aus dem Altsystem übernehmen |
+| `npm run db:admin -w @dels/api` | Ersten Admin anlegen |
+
+### Den ersten Benutzer anlegen
+
+Beim ersten Start gibt es noch kein Konto, und Konten anlegen darf nur ein
+Admin. Dieses Henne-Ei-Problem löst ein Werkzeug, das direkt an der
+Datenbank arbeitet:
+
+```bash
+npm run db:admin -w @dels/api
+```
+
+Es fragt Name, E-Mail und Passwort ab, das Passwort wird beim Tippen nicht
+angezeigt. Automatisiert geht auch:
+
+```bash
+ADMIN_PASSWORT='...' npm run db:admin -w @dels/api -- --name "Anna Muster" --email anna@firma.ch
+```
+
+Ein zweites Mal lässt es sich nicht ausführen: sobald ein Admin existiert,
+werden weitere Benutzer in der Anwendung angelegt.
 
 Ablauf beim Ändern des Schemas: `src/db/schema.ts` anpassen, dann
 `db:generate` (erzeugt eine SQL-Datei unter `apps/api/drizzle/`), diese

@@ -13,8 +13,11 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import { sitzungLesen } from "./auth/guards.js";
 import { config } from "./config.js";
 import { fehlerBehandlung, routeNichtGefunden } from "./fehler.js";
+import { authRouter } from "./routes/auth.js";
+import { benutzerRouter } from "./routes/benutzer.js";
 import { healthRouter } from "./routes/health.js";
 
 export function baueApp() {
@@ -22,6 +25,10 @@ export function baueApp() {
 
   // Verraet sonst in jedem Antwort-Header, dass hier Express laeuft.
   app.disable("x-powered-by");
+
+  // Sagt Express, wie vielen Zwischenstationen es die Absender-IP glauben
+  // darf. Wichtig fuer die Anmeldesperre, siehe config.ts.
+  app.set("trust proxy", config.TRUST_PROXY);
 
   // Setzt eine Reihe von Sicherheits-Headern.
   app.use(helmet());
@@ -40,8 +47,15 @@ export function baueApp() {
   // niemand den Inhalt im Browser von Hand umschreibt.
   app.use(cookieParser(config.SESSION_SECRET));
 
+  // Haengt den angemeldeten Benutzer an die Anfrage, falls das Cookie
+  // gueltig ist. Lehnt selbst nichts ab, das machen die Waechter an den
+  // einzelnen Routen.
+  app.use(sitzungLesen);
+
   // --- Routen ---------------------------------------------------------
   app.use("/api/health", healthRouter);
+  app.use("/api/auth", authRouter);
+  app.use("/api/benutzer", benutzerRouter);
 
   // --- Abschluss ------------------------------------------------------
   // Beides muss ganz unten stehen, sonst schluckt es die echten Routen.

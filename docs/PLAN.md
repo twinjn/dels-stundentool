@@ -45,7 +45,7 @@ Jede Phase endet mit etwas Lauffähigem.
 |---|---|---|---|
 | 0 | Fundament | Monorepo, TypeScript, Docker, Linter, CI | **fertig** |
 | 1 | Datenbank | Schema, Migrationen, Importwerkzeug | **fertig**, Umzug der echten Daten offen |
-| 2 | Auth | Login, Sessions, Rollen, Benutzerverwaltung | offen |
+| 2 | Auth | Login, Sessions, Rollen, Benutzerverwaltung | **fertig** |
 | 3 | Stammdaten | Mitarbeiter und Objekte, Layout, Navigation | offen |
 | 4 | Stundenerfassung | Schnellerfassung, mobiltauglich | offen |
 | 5 | Matrix | Monatsmatrix und Dashboard | offen |
@@ -102,8 +102,6 @@ API.
 - Der Import ist gebaut und getestet, aber noch nicht ausgefuehrt. Dafür
   wird `SUPABASE_DATABASE_URL` in der `.env` gebraucht
 
-- Dürfen `buero`-Benutzer IBAN, AHV-Nummer und Geburtsdatum sehen?
-  Lohnfelder sind admin-only, der Rest ist zu klären (Phase 2)
 - Stunden laufen heute über **Excel**, WhatsApp und Telefon sind geplant.
   Für Phase 4 heisst das: ein guter Excel-Import ist vermutlich mehr wert
   als eine schöne Eingabemaske, und die Maske muss fürs Abtippen taugen

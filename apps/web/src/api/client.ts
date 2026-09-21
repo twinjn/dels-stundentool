@@ -60,6 +60,18 @@ async function anfrage<T>(pfad: string, optionen: RequestInit = {}): Promise<T> 
     : await antwort.text();
 
   if (!antwort.ok) {
+    // 502, 503 und 504 heissen: zwischen Browser und API steht etwas, aber
+    // die API selbst antwortet nicht. Beim Entwickeln ist das der
+    // Vite-Proxy, spaeter waere es der Webserver vor der Anwendung.
+    // Fuer den Benutzer ist die Zahl bedeutungslos, die Ursache nicht.
+    if (antwort.status === 502 || antwort.status === 503 || antwort.status === 504) {
+      throw new ApiFehler(
+        antwort.status,
+        "nicht_erreichbar",
+        "Der Server ist gerade nicht erreichbar.",
+      );
+    }
+
     const d = (inhalt ?? {}) as { code?: string; nachricht?: string; felder?: Feldfehler[] };
     throw new ApiFehler(
       antwort.status,

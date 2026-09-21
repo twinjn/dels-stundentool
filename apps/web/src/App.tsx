@@ -1,103 +1,123 @@
 /**
- * Phase 0: bewusst eine Statusseite und noch keine Anwendung.
+ * Einstieg der Oberflaeche.
  *
- * Sie beweist drei Dinge auf einmal:
- *  1. Der Browser erreicht die API (ueber den Vite-Proxy).
- *  2. Das gemeinsame Paket @dels/shared ist im Browser nutzbar.
- *  3. Die Fehlerbehandlung greift, wenn die API nicht laeuft.
+ * Drei Zustaende: wir wissen es noch nicht, niemand ist angemeldet,
+ * jemand ist angemeldet. Das richtige Menue mit mehreren Seiten kommt in
+ * Phase 3, wenn es etwas zu navigieren gibt.
  */
 import { useEffect, useState } from "react";
-import { hatRecht, RECHTE, ROLLEN } from "@dels/shared";
-import { ApiFehler, api } from "./api/client.js";
+import { hatRecht, RECHTE } from "@dels/shared";
+import { api } from "./api/client.js";
+import { AuthAnbieter, useAuth } from "./app/AuthKontext.js";
+import { Anmeldung } from "./features/anmeldung/Anmeldung.js";
+
+export default function App() {
+  return (
+    <AuthAnbieter>
+      <Inhalt />
+    </AuthAnbieter>
+  );
+}
+
+function Inhalt() {
+  const { benutzer, laedt, serverfehler } = useAuth();
+
+  if (laedt) {
+    return <p className="mittig">Einen Moment ...</p>;
+  }
+
+  if (serverfehler) {
+    return (
+      <main className="seite">
+        <section className="karte">
+          <h2>Kein Zugriff auf den Server</h2>
+          <p className="status status-rot">{serverfehler}</p>
+          <p className="hinweis">
+            Laeuft die API? Starten mit <code>npm run dev</code>.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
+  return benutzer ? <Angemeldet /> : <Anmeldung />;
+}
 
 type Health = {
   status: string;
+  datenbank: boolean;
   umgebung: string;
   zeit: string;
-  laufzeitSekunden: number;
 };
 
-export default function App() {
+function Angemeldet() {
+  const { benutzer, abmelden } = useAuth();
   const [health, setHealth] = useState<Health | null>(null);
-  const [fehler, setFehler] = useState<string | null>(null);
 
   useEffect(() => {
     let abgebrochen = false;
-
     api
       .get<Health>("/health")
-      .then((daten) => {
-        if (!abgebrochen) setHealth(daten);
+      .then((d) => {
+        if (!abgebrochen) setHealth(d);
       })
-      .catch((e: unknown) => {
-        if (abgebrochen) return;
-        setFehler(e instanceof ApiFehler ? e.message : "Unbekannter Fehler.");
+      .catch(() => {
+        /* Die Statusanzeige ist Beiwerk, ein Fehler hier stoert nicht. */
       });
-
-    // Aufraeumen: verhindert, dass eine spaet eintreffende Antwort eine
-    // Komponente aktualisiert, die es nicht mehr gibt.
     return () => {
       abgebrochen = true;
     };
   }, []);
 
+  if (!benutzer) return null;
+
+  const meineRechte = RECHTE.filter((r) => hatRecht(benutzer.rolle, r));
+
   return (
     <main className="seite">
-      <header className="kopf">
-        <h1>DELS Stundentool</h1>
-        <p className="unterzeile">Version 2 &middot; Fundament steht</p>
+      <header className="kopfzeile">
+        <div>
+          <h1>DELS Stundentool</h1>
+          <p className="unterzeile">
+            {benutzer.name} &middot; {benutzer.rolle}
+          </p>
+        </div>
+        <button className="knopf-leise" onClick={() => void abmelden()}>
+          Abmelden
+        </button>
       </header>
 
       <section className="karte">
-        <h2>Verbindung zur API</h2>
-        {fehler && (
-          <p className="status status-rot">
-            {fehler} Laeuft die API? Starte sie mit <code>npm run dev</code>.
-          </p>
-        )}
-        {!fehler && !health && <p className="status">Pruefe ...</p>}
-        {health && (
-          <dl className="werte">
-            <dt>Status</dt>
-            <dd className="status-gruen">{health.status}</dd>
-            <dt>Umgebung</dt>
-            <dd>{health.umgebung}</dd>
-            <dt>Serverzeit</dt>
-            <dd>{new Date(health.zeit).toLocaleString("de-CH")}</dd>
-            <dt>Laufzeit</dt>
-            <dd>{health.laufzeitSekunden} s</dd>
-          </dl>
-        )}
+        <h2>Deine Rechte</h2>
+        <p className="hinweis">
+          Aus deiner Rolle <strong>{benutzer.rolle}</strong> ergeben sich {meineRechte.length} von{" "}
+          {RECHTE.length} moeglichen Rechten. Der Server prueft sie bei jeder Anfrage erneut.
+        </p>
+        <ul className="rechteliste">
+          {meineRechte.map((recht) => (
+            <li key={recht}>{recht}</li>
+          ))}
+        </ul>
       </section>
 
       <section className="karte">
-        <h2>Rechte je Rolle</h2>
-        <p className="hinweis">
-          Diese Tabelle kommt aus <code>@dels/shared</code> und ist dieselbe Quelle, die der Server
-          zur Pruefung benutzt.
-        </p>
-        <table className="tabelle">
-          <thead>
-            <tr>
-              <th>Recht</th>
-              {ROLLEN.map((r) => (
-                <th key={r}>{r}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {RECHTE.map((recht) => (
-              <tr key={recht}>
-                <td>{recht}</td>
-                {ROLLEN.map((rolle) => (
-                  <td key={rolle} className={hatRecht(rolle, recht) ? "ja" : "nein"}>
-                    {hatRecht(rolle, recht) ? "ja" : "nein"}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <h2>Systemstatus</h2>
+        {health ? (
+          <dl className="werte">
+            <dt>API</dt>
+            <dd className={health.status === "ok" ? "status-gruen" : "status-rot"}>
+              {health.status}
+            </dd>
+            <dt>Datenbank</dt>
+            <dd className={health.datenbank ? "status-gruen" : "status-rot"}>
+              {health.datenbank ? "erreichbar" : "nicht erreichbar"}
+            </dd>
+            <dt>Umgebung</dt>
+            <dd>{health.umgebung}</dd>
+          </dl>
+        ) : (
+          <p className="hinweis">Status wird geladen ...</p>
+        )}
       </section>
     </main>
   );

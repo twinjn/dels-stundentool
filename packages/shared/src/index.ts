@@ -3,3 +3,4 @@
  * Alles, was API und Web beide brauchen, wird hier exportiert.
  */
 export * from "./rollen.js";
+export * from "./schemas.js";

@@ -133,6 +133,37 @@ Stunden später beim ersten Datenbankzugriff auf `undefined` läuft. Ein
 Fehler beim Start kostet dich zehn Sekunden, ein Fehler im Betrieb einen
 Abend.
 
+## Wie die Anmeldung funktioniert
+
+```
+Anmeldung
+  -> Passwort gegen argon2id-Hash prüfen
+  -> 32 zufällige Bytes als Token würfeln
+  -> SHA-256 davon in die Tabelle sitzungen
+  -> Klartext-Token als httpOnly-Cookie an den Browser
+
+Jede weitere Anfrage
+  -> Middleware sitzungLesen: Cookie -> Hash -> Benutzer
+  -> Wächter der Route: angemeldet? Recht vorhanden?
+```
+
+Drei Entscheidungen dahinter:
+
+**Der Passwort-Hash ist argon2id, absichtlich langsam.** Wer eine gestohlene
+Datenbank durchprobieren will, braucht pro Versuch 64 MB Arbeitsspeicher.
+SHA-256 oder MD5 wären hier falsch, die sind auf Geschwindigkeit gebaut.
+
+**In der Datenbank steht nur der Hash des Sitzungs-Tokens.** Wer an ein
+Backup kommt, kann sich damit trotzdem nicht anmelden. Hier genügt SHA-256,
+anders als beim Passwort: ein Token hat 256 Bit echten Zufall, das
+probiert niemand durch.
+
+**Fehlgeschlagene Anmeldungen sehen immer gleich aus.** Unbekannte E-Mail,
+falsches Passwort, stillgelegtes Konto: dieselbe Meldung, dieselbe
+Antwortzeit. Bei unbekannter E-Mail rechnen wir absichtlich gegen einen
+Wegwerf-Hash, damit die Antwort nicht messbar schneller kommt. Sonst liesse
+sich herausfinden, welche Adressen überhaupt ein Konto haben.
+
 ## Was wo NICHT hingehört
 
 - **Keine Datenbankzugriffe im Browser.** Der Browser kennt nur die API

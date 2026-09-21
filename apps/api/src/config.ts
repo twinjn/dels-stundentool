@@ -46,6 +46,15 @@ const EnvSchema = z.object({
     ),
 
   WEB_ORIGIN: z.url().default("http://localhost:5173"),
+
+  /**
+   * Wie viele Zwischenstationen (nginx, Caddy, Load Balancer) vor der API
+   * stehen. Ohne diesen Wert sieht Express als Absender-IP immer die des
+   * Proxys, also bei ALLEN Benutzern dieselbe. Die Anmeldesperre wuerde
+   * dann entweder alle gemeinsam aussperren oder gar nicht greifen.
+   * 0 = kein Proxy davor (lokale Entwicklung).
+   */
+  TRUST_PROXY: z.coerce.number().int().min(0).max(10).default(0),
 });
 
 const ergebnis = EnvSchema.safeParse(process.env);

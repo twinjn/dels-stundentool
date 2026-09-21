@@ -133,3 +133,129 @@ code {
   border: 1px solid var(--farbe-linie);
   border-radius: 4px;
 }
+
+/* --- Anmeldung ------------------------------------------------------- */
+
+.anmeldeseite {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--abstand-3);
+}
+
+.anmeldekarte {
+  width: 100%;
+  max-width: 380px;
+  padding: var(--abstand-5) var(--abstand-4);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.anmeldekarte h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.anmeldekarte .unterzeile {
+  margin: var(--abstand-1) 0 var(--abstand-4);
+}
+
+.anmeldekarte label {
+  display: block;
+  margin-bottom: var(--abstand-1);
+  font-size: 13px;
+  color: var(--farbe-gedaempft);
+}
+
+.anmeldekarte input {
+  width: 100%;
+  margin-bottom: var(--abstand-3);
+  padding: 10px var(--abstand-2);
+  font: inherit;
+  color: inherit;
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.anmeldekarte input:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--farbe-text);
+  outline-offset: 1px;
+}
+
+.anmeldekarte button {
+  width: 100%;
+  padding: 10px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--farbe-text);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.anmeldekarte button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.fehlermeldung {
+  margin: 0 0 var(--abstand-3);
+  padding: var(--abstand-2);
+  font-size: 13px;
+  color: var(--farbe-rot);
+  background: #fdf2f1;
+  border: 1px solid #f3c9c6;
+  border-radius: 6px;
+}
+
+/* --- Angemeldeter Bereich -------------------------------------------- */
+
+.kopfzeile {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.kopfzeile h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.knopf-leise {
+  padding: 6px var(--abstand-3);
+  font: inherit;
+  color: var(--farbe-text);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.knopf-leise:hover {
+  background: var(--farbe-hintergrund);
+}
+
+.rechteliste {
+  margin: 0;
+  padding-left: 18px;
+  columns: 2;
+  font-size: 14px;
+}
+
+@media (max-width: 520px) {
+  .rechteliste {
+    columns: 1;
+  }
+}
+
+.mittig {
+  margin-top: 25vh;
+  color: var(--farbe-gedaempft);
+  text-align: center;
+}

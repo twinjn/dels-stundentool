@@ -13,10 +13,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrieren.ts",
     "db:studio": "drizzle-kit studio",
-    "db:import": "tsx src/db/importieren.ts"
+    "db:import": "tsx src/db/importieren.ts",
+    "db:admin": "tsx src/db/adminAnlegen.ts"
   },
   "dependencies": {
     "@dels/shared": "*",
+    "argon2": "^0.45.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "drizzle-orm": "^0.45.2",
