@@ -107,7 +107,7 @@ describe("Abwesenheiten der Person", () => {
     expect(e.warnungen).toEqual([]);
     expect(e.eintraege).toHaveLength(2);
     expect(e.eintraege.every((x) => x.art === "ferien" && x.objektNr === null)).toBe(true);
-    expect(summenNachrechnen(e.eintraege).get("1001")?.ferien).toBe(2);
+    expect(summenNachrechnen(e.eintraege).get("1001|2026-02")?.ferien).toBe(2);
   });
 
   test("eine vergessene Markierung wird gemeldet, der Tag zaehlt trotzdem ganz", () => {
@@ -180,7 +180,7 @@ describe('"Frei" gehoert zum Objekt, nicht zur Person', () => {
       zeile(2, "1048", "Objekt A", "10012", { 5: "Fr" }),
     ]);
     const summen = summenNachrechnen(leseVerwaltungsblatt(mappe, "Februar", 2026).eintraege);
-    const zeileSumme = summen.get("1048");
+    const zeileSumme = summen.get("1048|2026-02");
     expect(zeileSumme?.ferien).toBe(0);
     expect(zeileSumme?.sonst).toBe(0);
   });
@@ -234,5 +234,33 @@ describe("Raster und Randfaelle", () => {
     const e = leseVerwaltungsblatt(baueMappe([]), "Dezember", 2026);
     expect(e.eintraege).toEqual([]);
     expect(e.warnungen[0]).toMatch(/gibt es in dieser Datei nicht/);
+  });
+});
+
+describe("Summen je Person und Monat", () => {
+  test("der Schluessel enthaelt den Monat, sonst vermischen sich die Monate", () => {
+    // Genau hier lag ein Fehler: wer nur nach Personalnummer zusammenfasst,
+    // vergleicht spaeter die Jahressumme mit einer Monatssumme aus Excel.
+    const februar = leseVerwaltungsblatt(
+      baueMappe([
+        zeile(1, "1001", "Person", "0", {}, []),
+        zeile(2, "1001", "Objekt A", "10001", { 2: 4 }),
+      ]),
+      "Februar",
+      2026,
+    );
+    const maerz = leseVerwaltungsblatt(
+      baueMappe(
+        [zeile(1, "1001", "Person", "0", {}, []), zeile(2, "1001", "Objekt A", "10001", { 2: 6 })],
+        "März",
+      ),
+      "März",
+      2026,
+    );
+
+    const summen = summenNachrechnen([...februar.eintraege, ...maerz.eintraege]);
+    expect(summen.get("1001|2026-02")?.arbeit).toBe(4);
+    expect(summen.get("1001|2026-03")?.arbeit).toBe(6);
+    expect(summen.get("1001")).toBeUndefined();
   });
 });

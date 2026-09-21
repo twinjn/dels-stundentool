@@ -86,6 +86,8 @@ export type ExcelEintrag = {
 
 export type ExcelSummen = {
   personalnummer: string;
+  /** Monat als YYYY-MM. Ohne den laesst sich nichts sinnvoll vergleichen. */
+  monat: string;
   name: string;
   arbeit: number;
   ferien: number;
@@ -293,6 +295,7 @@ export function leseVerwaltungsblatt(
 
       summen.push({
         personalnummer,
+        monat: `${jahr}-${String(monat).padStart(2, "0")}`,
         name,
         arbeit: alsZahl(zelle(blatt, zeile, SUMMENSPALTEN.arbeit)) ?? 0,
         ferien: alsZahl(zelle(blatt, zeile, SUMMENSPALTEN.ferien)) ?? 0,
@@ -342,15 +345,21 @@ export function leseVerwaltungsblatt(
 /**
  * Rechnet aus den gelesenen Eintraegen dieselben Summen nach, die Excel
  * rechts anzeigt. Weicht etwas ab, haben wir das Blatt falsch verstanden.
+ *
+ * Der Schluessel ist "Personalnummer|YYYY-MM". Nur je Person UND Monat
+ * laesst sich vergleichen: Excel fuehrt seine Summen pro Monatsblatt.
  */
 export function summenNachrechnen(eintraege: ExcelEintrag[]): Map<string, ExcelSummen> {
   const ergebnis = new Map<string, ExcelSummen>();
 
   for (const eintrag of eintraege) {
-    let zeile = ergebnis.get(eintrag.personalnummer);
+    const monat = eintrag.datum.slice(0, 7);
+    const schluessel = `${eintrag.personalnummer}|${monat}`;
+    let zeile = ergebnis.get(schluessel);
     if (!zeile) {
       zeile = {
         personalnummer: eintrag.personalnummer,
+        monat,
         name: "",
         arbeit: 0,
         ferien: 0,
@@ -358,7 +367,7 @@ export function summenNachrechnen(eintraege: ExcelEintrag[]): Map<string, ExcelS
         unfall: 0,
         sonst: 0,
       };
-      ergebnis.set(eintrag.personalnummer, zeile);
+      ergebnis.set(schluessel, zeile);
     }
 
     const wert = Number(eintrag.wert);

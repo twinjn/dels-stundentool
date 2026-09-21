@@ -84,6 +84,33 @@ npm test
 | `npm run db:studio -w @dels/api` | Daten im Browser anschauen |
 | `npm run db:import -w @dels/api` | Daten aus dem Altsystem übernehmen |
 | `npm run db:admin -w @dels/api` | Ersten Admin anlegen |
+| `npm run db:import-excel -w @dels/api` | Stunden aus den Excel-Dateien übernehmen |
+
+### Stunden aus Excel übernehmen
+
+Das Kommando läuft **auf dem Rechner, auf dem die Dateien liegen**. Die
+Dateien müssen nirgendwohin hochgeladen oder verschickt werden.
+
+```bash
+# Trockenlauf: liest, rechnet nach, vergleicht, schreibt NICHTS
+npm run db:import-excel -w @dels/api -- --ordner "/Pfad/zu/2026"
+
+# Wenn der Bericht passt:
+npm run db:import-excel -w @dels/api -- --ordner "/Pfad/zu/2026" --schreiben
+```
+
+| Option | Wirkung |
+|---|---|
+| `--datei <pfad>` | eine einzelne Datei statt eines Ordners |
+| `--schreiben` | wirklich in die Datenbank schreiben |
+| `--ersetzen` | vorhandene Einträge der betroffenen Monate vorher löschen |
+| `--fehlende-anlegen` | Mitarbeiter und Objekte anlegen, die es noch nicht gibt |
+| `--jahr 2026` | Jahr vorgeben, falls es in der Datei fehlt |
+
+Der Trockenlauf vergleicht die eingelesenen Zahlen mit den Summenspalten,
+die Excel selbst füllt (Arbeit, Ferien, Krank, Unfall). Weicht etwas ab,
+steht es im Bericht. Man muss dem Import also nicht glauben, er prüft sich
+gegen die Quelle.
 
 ### Den ersten Benutzer anlegen
 

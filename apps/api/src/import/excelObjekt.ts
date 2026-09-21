@@ -103,6 +103,7 @@ export function leseObjektblatt(
 
     summen.push({
       personalnummer,
+      monat: `${jahr}-${String(monat).padStart(2, "0")}`,
       name,
       arbeit: alsZahl(zelle(blatt, zeile, SUMMENSPALTEN.arbeit)) ?? 0,
       ferien: alsZahl(zelle(blatt, zeile, SUMMENSPALTEN.ferien)) ?? 0,

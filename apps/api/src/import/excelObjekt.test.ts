@@ -132,7 +132,7 @@ describe("Mehrere Objektdateien zusammenfuehren", () => {
     const { eintraege, warnungen } = zusammenfuehren(ausDrei);
     expect(warnungen).toEqual([]);
     expect(eintraege.filter((e) => e.art === "ferien")).toHaveLength(1);
-    expect(summenNachrechnen(eintraege).get("1010")?.ferien).toBe(1);
+    expect(summenNachrechnen(eintraege).get("1010|2026-02")?.ferien).toBe(1);
   });
 
   test("gearbeitete Stunden bleiben dagegen alle erhalten", () => {
@@ -143,7 +143,7 @@ describe("Mehrere Objektdateien zusammenfuehren", () => {
 
     const { eintraege } = zusammenfuehren(ausZwei);
     expect(eintraege).toHaveLength(2);
-    expect(summenNachrechnen(eintraege).get("1010")?.arbeit).toBe(8);
+    expect(summenNachrechnen(eintraege).get("1010|2026-02")?.arbeit).toBe(8);
   });
 
   test("widerspruechliche Kuerzel in zwei Dateien werden gemeldet", () => {
