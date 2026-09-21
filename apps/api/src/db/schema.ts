@@ -54,6 +54,11 @@ export const eintragsartEnum = pgEnum("eintragsart", [
   "krankheit",
   "unfall",
   "feiertag",
+  // "Frei" im Sinne von arbeitsfrei, aber nicht Ferien: im bestehenden
+  // Excel als "Fr" gefuehrt und dort 200-mal verwendet. Ohne eigene
+  // Kategorie muesste man es unter "sonstiges" verstecken und koennte es
+  // nachher nicht mehr auseinanderhalten.
+  "frei",
   "sonstiges",
   "spesen",
 ]);
