@@ -4,3 +4,4 @@
  */
 export * from "./rollen.js";
 export * from "./schemas.js";
+export * from "./stammdaten.js";

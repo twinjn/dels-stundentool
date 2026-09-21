@@ -46,7 +46,7 @@ Jede Phase endet mit etwas Lauffähigem.
 | 0 | Fundament | Monorepo, TypeScript, Docker, Linter, CI | **fertig** |
 | 1 | Datenbank | Schema, Migrationen, Importwerkzeug | **fertig**, Umzug der echten Daten offen |
 | 2 | Auth | Login, Sessions, Rollen, Benutzerverwaltung | **fertig** |
-| 3 | Stammdaten | Mitarbeiter und Objekte, Layout, Navigation | offen |
+| 3 | Stammdaten | Mitarbeiter und Objekte, Layout, Navigation | **fertig** |
 | 4 | Stundenerfassung | Schnellerfassung, mobiltauglich | offen |
 | 5 | Matrix | Monatsmatrix und Dashboard | offen |
 | 6 | Kalkulation | Portierung mit Zahlenvergleich alt gegen neu | offen |

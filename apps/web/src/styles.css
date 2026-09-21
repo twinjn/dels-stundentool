@@ -259,3 +259,351 @@ button:focus-visible {
   color: var(--farbe-gedaempft);
   text-align: center;
 }
+
+/* --- Rahmen: Seitenleiste + Inhalt ----------------------------------- */
+
+.rahmen {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  min-height: 100vh;
+}
+
+.seitenleiste {
+  padding: var(--abstand-4) var(--abstand-3);
+  background: var(--farbe-flaeche);
+  border-right: 1px solid var(--farbe-linie);
+}
+
+.marke {
+  margin-bottom: var(--abstand-4);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.seitenleiste nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navlink {
+  padding: var(--abstand-2) var(--abstand-3);
+  color: var(--farbe-gedaempft);
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.navlink:hover {
+  background: var(--farbe-hintergrund);
+}
+
+.navlink.aktiv {
+  color: var(--farbe-text);
+  font-weight: 600;
+  background: var(--farbe-hintergrund);
+}
+
+.hauptbereich {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* ohne das sprengen breite Tabellen das Raster */
+}
+
+.kopfleiste {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--abstand-2) var(--abstand-4);
+  background: var(--farbe-flaeche);
+  border-bottom: 1px solid var(--farbe-linie);
+}
+
+.benutzername {
+  font-size: 14px;
+  color: var(--farbe-gedaempft);
+}
+
+.rollenschild {
+  margin-left: var(--abstand-1);
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--farbe-flaeche);
+  background: var(--farbe-gedaempft);
+  border-radius: 999px;
+}
+
+.inhalt {
+  flex: 1;
+  padding: var(--abstand-4);
+  min-width: 0;
+}
+
+/* --- Seitenaufbau ---------------------------------------------------- */
+
+.seitenraster {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: var(--abstand-4);
+  align-items: start;
+}
+
+.seite-schmal {
+  max-width: 900px;
+}
+
+.seitenkopf {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--abstand-3);
+}
+
+.seitenkopf h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.filterzeile {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: center;
+  margin-bottom: var(--abstand-3);
+}
+
+.filterzeile input[type="search"] {
+  flex: 1;
+  padding: 7px var(--abstand-2);
+  font: inherit;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.schalter {
+  display: flex;
+  gap: var(--abstand-1);
+  align-items: center;
+  font-size: 13px;
+  color: var(--farbe-gedaempft);
+  white-space: nowrap;
+}
+
+/* --- Knoepfe --------------------------------------------------------- */
+
+.knopf {
+  padding: 7px var(--abstand-3);
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--farbe-text);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.knopf:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.knopf-gefahr {
+  padding: 7px var(--abstand-3);
+  font: inherit;
+  color: var(--farbe-rot);
+  background: var(--farbe-flaeche);
+  border: 1px solid #f3c9c6;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* --- Tabellen -------------------------------------------------------- */
+
+.tabelle tbody tr {
+  cursor: pointer;
+}
+
+.tabelle tbody tr:hover {
+  background: var(--farbe-flaeche);
+}
+
+.tabelle tr.gewaehlt {
+  background: var(--farbe-flaeche);
+  box-shadow: inset 2px 0 0 var(--farbe-text);
+}
+
+.tabelle tr.inaktiv td {
+  color: var(--farbe-gedaempft);
+}
+
+.tabelle .rechts {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabelle tfoot td {
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.schild {
+  margin-left: var(--abstand-2);
+  padding: 1px 6px;
+  font-size: 11px;
+  color: var(--farbe-gedaempft);
+  background: var(--farbe-hintergrund);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 999px;
+}
+
+/* --- Formulare ------------------------------------------------------- */
+
+.formular {
+  padding: var(--abstand-4);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.formular h2 {
+  margin: 0 0 var(--abstand-3);
+  font-size: 17px;
+}
+
+.feldgruppe {
+  margin: 0 0 var(--abstand-4);
+  padding: 0;
+  border: none;
+}
+
+.feldgruppe legend {
+  padding: 0;
+  margin-bottom: var(--abstand-2);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--farbe-gedaempft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.feldraster {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--abstand-3);
+}
+
+.feld {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.feld-breit {
+  grid-column: 1 / -1;
+}
+
+.feld label {
+  margin-bottom: 3px;
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+}
+
+.feld input,
+.feld select,
+.tabelle select {
+  padding: 7px var(--abstand-2);
+  font: inherit;
+  color: inherit;
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.feld input:disabled {
+  background: var(--farbe-hintergrund);
+  color: var(--farbe-gedaempft);
+}
+
+.feld input[aria-invalid="true"] {
+  border-color: var(--farbe-rot);
+}
+
+.feld-kaestchen {
+  flex-direction: row;
+  gap: var(--abstand-2);
+  align-items: center;
+}
+
+.feld-kaestchen label {
+  margin: 0;
+  font-size: 14px;
+  color: var(--farbe-text);
+}
+
+.feldfehler {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--farbe-rot);
+}
+
+.feldhinweis {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+}
+
+.formularfuss {
+  display: flex;
+  gap: var(--abstand-2);
+  justify-content: flex-end;
+  padding-top: var(--abstand-3);
+  border-top: 1px solid var(--farbe-linie);
+}
+
+.erfolgsmeldung {
+  margin: 0 0 var(--abstand-3);
+  padding: var(--abstand-2);
+  font-size: 13px;
+  color: var(--farbe-gruen);
+  background: #f0f8f3;
+  border: 1px solid #c6e3d2;
+  border-radius: 6px;
+}
+
+/* --- Schmale Bildschirme --------------------------------------------- */
+
+@media (max-width: 900px) {
+  .seitenraster {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .rahmen {
+    grid-template-columns: 1fr;
+  }
+
+  .seitenleiste {
+    border-right: none;
+    border-bottom: 1px solid var(--farbe-linie);
+    padding: var(--abstand-3);
+  }
+
+  .seitenleiste nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .marke {
+    margin-bottom: var(--abstand-2);
+  }
+
+  .inhalt {
+    padding: var(--abstand-3);
+  }
+
+  .feldraster {
+    grid-template-columns: 1fr;
+  }
+}

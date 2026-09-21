@@ -167,6 +167,21 @@ Die Lehre daraus gilt allgemein: ein Fund von `npm audit` ist ein Hinweis,
 kein Urteil. Das Werkzeug kennt nur die Abhängigkeitsliste, nicht die
 Frage, ob der verwundbare Code bei uns überhaupt läuft.
 
+## Offener Punkt: Datumsfelder
+
+Bei `<input type="date">` bestimmt der **Browser** das Anzeigeformat, nicht
+die Seite. Auf einem deutschsprachigen Chrome erscheint TT.MM.JJJJ, auf
+einem englischen mm/dd/yyyy. Der gespeicherte Wert ist immer ISO
+(`2026-03-01`), verfälscht wird also nichts.
+
+Im Testcontainer liess sich das nicht nachstellen: dem Headless-Chromium
+fehlen die Sprachdaten, es zeigt immer das US-Format. Wer prüfen will, wie
+es bei euch aussieht, öffnet die Mitarbeiterseite im echten Browser.
+
+Falls das Format stört, wäre die Alternative ein eigenes Datumsfeld mit
+Texteingabe und eigener Auswertung. Das kostet Aufwand und bringt eigene
+Fehlerquellen mit, deshalb ist es bewusst nicht gebaut.
+
 ## Das Altsystem
 
 Die alte Supabase-Version liegt unverändert in `legacy/` und bleibt

@@ -19,6 +19,8 @@ import { fehlerBehandlung, routeNichtGefunden } from "./fehler.js";
 import { authRouter } from "./routes/auth.js";
 import { benutzerRouter } from "./routes/benutzer.js";
 import { healthRouter } from "./routes/health.js";
+import { mitarbeiterRouter } from "./routes/mitarbeiter.js";
+import { objekteRouter } from "./routes/objekte.js";
 
 export function baueApp() {
   const app = express();
@@ -56,6 +58,8 @@ export function baueApp() {
   app.use("/api/health", healthRouter);
   app.use("/api/auth", authRouter);
   app.use("/api/benutzer", benutzerRouter);
+  app.use("/api/mitarbeiter", mitarbeiterRouter);
+  app.use("/api/objekte", objekteRouter);
 
   // --- Abschluss ------------------------------------------------------
   // Beides muss ganz unten stehen, sonst schluckt es die echten Routen.
