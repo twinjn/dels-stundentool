@@ -29,6 +29,7 @@ Oberfläche: http://localhost:5173
 | Datei | Inhalt |
 |---|---|
 | [docs/PLAN.md](docs/PLAN.md) | Was gebaut wird, in welcher Reihenfolge, und warum |
+| [docs/GRUNDLAGEN.md](docs/GRUNDLAGEN.md) | Die Teile und was sie tun, für alle die das Ganze betreiben sollen |
 | [docs/ARCHITEKTUR.md](docs/ARCHITEKTUR.md) | Wie das Projekt aufgebaut ist und warum so |
 | [docs/ENTWICKLUNG.md](docs/ENTWICKLUNG.md) | Einrichten, Befehle, Fehlersuche |
 | [docs/SERVER.md](docs/SERVER.md) | Einrichtung auf einem eigenen Server, Schritt für Schritt |

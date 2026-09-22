@@ -36,8 +36,8 @@ if (!(await datenbankErreichbar())) {
 
 const app = baueApp();
 
-const server = app.listen(config.PORT, () => {
-  console.log(`API laeuft auf http://localhost:${config.PORT}  (${config.NODE_ENV})`);
+const server = app.listen(config.PORT, config.HOST, () => {
+  console.log(`API laeuft auf http://${config.HOST}:${config.PORT}  (${config.NODE_ENV})`);
 });
 
 /**
