@@ -164,6 +164,47 @@ selbst. Kein certbot, kein Cronjob, kein abgelaufenes Zertifikat an einem
 Sonntag. Voraussetzung: der DNS-Eintrag zeigt auf den Server, Port 80 und
 443 sind offen.
 
+#### Eine Subdomain der Firmenwebseite genügt
+
+Es braucht **keine zweite Domain**. `stunden.firma.ch` ist ein eigener
+DNS-Eintrag und hat mit `www.firma.ch` nichts zu tun: andere Adresse,
+anderer Server, andere Inhalte. Die Webseite merkt davon nichts, und es
+kostet nichts extra, die Domain ist ja bezahlt.
+
+Beim Hoster einen Eintrag anlegen, mehr ist es nicht:
+
+```
+Typ    Name       Wert
+A      stunden    <öffentliche IP des Büros>
+```
+
+**Der Haken: die öffentliche IP.** Die meisten Geschäftsanschlüsse
+bekommen eine *dynamische* IP, die sich gelegentlich ändert. Dann zeigt
+der Eintrag irgendwann ins Leere. Zwei Auswege:
+
+- eine **feste IP** beim Anbieter dazubuchen, meist ein paar Franken im
+  Monat
+- **DynDNS**: ein kleines Programm auf dem Server meldet dem
+  DNS-Anbieter die neue IP, sobald sie sich ändert
+
+Dazu kommt die **Portfreigabe** für 80 und 443 im Router.
+
+Und der eigentliche Unterschied zu Tailscale: danach steht die
+Anmeldemaske **im offenen Internet**. Nicht dramatisch, die Anmeldung ist
+gegen Rateversuche geschützt, aber es ist eine bewusste Entscheidung.
+
+#### Hübscher Name ohne offenes Internet
+
+Beides geht auch zusammen: ein DNS-Eintrag auf die **Tailscale-Adresse**
+des Servers (`100.x.y.z`). Diese Adressen sind im offenen Internet nicht
+erreichbar, nur innerhalb eures Tailnets. Wer bei euch im Tailnet ist,
+tippt `stunden.firma.ch`, alle anderen laufen ins Leere.
+
+Der Preis: Let's Encrypt kann den Server dann nicht von aussen erreichen,
+das Zertifikat muss also über die sogenannte DNS-01-Prüfung ausgestellt
+werden. Dafür braucht Caddy Zugang zur DNS-Verwaltung eures Hosters.
+Machbar, aber deutlich mehr Aufwand als die beiden einfachen Wege.
+
 ### Weg B: Tailscale, nur für eure Geräte
 
 Das ist der Weg, den ich für ein internes Werkzeug nehmen würde. Die
