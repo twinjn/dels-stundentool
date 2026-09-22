@@ -7,7 +7,7 @@
  */
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { MINDESTLAENGE_PASSWORT, ROLLEN } from "@dels/shared";
+import { BenutzerAnlegenSchema, MINDESTLAENGE_PASSWORT, ROLLEN } from "@dels/shared";
 import type { Rolle } from "@dels/shared";
 import { ApiFehler, api } from "../../api/client.js";
 import { useAuth } from "../../app/AuthKontext.js";
@@ -39,6 +39,44 @@ export function BenutzerSeite() {
     } catch (e: unknown) {
       // Haeufigster Fall: es ist der letzte aktive Admin.
       setAktionsfehler(e instanceof ApiFehler ? e.message : "Aenderung fehlgeschlagen.");
+    }
+  }
+
+  /**
+   * Passwort fuer jemand anderen setzen.
+   *
+   * Das ist der Weg fuer ein vergessenes Passwort. Es gibt bewusst kein
+   * Zuruecksetzen per Mail: dafuer braeuchte es einen Mailversand, und
+   * fuer ein Buero mit einer Handvoll Leute ist der kurze Weg ueber den
+   * Admin einfacher und weniger angreifbar.
+   *
+   * Der Server beendet dabei alle Sitzungen der betroffenen Person.
+   */
+  async function passwortSetzen(zeile: BenutzerZeile) {
+    const neues = window.prompt(
+      `Neues Passwort fuer ${zeile.name}\n\n` +
+        `Mindestens ${MINDESTLAENGE_PASSWORT} Zeichen. ` +
+        `${zeile.name} wird dabei auf allen Geraeten abgemeldet.`,
+    );
+    if (neues === null) return;
+
+    const geprueft = BenutzerAnlegenSchema.shape.passwort.safeParse(neues);
+    if (!geprueft.success) {
+      setAktionsfehler(geprueft.error.issues[0]?.message ?? "Passwort zu kurz.");
+      return;
+    }
+
+    setAktionsfehler(null);
+    setMeldung(null);
+    try {
+      await api.post(`/benutzer/${zeile.id}/passwort`, { passwort: geprueft.data });
+      setMeldung(
+        zeile.id === ich?.id
+          ? "Dein Passwort ist gesetzt. Du bist auf allen Geraeten abgemeldet."
+          : `Passwort fuer ${zeile.name} gesetzt.`,
+      );
+    } catch (e: unknown) {
+      setAktionsfehler(e instanceof ApiFehler ? e.message : "Setzen fehlgeschlagen.");
     }
   }
 
@@ -125,6 +163,13 @@ export function BenutzerSeite() {
                     : "nie"}
                 </td>
                 <td className="rechts">
+                  <button
+                    className="knopf-leise"
+                    onClick={() => void passwortSetzen(zeile)}
+                    title={`Ein neues Passwort fuer ${zeile.name} setzen`}
+                  >
+                    Passwort
+                  </button>
                   <button className="knopf-leise" onClick={() => void umschalten(zeile)}>
                     {zeile.aktiv ? "Stilllegen" : "Aktivieren"}
                   </button>

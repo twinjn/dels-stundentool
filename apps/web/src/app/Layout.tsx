@@ -56,6 +56,9 @@ export function Layout() {
           <span className="benutzername">
             {benutzer.name} <span className="rollenschild">{benutzer.rolle}</span>
           </span>
+          <NavLink to="/passwort" className="knopf-leise">
+            Passwort
+          </NavLink>
           <button className="knopf-leise" onClick={() => void abmelden()}>
             Abmelden
           </button>

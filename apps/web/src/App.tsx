@@ -10,6 +10,7 @@ import { DashboardSeite } from "./features/dashboard/DashboardSeite.js";
 import { KalkulationSeite } from "./features/kalkulation/KalkulationSeite.js";
 import { MitarbeiterSeite } from "./features/mitarbeiter/MitarbeiterSeite.js";
 import { ObjekteSeite } from "./features/objekte/ObjekteSeite.js";
+import { PasswortSeite } from "./features/passwort/PasswortSeite.js";
 import { ProtokollSeite } from "./features/protokoll/ProtokollSeite.js";
 import { StundenSeite } from "./features/stunden/StundenSeite.js";
 import { UebersichtSeite } from "./features/uebersicht/UebersichtSeite.js";
@@ -58,6 +59,7 @@ function Inhalt() {
           <Route path="/objekte" element={<ObjekteSeite />} />
           <Route path="/kalkulation" element={<KalkulationSeite />} />
           <Route path="/benutzer" element={<BenutzerSeite />} />
+          <Route path="/passwort" element={<PasswortSeite />} />
           <Route path="/protokoll" element={<ProtokollSeite />} />
           {/* Alles Unbekannte landet auf der Startseite statt im Nichts. */}
           <Route path="*" element={<Navigate to="/" replace />} />

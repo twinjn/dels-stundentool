@@ -1420,3 +1420,36 @@ button:focus-visible {
 .uebersichtseite .seitenkopf {
   align-items: center;
 }
+
+/* --- Passwort aendern -------------------------------------------------- */
+
+.passwortformular {
+  max-width: 380px;
+  margin-top: var(--abstand-4);
+}
+
+.passwortformular label {
+  display: block;
+  margin-bottom: var(--abstand-1);
+  font-size: 13px;
+  color: var(--farbe-gedaempft);
+}
+
+.passwortformular input {
+  width: 100%;
+  margin-bottom: var(--abstand-3);
+  padding: 8px;
+  font: inherit;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.passwortformular .hinweis {
+  margin: calc(-1 * var(--abstand-2)) 0 var(--abstand-3);
+}
+
+/* Ein NavLink sieht sonst aus wie ein Navigationseintrag. In der
+   Kopfleiste soll er ein Knopf sein wie "Abmelden" daneben. */
+.kopfleiste .knopf-leise {
+  text-decoration: none;
+}
