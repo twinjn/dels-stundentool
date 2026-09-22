@@ -14,6 +14,52 @@
 Diese Anleitung geht von einem Linux-Server mit Ubuntu 24.04 oder Debian
 12 aus. Ob der im Büro steht oder gemietet ist, spielt keine Rolle.
 
+## Welche Maschine
+
+Die Anforderungen sind winzig. Eure ganze Datenbank ist als Sicherung
+148 KB gross, die Anwendung braucht im Betrieb ein paar hundert MB
+Arbeitsspeicher.
+
+| | Minimum | Angenehm |
+|---|---|---|
+| Kerne | 2 | 4 |
+| Arbeitsspeicher | 2 GB | 8 GB |
+| Platte | 20 GB | 128 GB SSD |
+
+Damit qualifiziert sich praktisch jedes Gerät der letzten zehn Jahre.
+
+### Gebraucht ist hier die vernünftige Wahl
+
+Ausgemusterte Büro-Kleinrechner sind für genau diesen Zweck gebaut:
+leise, sparsam, robust, und es gibt sie in Massen.
+
+- **HP EliteDesk Mini**, **Lenovo ThinkCentre Tiny**, **Dell OptiPlex
+  Micro**: gebraucht meist unter 150 Franken, oft mit 8 oder 16 GB
+- **Neu mit Intel N100 oder N150**: rund 130 bis 200 Franken, etwa 6 bis
+  10 Watt
+
+### Ein Hinweis zur Architektur
+
+Ein **Raspberry Pi** würde reichen und braucht noch weniger Strom. Aber:
+alles hier ist auf x86 geprüft, die CI baut das Docker-Bild für x86, und
+die Einrichtung wurde auf x86 durchgespielt. Node, PostgreSQL und argon2
+gibt es auch für ARM, es sollte also laufen.
+
+"Sollte" ist nicht "geprüft". Wer keine Lust auf Überraschungen hat,
+nimmt einen gebrauchten x86-Kleinrechner. Der kostet etwa gleich viel
+und wirft keine Fragen auf.
+
+### Was dazugehört, auch wenn niemand daran denkt
+
+- **Die Maschine muss laufen.** Nicht im Ruhezustand, nicht "wenn jemand
+  sie einschaltet". Im BIOS meist "Restore on AC Power" einstellen, damit
+  sie nach einem Stromausfall von allein wieder hochkommt
+- **Jemand spielt Updates ein.** Das ist der eigentliche Preis des
+  Selbstbetriebs, nicht der Strom
+- **Ein zweiter Ort für die Sicherungen.** Eine Sicherung auf derselben
+  Maschine hilft gegen einen Bedienfehler, nicht gegen einen Blitzschlag.
+  Ein NAS, ein zweiter Rechner oder eine externe Platte reicht
+
 ## Was der Server braucht
 
 Wenig. Eure ganze Datenbank ist als Sicherung **148 KB** gross.
