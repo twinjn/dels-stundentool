@@ -105,9 +105,13 @@ Braucht eine Antwort aus der Firma:
   Austritt, Übertrag ins Folgejahr, Halbtage. Ohne diese Regeln zeigt die
   Anwendung den aus dem Excel übernommenen Saldo und daneben, was seither
   bezogen wurde, rechnet aber keinen laufenden Saldo
-- **Werden die Objektdateien überhaupt benutzt?** Die beiden vorliegenden
-  (10001, 10019) sind vollständig leer. Der Leser dafür ist gebaut, aber
-  nie gegen echte Zahlen geprüft. Dafür braucht es eine Datei mit Inhalt
+- **Sollen die Objektdateien mit importiert werden?** Die Frage, ob sie
+  überhaupt benutzt werden, ist beantwortet: ja. Eine dritte Datei
+  (10005) enthält echte Zahlen, und der Leser ist daran geprüft (siehe
+  unten). Offen ist nur noch, ob ihr sie zusätzlich zur Verwaltungsdatei
+  einlesen wollt. Achtung dabei: eine Person, die auf fünf Objekten
+  arbeitet, hat ihre Ferien in fünf Objektdateien stehen. Entdoppelt wird
+  das in `zusammenfuehren()`, aber der Umstand gehört bedacht
 - **Wo läuft das Ganze?** Siehe `docs/BETRIEB.md`. Wichtig dabei: es sind
   Personendaten von Schweizer Angestellten, inklusive AHV-Nummer und IBAN
 - **Wer bekommt welche Rolle?**
@@ -119,6 +123,33 @@ Technisch offen:
   entstand, lief kein Docker-Daemon
 - **Keine Lohnabrechnung.** War in Phase 7 mitgedacht, braucht aber
   Entscheide, die noch nicht gefallen sind
+
+### Geklärt: die Objektdateien werden benutzt
+
+Die ersten beiden Muster (10001, 10019) waren leer, deshalb blieb lange
+offen, ob diese Ebene überhaupt geführt wird. Eine dritte Datei enthält
+Daten, und der Leser wurde daran geprüft:
+
+| | |
+|---|---|
+| Arbeitsstunden im Jahr | 376.00 |
+| Ferientage | 11 |
+| Personen auf dem Objekt | 1 |
+| Warnungen | keine |
+
+Jeder einzelne Monat stimmt mit der Summenspalte des Blatts überein, und
+eine unabhängig geschriebene Nachrechnung kommt auf dieselben Zahlen.
+Auch die Dateierkennung stimmt: Typ `objekt`, Jahr 2026, Objektnummer
+und Stand werden richtig gelesen.
+
+Zwei Eigenheiten des Formats, die dabei bestätigt wurden:
+
+- **Am Blattende steht eine Summenzeile** ("Monatstotal Arbeitstunden").
+  Wer sie als Person mitzählt, verdoppelt jede Zahl. Beim ersten
+  Nachrechnen ist mir genau das passiert, und die Gegenprobe stimmte
+  trotzdem, weil beide Seiten verdoppelt waren
+- **Das 31-Spalten-Raster gilt auch hier.** In einem 30-Tage-Monat trägt
+  die letzte Spalte schon den ersten des Folgemonats
 
 ### Geklärt: das Anzeigeformat der Datumsfelder
 
