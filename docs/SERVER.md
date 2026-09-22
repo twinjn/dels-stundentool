@@ -300,11 +300,16 @@ nano .env
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-**Warnung, unverändert gültig:** der Docker-Bau ist nie ausprobiert
-worden, weil in der Umgebung, in der er entstand, kein Docker-Daemon
-lief. Der Weg über `installieren.sh` dagegen **ist** durchgespielt
+Der Docker-Bau wird seit neuestem bei **jedem Push** in der CI gebaut
+und gestartet, nicht nur gebaut: der Container muss sich melden, die
+Datenbank erreichen, die Oberfläche ausliefern und eine unbekannte
+API-Route mit 404 beantworten. Damit ist er geprüft, auch wenn ich ihn
+hier mangels Docker-Daemon nicht selbst ausführen kann.
+
+Der Weg über `installieren.sh` ist zusätzlich von Hand durchgespielt
 worden, von der Installation über die Migrationen bis zur laufenden
-Anwendung.
+Anwendung. Beide Wege sind also brauchbar. Für den ersten eigenen Server
+ist das Skript der kürzere.
 
 ## Nachsehen, ob es läuft
 

@@ -119,8 +119,9 @@ Braucht eine Antwort aus der Firma:
 
 Technisch offen:
 
-- **Der Docker-Bau ist nicht ausprobiert.** In der Umgebung, in der er
-  entstand, lief kein Docker-Daemon
+- ~~Der Docker-Bau ist nicht ausprobiert.~~ Erledigt: die CI baut das Bild
+  bei jedem Push, startet den Container gegen eine echte Datenbank und
+  prüft Gesundheit, Oberfläche und Routen
 - **Keine Lohnabrechnung.** War in Phase 7 mitgedacht, braucht aber
   Entscheide, die noch nicht gefallen sind
 
