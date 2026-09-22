@@ -1,0 +1,192 @@
+# Auf einem eigenen Server
+
+Diese Anleitung geht von einem Linux-Server mit Ubuntu 24.04 oder Debian
+12 aus. Ob der im Büro steht oder gemietet ist, spielt keine Rolle.
+
+## Was der Server braucht
+
+Wenig. Eure ganze Datenbank ist als Sicherung **148 KB** gross.
+
+| | |
+|---|---|
+| CPU | 2 Kerne reichen |
+| Arbeitsspeicher | 2 GB reichen, 1 GB geht auch |
+| Platte | 20 GB, davon braucht die Anwendung selbst unter 1 GB |
+| Software | Node.js 22 oder neuer, PostgreSQL 16 oder neuer |
+
+## Der Weg in zehn Minuten
+
+```bash
+# Voraussetzungen
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs postgresql postgresql-client git
+
+# Quelltext holen und einrichten
+git clone https://github.com/twinjn/dels-stundentool.git
+cd dels-stundentool
+sudo infra/installieren.sh
+```
+
+`installieren.sh` legt an: einen Systembenutzer `dels`, die Datenbank mit
+einem erzeugten Passwort, die Anwendung unter `/opt/dels-stundentool`,
+die Einstellungen unter `/etc/dels-stundentool.env` (root:root, 0600) und
+den systemd-Dienst.
+
+Das Skript ist **mehrfach ausführbar**. Ein zweiter Lauf spielt eine neue
+Fassung ein und lässt Passwörter und Sitzungsschlüssel in Ruhe, wirft
+also niemanden aus der Anwendung.
+
+Danach noch drei Dinge:
+
+```bash
+# 1. Adresse eintragen
+sudo nano /etc/dels-stundentool.env      # WEB_ORIGIN=https://...
+
+# 2. Starten
+sudo systemctl enable --now dels-stundentool
+systemctl status dels-stundentool
+
+# 3. Ersten Admin anlegen
+cd /opt/dels-stundentool
+sudo -u dels env $(grep -v '^#' /etc/dels-stundentool.env | xargs) \
+  node apps/api/dist/db/adminAnlegen.js
+```
+
+## TLS ist keine Kür
+
+Das Sitzungs-Cookie ist `secure`. Über reines `http` schickt der Browser
+es nie zurück, und die **Anmeldung funktioniert schlicht nicht**. Die
+Anwendung warnt beim Start, wenn `WEB_ORIGIN` auf `http://` zeigt.
+
+Es gibt drei Wege, je nachdem wie der Server erreichbar sein soll.
+
+### Weg A: eigene Domain, aus dem Internet erreichbar
+
+```bash
+sudo apt-get install -y caddy
+sudo cp infra/Caddyfile.beispiel /etc/caddy/Caddyfile
+sudo nano /etc/caddy/Caddyfile           # Domain eintragen
+sudo systemctl reload caddy
+```
+
+Caddy holt das Zertifikat von Let's Encrypt selbst und erneuert es auch
+selbst. Kein certbot, kein Cronjob, kein abgelaufenes Zertifikat an einem
+Sonntag. Voraussetzung: der DNS-Eintrag zeigt auf den Server, Port 80 und
+443 sind offen.
+
+### Weg B: Tailscale, nur für eure Geräte
+
+Das ist der Weg, den ich für ein internes Werkzeug nehmen würde. Die
+Anwendung ist dann **aus dem Internet gar nicht erreichbar**, nur aus
+eurem eigenen Netz.
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+sudo tailscale serve --bg 3000
+```
+
+Tailscale bringt ein echtes Let's-Encrypt-Zertifikat für den Gerätenamen
+mit, erreichbar unter `https://servername.euer-tailnet.ts.net`. Dafür
+muss in der Tailscale-Konsole unter Settings, DNS zuerst MagicDNS und
+dann HTTPS Certificates eingeschaltet sein, sonst scheitert `serve`.
+
+Caddy braucht es dann nicht. `WEB_ORIGIN` auf die `ts.net`-Adresse
+setzen.
+
+### Weg C: nur im Firmennetz, ohne Tailscale
+
+Ohne öffentliche Domain kann Let's Encrypt kein Zertifikat ausstellen.
+Caddy stellt dann ein eigenes aus (`tls internal`) und richtet dafür eine
+lokale Zertifizierungsstelle ein. Deren Wurzelzertifikat muss **einmal
+auf jedem Arbeitsplatz** als vertrauenswürdig eingetragen werden, sonst
+warnt jeder Browser:
+
+```
+/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
+```
+
+Das ist der unbequemste Weg. Weg B spart genau diese Arbeit.
+
+## Sicherungen
+
+```bash
+sudo crontab -e
+```
+
+```
+0 2 * * * DATABASE_URL="postgres://dels:PASSWORT@localhost:5432/dels" BACKUP_ZIEL=/var/lib/dels-stundentool/backups /opt/dels-stundentool/infra/backup.sh
+0 3 * * 0 DATABASE_URL="..." /opt/dels-stundentool/infra/backup-pruefen.sh
+```
+
+Der zweite Eintrag ist der wichtigere: er spielt die Sicherung
+tatsächlich in eine Wegwerfdatenbank zurück und vergleicht jede Tabelle
+Zeile für Zeile. Eine Sicherung, die nie zurückgespielt wurde, ist keine
+Sicherung, sondern eine Datei.
+
+Und dann noch woanders hin spiegeln. Eine Sicherung auf demselben Server
+hilft gegen einen Bedienfehler, nicht gegen einen kaputten Server:
+
+```
+30 3 * * * rsync -a /var/lib/dels-stundentool/backups/ benutzer@anderer-ort:/sicherungen/dels/
+```
+
+## Neue Fassung einspielen
+
+```bash
+cd ~/dels-stundentool
+git pull
+sudo infra/installieren.sh          # baut neu und tauscht /opt aus
+sudo systemctl restart dels-stundentool
+```
+
+Die Migrationen laufen beim Start mit, als `ExecStartPre`. Schlagen sie
+fehl, startet der Dienst gar nicht, und das ist richtig so: eine
+Anwendung auf einem halb migrierten Schema schreibt kaputte Daten.
+
+**Vorher eine Sicherung ziehen**, auch wenn nichts dagegen spricht.
+
+## Mit Docker statt von Hand
+
+Geht auch, siehe `docker-compose.prod.yml`:
+
+```bash
+cp .env.prod.example .env
+nano .env
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+**Warnung, unverändert gültig:** der Docker-Bau ist nie ausprobiert
+worden, weil in der Umgebung, in der er entstand, kein Docker-Daemon
+lief. Der Weg über `installieren.sh` dagegen **ist** durchgespielt
+worden, von der Installation über die Migrationen bis zur laufenden
+Anwendung.
+
+## Nachsehen, ob es läuft
+
+```bash
+systemctl status dels-stundentool
+journalctl -u dels-stundentool -f
+curl -s http://127.0.0.1:3000/api/health
+```
+
+Die Health-Antwort prüft auch die Datenbank. Eine API, die antwortet,
+aber keine Datenbank hat, ist für den Benutzer genauso kaputt wie eine,
+die gar nicht läuft.
+
+## Was der Dienst absichert
+
+`infra/dels-stundentool.service` schränkt ein, was der Prozess darf:
+kein Schreiben ins Dateisystem ausser `/var/lib/dels-stundentool`, keine
+Heimverzeichnisse, keine neuen Rechte, nur die Netzwerkfamilien, die
+gebraucht werden.
+
+Der Sitzungsschlüssel und das Datenbankpasswort stehen in einer Datei,
+die **root gehört** und 0600 hat. systemd liest sie, bevor es auf den
+Benutzer `dels` wechselt. Der Anwendungsbenutzer kann sie also nicht
+lesen, selbst wenn jemand über die Anwendung eine Shell bekäme.
+
+Eine Zeile steht dort bewusst **nicht**: `MemoryDenyWriteExecute=true`.
+Node erzeugt zur Laufzeit Maschinencode und braucht dafür Speicher, der
+beschreibbar und ausführbar ist. Mit dieser Zeile startet der Dienst
+nicht.

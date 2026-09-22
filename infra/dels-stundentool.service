@@ -1,0 +1,76 @@
+# systemd-Dienst fuer das DELS Stundentool.
+#
+#   sudo cp infra/dels-stundentool.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now dels-stundentool
+#
+# Erwartet die Anwendung gebaut unter /opt/dels-stundentool und die
+# Einstellungen in /etc/dels-stundentool.env (root:root, 0600).
+
+[Unit]
+Description=DELS Stundentool
+Documentation=https://github.com/twinjn/dels-stundentool
+After=network-online.target postgresql.service
+Wants=network-online.target
+# Ohne Datenbank startet die Anwendung ohnehin nicht, sie bricht mit
+# Exit 1 ab. Besser, systemd wartet gleich auf Postgres.
+Requires=postgresql.service
+
+# Nach fuenf Fehlstarts in zwei Minuten aufhoeren. Sonst dreht ein
+# kaputter Start stundenlang im Kreis und fuellt das Log.
+#
+# Die beiden Zeilen gehoeren in [Unit] und NICHT in [Service]. Dort
+# nimmt systemd sie stillschweigend nicht an: "Unknown key name
+# StartLimitIntervalSec in section Service, ignoring". Gemerkt hat das
+# hier "systemd-analyze verify", nicht der Augenschein.
+StartLimitBurst=5
+StartLimitIntervalSec=120
+
+[Service]
+Type=simple
+User=dels
+Group=dels
+WorkingDirectory=/opt/dels-stundentool
+
+# systemd liest diese Datei als root, BEVOR es auf den Benutzer "dels"
+# wechselt. Deshalb darf sie root:root 0600 sein: der Sitzungsschluessel
+# und das Datenbankpasswort sind damit fuer den Anwendungsbenutzer nicht
+# lesbar, auch wenn jemand ueber die Anwendung eine Shell bekaeme.
+EnvironmentFile=/etc/dels-stundentool.env
+
+# Migrationen vor dem Start. Sie sind mehrfach ausfuehrbar, ein Neustart
+# schadet also nicht. Schlaegt das fehl, startet der Dienst gar nicht,
+# und das ist richtig so: eine Anwendung auf einem halb migrierten
+# Schema schreibt kaputte Daten.
+ExecStartPre=/usr/bin/node apps/api/dist/db/migrieren.js
+ExecStart=/usr/bin/node apps/api/dist/server.js
+
+Restart=on-failure
+RestartSec=5
+
+# --- Haertung ---------------------------------------------------------
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectClock=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+SystemCallArchitectures=native
+
+# ProtectSystem=strict macht das ganze Dateisystem schreibgeschuetzt.
+# Die Anwendung schreibt nichts, aber die Sicherungen schon.
+ReadWritePaths=/var/lib/dels-stundentool
+
+# MemoryDenyWriteExecute steht hier BEWUSST NICHT auf true: Node erzeugt
+# zur Laufzeit Maschinencode (JIT) und braucht dafuer Speicher, der
+# beschreibbar und ausfuehrbar ist. Mit true startet der Dienst nicht.
+
+[Install]
+WantedBy=multi-user.target

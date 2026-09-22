@@ -1,0 +1,67 @@
+# Beispiel fuer Caddy als Webserver vor dem Stundentool.
+#
+# Caddy statt nginx, weil er das TLS-Zertifikat selbst holt und
+# erneuert. Kein certbot, kein Cronjob, kein abgelaufenes Zertifikat an
+# einem Sonntag.
+#
+#   sudo cp infra/Caddyfile.beispiel /etc/caddy/Caddyfile
+#   sudo nano /etc/caddy/Caddyfile      # Adresse eintragen
+#   sudo systemctl reload caddy
+
+# ---------------------------------------------------------------------
+# Fall 1: eigene Domain, aus dem Internet erreichbar
+#
+# Voraussetzung: der A-Eintrag von stunden.dels.ch zeigt auf diesen
+# Server, und Port 80 und 443 sind offen. Caddy holt das Zertifikat
+# dann beim ersten Start von selbst.
+# ---------------------------------------------------------------------
+stunden.dels.ch {
+	reverse_proxy 127.0.0.1:3000
+
+	# Zugriffe mitschreiben. Bei einer Anwendung mit Lohndaten will man
+	# im Zweifel nachsehen koennen, wer wann da war.
+	log {
+		output file /var/log/caddy/stunden.log {
+			roll_size 10MiB
+			roll_keep 10
+		}
+	}
+
+	encode gzip zstd
+}
+
+# ---------------------------------------------------------------------
+# Fall 2: nur im Firmennetz, kein Zugang von aussen
+#
+# Hier gibt es keine oeffentliche Domain, also kann Let's Encrypt kein
+# Zertifikat ausstellen. Caddy stellt dann ein eigenes aus und richtet
+# dafuer eine lokale Zertifizierungsstelle ein. Die muss einmal auf
+# jedem Arbeitsplatz als vertrauenswuerdig eingetragen werden, sonst
+# warnt jeder Browser.
+#
+# Der Pfad zum Wurzelzertifikat:
+#   /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt
+#
+# WARUM UEBERHAUPT TLS IM EIGENEN NETZ: das Sitzungs-Cookie ist
+# "secure" und wird ueber reines http nie zurueckgeschickt. Ohne TLS
+# funktioniert die Anmeldung schlicht nicht. Die Anwendung warnt beim
+# Start davor.
+# ---------------------------------------------------------------------
+# stunden.intern {
+# 	tls internal
+# 	reverse_proxy 127.0.0.1:3000
+# }
+
+# ---------------------------------------------------------------------
+# Fall 3: ueber Tailscale
+#
+# Dann braucht es Caddy gar nicht. Tailscale bringt ein echtes
+# Let's-Encrypt-Zertifikat fuer den Namen des Geraets mit:
+#
+#   tailscale serve --bg 3000
+#
+# Erreichbar unter https://servername.euer-tailnet.ts.net, und zwar nur
+# fuer Geraete im eigenen Tailnet. Dafuer muss in der Tailscale-Konsole
+# unter Settings, DNS zuerst MagicDNS und dann HTTPS Certificates
+# eingeschaltet sein, sonst scheitert der Befehl.
+# ---------------------------------------------------------------------
