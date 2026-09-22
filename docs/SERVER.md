@@ -14,6 +14,39 @@ Wenig. Eure ganze Datenbank ist als Sicherung **148 KB** gross.
 | Platte | 20 GB, davon braucht die Anwendung selbst unter 1 GB |
 | Software | Node.js 22 oder neuer, PostgreSQL 16 oder neuer |
 
+## Was es wirklich kostet
+
+Keine Lizenz, kein Abo, keine Rechnung an irgendwen. Alles, was die
+Anwendung braucht, ist kostenlos: Ubuntu oder Debian, Node.js,
+PostgreSQL, Caddy, Let's Encrypt, Tailscale im Gratis-Tarif.
+
+Kostenlos heisst aber nicht kostenfrei. Der Strom zählt mit, und zwar
+mehr, als man denkt. Gerechnet mit 28 Rappen je Kilowattstunde
+(Grundversorgung, regional zwischen 8 und 37 Rappen):
+
+| Gerät | Leistung | Strom pro Jahr |
+|---|---|---|
+| NAS, das ohnehin schon läuft | 0 W zusätzlich | **0 CHF** |
+| Mini-PC oder Raspberry Pi 5 | rund 10 W | **rund 25 CHF** |
+| alter Büro-Tower, sparsam | rund 40 W | rund 100 CHF |
+| alter Büro-Tower, normal | rund 65 W | **rund 160 CHF** |
+
+Zum Vergleich: ein gemieteter Server bei Hetzner kostet rund 60 CHF im
+Jahr.
+
+**Ein alter Tower, der Tag und Nacht läuft, ist also teurer als ein
+gemieteter Server.** Das überrascht die meisten. Ein Mini-PC oder ein
+vorhandenes NAS dagegen schlägt jedes Mietangebot deutlich.
+
+Nicht im Strom enthalten und trotzdem echte Kosten:
+
+- **Zeit.** Jemand muss Sicherheitsupdates einspielen. Das ist der
+  eigentliche Preis des Selbstbetriebs, nicht der Strom
+- **Eine eigene Domain**, falls gewünscht, rund 10 bis 15 CHF im Jahr.
+  Mit Tailscale (Weg B weiter unten) braucht es keine
+- **Ein Plan B**, falls die Maschine stirbt. Die Sicherungen gehören
+  deshalb auf ein anderes Gerät
+
 ## Der Weg in zehn Minuten
 
 ```bash
@@ -90,6 +123,12 @@ Tailscale bringt ein echtes Let's-Encrypt-Zertifikat für den Gerätenamen
 mit, erreichbar unter `https://servername.euer-tailnet.ts.net`. Dafür
 muss in der Tailscale-Konsole unter Settings, DNS zuerst MagicDNS und
 dann HTTPS Certificates eingeschaltet sein, sonst scheitert `serve`.
+
+Eine Grenze, die ihr vorher prüfen solltet: der Gratis-Tarif von
+Tailscale umfasst **6 Benutzer** bei unbegrenzt vielen Geräten. Das
+zählt nur, wer die Anwendung von **ausserhalb** des Büros erreichen
+muss. Wer im Büro am Netz hängt, braucht Tailscale nicht. Für ein
+Büro-Team von zwei bis fünf Leuten reicht es also.
 
 Caddy braucht es dann nicht. `WEB_ORIGIN` auf die `ts.net`-Adresse
 setzen.
