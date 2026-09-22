@@ -11,9 +11,15 @@ export default defineConfig({
     // Produktion, wo Express die gebaute Oberflaeche selbst ausliefert.
     // Vorteil: keine CORS-Sonderfaelle und Session-Cookies funktionieren
     // ohne Tricks.
+    //
+    // Ziel ist bewusst 127.0.0.1 und nicht localhost. Unter Windows loest
+    // localhost zuerst nach ::1 auf, die API lauscht aber standardmaessig
+    // nur auf 127.0.0.1. Node probiert zwar beide Adressen durch, das
+    // kostet aber bei jeder Anfrage einen Fehlversuch. Die IP direkt
+    // hinzuschreiben spart das.
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        target: "http://127.0.0.1:3000",
         changeOrigin: true,
       },
     },
