@@ -1,5 +1,16 @@
 # Auf einem eigenen Server
 
+> **Diese Befehle laufen auf einem LINUX-Server, nicht auf deinem
+> Windows-Rechner.**
+>
+> `sudo`, `apt-get` und `systemctl` gibt es unter Windows nicht. Wer die
+> Zeilen unten in die Windows-Eingabeaufforderung kopiert, bekommt
+> zwölfmal "Der Befehl sudo ist entweder falsch geschrieben oder konnte
+> nicht gefunden werden".
+>
+> Zum Ausprobieren auf einem Windows-Rechner gibt es WSL, siehe
+> [Zum Üben auf Windows](#zum-üben-auf-windows) weiter unten.
+
 Diese Anleitung geht von einem Linux-Server mit Ubuntu 24.04 oder Debian
 12 aus. Ob der im Büro steht oder gemietet ist, spielt keine Rolle.
 
@@ -184,6 +195,40 @@ fehl, startet der Dienst gar nicht, und das ist richtig so: eine
 Anwendung auf einem halb migrierten Schema schreibt kaputte Daten.
 
 **Vorher eine Sicherung ziehen**, auch wenn nichts dagegen spricht.
+
+## Zum Üben auf Windows
+
+Wer kein Linux zur Hand hat, aber die Anwendung einmal laufen sehen will,
+nimmt WSL. Das ist ein echtes Ubuntu innerhalb von Windows.
+
+In der PowerShell **als Administrator**:
+
+```powershell
+wsl --install
+```
+
+Danach den Rechner neu starten. Beim ersten Start fragt Ubuntu nach einem
+Benutzernamen und einem Passwort, die sind frei wählbar. Ab da gilt die
+ganze Anleitung von oben, eingetippt im Ubuntu-Fenster und nicht in der
+Eingabeaufforderung.
+
+Zwei Dinge, die dabei anders sind:
+
+- **systemd läuft in WSL nicht immer.** Das Skript merkt das, richtet den
+  Dienst dann nicht ein und sagt dir, wie du die Anwendung von Hand
+  startest. Das ist kein Fehler
+- **WSL ist zum Ausprobieren, nicht zum Betreiben.** Es läuft nur, solange
+  du angemeldet bist. Als Server für das Büro taugt es nicht
+
+## Und wenn der Server Windows ist?
+
+Dann laufen `installieren.sh`, der systemd-Dienst und die
+Sicherungsskripte nicht: das sind alles Bash und Linux. Die Anwendung
+selbst läuft, Node.js und PostgreSQL gibt es auch für Windows. Es fehlt
+dann nur die Automatik drumherum, und die müsste für Windows neu
+geschrieben werden.
+
+Bevor jemand das angeht: erst klären, ob der Server wirklich Windows ist.
 
 ## Mit Docker statt von Hand
 
