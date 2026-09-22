@@ -220,6 +220,66 @@ Zwei Dinge, die dabei anders sind:
 - **WSL ist zum Ausprobieren, nicht zum Betreiben.** Es läuft nur, solange
   du angemeldet bist. Als Server für das Büro taugt es nicht
 
+### Wenn WSL nicht mitspielt
+
+Kommt beim Anlegen des UNIX-Benutzers `Wsl/Service/E_UNEXPECTED`, liegt
+das nicht am Namen. In dieser Reihenfolge probieren, in einer PowerShell
+**als Administrator**:
+
+```powershell
+wsl --update
+wsl --shutdown
+wsl
+```
+
+Hilft das nicht, den WSL-Dienst neu starten (Start, "Dienste", Eintrag
+"WSL Service", Rechtsklick, Neu starten). Als letztes Mittel die
+Distribution wegwerfen und neu holen:
+
+```powershell
+wsl --unregister Ubuntu
+wsl --install -d Ubuntu
+```
+
+Wer sich damit nicht aufhalten will, nimmt den Weg direkt unter Windows,
+gleich darunter.
+
+## Direkt unter Windows, ohne WSL
+
+Zum Ausprobieren braucht es kein Linux. Die Anwendung selbst hat keine
+Linux-Abhängigkeit: keine Shell-Aufrufe, alle Pfade mit `path.join`
+gebaut. Nur die Skripte unter `infra/` sind Bash, und die braucht man
+zum Ausprobieren nicht.
+
+1. **Node.js 22** von nodejs.org installieren (LTS, Windows Installer)
+2. **PostgreSQL** von postgresql.org installieren. Das Passwort, das
+   dabei gesetzt wird, merken
+3. In der mitgelieferten "SQL Shell (psql)" einmal:
+   ```sql
+   CREATE DATABASE dels;
+   ```
+4. Im Projektordner eine Datei `.env` anlegen, zwei Zeilen genügen:
+   ```
+   DATABASE_URL=postgres://postgres:DEIN-PASSWORT@localhost:5432/dels
+   SESSION_SECRET=irgendeine-zeichenfolge-mit-mindestens-32-zeichen
+   ```
+   Alles andere hat brauchbare Vorgaben.
+5. In der Eingabeaufforderung im Projektordner:
+   ```
+   npm ci
+   npm run db:migrate -w @dels/api
+   npm run db:admin -w @dels/api
+   npm run dev
+   ```
+6. Browser auf http://localhost:5173
+
+**Ehrlich dazu:** dieser Weg ist durchdacht, aber nicht ausprobiert, weil
+hier kein Windows zur Verfügung stand. Geprüft ist nur, dass der
+Anwendungscode nichts Linux-Eigenes benutzt.
+
+Und wie WSL ist auch das eine Umgebung zum Anschauen, nicht zum
+Betreiben: es läuft, solange das Fenster offen ist.
+
 ## Und wenn der Server Windows ist?
 
 Dann laufen `installieren.sh`, der systemd-Dienst und die
