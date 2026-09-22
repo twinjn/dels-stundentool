@@ -338,27 +338,84 @@ Linux-Abhängigkeit: keine Shell-Aufrufe, alle Pfade mit `path.join`
 gebaut. Nur die Skripte unter `infra/` sind Bash, und die braucht man
 zum Ausprobieren nicht.
 
-1. **Node.js 22** von nodejs.org installieren (LTS, Windows Installer)
-2. **PostgreSQL** von postgresql.org installieren. Das Passwort, das
-   dabei gesetzt wird, merken
-3. In der mitgelieferten "SQL Shell (psql)" einmal:
+### Was installiert wird
+
+1. **Node.js 22** von nodejs.org, LTS, Windows Installer. Durchklicken,
+   nichts umstellen
+2. **PostgreSQL** von postgresql.org/download/windows. Beim Installieren
+   wird ein Passwort für den Benutzer `postgres` abgefragt.
+
+   > **Nimm ein Passwort aus nur Buchstaben und Ziffern.** Zeichen wie
+   > `@ : / # ?` haben in einer Verbindungsadresse eine eigene Bedeutung
+   > und müssten umständlich umgeschrieben werden. Ein `@` im Passwort
+   > ist der häufigste Grund, warum `DATABASE_URL` nicht funktioniert.
+
+   Port 5432 lassen. Am Ende fragt der "Stack Builder": abbrechen,
+   braucht es nicht
+3. **Visual Studio Code**, freiwillig, von code.visualstudio.com. Es
+   bringt ein Terminal mit und zeigt den Quelltext. Wer lieber die
+   Eingabeaufforderung benutzt, kann das auch
+
+### Die Datenbank anlegen
+
+Der Windows-Installer trägt `psql` **nicht** in den Suchpfad ein. Der
+Weg führt deshalb über das Startmenü:
+
+1. Startmenü, **"SQL Shell (psql)"** öffnen
+2. Viermal Enter (Server, Datenbank, Port, Benutzer übernehmen)
+3. Das Passwort von vorhin eingeben
+4. Tippen:
    ```sql
    CREATE DATABASE dels;
    ```
-4. Im Projektordner eine Datei `.env` anlegen, zwei Zeilen genügen:
-   ```
-   DATABASE_URL=postgres://postgres:DEIN-PASSWORT@localhost:5432/dels
-   SESSION_SECRET=irgendeine-zeichenfolge-mit-mindestens-32-zeichen
-   ```
-   Alles andere hat brauchbare Vorgaben.
-5. In der Eingabeaufforderung im Projektordner:
-   ```
-   npm ci
-   npm run db:migrate -w @dels/api
-   npm run db:admin -w @dels/api
-   npm run dev
-   ```
-6. Browser auf http://localhost:5173
+   Das Semikolon gehört dazu. Ohne passiert nichts
+5. `\q` und Enter zum Beenden
+
+### Die Einstellungen
+
+Im Projektordner eine Datei namens `.env` anlegen, genau so, mit Punkt
+am Anfang und ohne Endung. In VS Code: Rechtsklick in die Dateiliste,
+"Neue Datei".
+
+```
+DATABASE_URL=postgres://postgres:DEIN-PASSWORT@localhost:5432/dels
+SESSION_SECRET=irgendeine-zeichenfolge-mit-mindestens-32-zeichen
+```
+
+Beim Sitzungsschlüssel reicht lokal, auf der Tastatur herumzuhauen.
+Hauptsache 32 Zeichen. Alles Weitere hat brauchbare Vorgaben.
+
+### Starten
+
+Terminal im Projektordner öffnen (in VS Code: Terminal, Neues Terminal),
+dann der Reihe nach:
+
+```
+git pull
+npm ci
+npm run db:migrate -w @dels/api
+npm run db:admin -w @dels/api
+npm run dev
+```
+
+- `npm ci` lädt die Abhängigkeiten, dauert ein bis zwei Minuten
+- `db:migrate` legt die Tabellen an
+- `db:admin` fragt nach Name, E-Mail und Passwort für das erste Konto.
+  Das Passwort braucht **mindestens 12 Zeichen**
+- `npm run dev` startet und bleibt laufen. Das Fenster offen lassen,
+  Strg+C beendet
+
+Dann im Browser: **http://localhost:5173**
+
+### Wenn etwas klemmt
+
+| Meldung | Ursache |
+|---|---|
+| `DATABASE_URL muss mit postgres:// beginnen` | Tippfehler in der `.env` |
+| `password authentication failed` | falsches Passwort, oder ein Sonderzeichen darin |
+| `database "dels" does not exist` | Schritt "Datenbank anlegen" fehlt |
+| `ECONNREFUSED ... 5432` | PostgreSQL läuft nicht. Dienste öffnen, `postgresql-x64-16` starten |
+| `'npm' ist nicht als Befehl erkannt` | Node ist nicht installiert, oder das Terminal war beim Installieren schon offen. Terminal schliessen und neu öffnen |
 
 **Ehrlich dazu:** dieser Weg ist durchdacht, aber nicht ausprobiert, weil
 hier kein Windows zur Verfügung stand. Geprüft ist nur, dass der
