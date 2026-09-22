@@ -48,13 +48,13 @@ Jede Phase endet mit etwas Lauffähigem.
 | 2 | Auth | Login, Sessions, Rollen, Benutzerverwaltung | **fertig** |
 | 3 | Stammdaten | Mitarbeiter und Objekte, Layout, Navigation | **fertig** |
 | 4 | Stundenerfassung | Excel-Import und Erfassungsraster | **fertig** |
-| 5 | Matrix | Monatsmatrix und Dashboard | offen |
+| 5 | Matrix | Startseite mit Lagemeldung, Jahresübersicht je Person | **fertig** |
 | 6 | Kalkulation | Portierung mit Zahlenvergleich alt gegen neu | **fertig** |
-| 7 | Export | Excel und PDF, Lohnabrechnung | offen |
+| 7 | Export | Excel (Stunden, Kalkulation, Stammdaten), PDF über Drucken | **fertig**, Lohnabrechnung offen |
 | 8 | Betrieb | Backup mit getestetem Restore, Audit-Log, Deployment | **fertig** |
 
-Das Altsystem in `legacy/` läuft parallel weiter, bis Phase 7 durch ist.
-Erst dann wird umgeschaltet.
+Alle acht Phasen sind gebaut. Das Altsystem in `legacy/` bleibt als
+Nachschlagewerk liegen, bis der Umstieg im Betrieb bestätigt ist.
 
 ## Befund aus den Bestandsdaten (Stand September 2026)
 
@@ -99,12 +99,75 @@ API.
 
 ## Offene Punkte
 
-- Der Import ist gebaut und getestet, aber noch nicht ausgefuehrt. Dafür
-  wird `SUPABASE_DATABASE_URL` in der `.env` gebraucht
+Braucht eine Antwort aus der Firma:
 
-- Die beiden vorliegenden Objektdateien (10001, 10019) sind vollständig
-  leer. Ob diese Ebene überhaupt benutzt wird, ist offen. Der Leser dafür
-  ist gebaut, aber nicht gegen echte Zahlen geprüft
-- Personalstamm aus den Objektdateien übernehmen (Funktion, Einsatzort,
-  Ferien-Saldo). Dafür fehlen in der Datenbank noch zwei Felder
-- Wo läuft das Ganze später? Noch offen, blockiert aber nichts (Phase 8)
+- **Wie bildet sich der Ferien-Saldo?** Anteiliger Anspruch bei Ein- und
+  Austritt, Übertrag ins Folgejahr, Halbtage. Ohne diese Regeln zeigt die
+  Anwendung den aus dem Excel übernommenen Saldo und daneben, was seither
+  bezogen wurde, rechnet aber keinen laufenden Saldo
+- **Sollen die Objektdateien mit importiert werden?** Die Frage, ob sie
+  überhaupt benutzt werden, ist beantwortet: ja. Eine dritte Datei
+  (10005) enthält echte Zahlen, und der Leser ist daran geprüft (siehe
+  unten). Offen ist nur noch, ob ihr sie zusätzlich zur Verwaltungsdatei
+  einlesen wollt. Achtung dabei: eine Person, die auf fünf Objekten
+  arbeitet, hat ihre Ferien in fünf Objektdateien stehen. Entdoppelt wird
+  das in `zusammenfuehren()`, aber der Umstand gehört bedacht
+- **Wo läuft das Ganze?** Siehe `docs/BETRIEB.md`. Wichtig dabei: es sind
+  Personendaten von Schweizer Angestellten, inklusive AHV-Nummer und IBAN
+- **Wer bekommt welche Rolle?**
+- **Wohin soll eine Meldung, wenn eine Sicherung scheitert?**
+
+Technisch offen:
+
+- ~~Der Docker-Bau ist nicht ausprobiert.~~ Erledigt: die CI baut das Bild
+  bei jedem Push, startet den Container gegen eine echte Datenbank und
+  prüft Gesundheit, Oberfläche und Routen
+- **Keine Lohnabrechnung.** War in Phase 7 mitgedacht, braucht aber
+  Entscheide, die noch nicht gefallen sind
+
+### Geklärt: die Objektdateien werden benutzt
+
+Die ersten beiden Muster (10001, 10019) waren leer, deshalb blieb lange
+offen, ob diese Ebene überhaupt geführt wird. Eine dritte Datei enthält
+Daten, und der Leser wurde daran geprüft:
+
+| | |
+|---|---|
+| Arbeitsstunden im Jahr | 376.00 |
+| Ferientage | 11 |
+| Personen auf dem Objekt | 1 |
+| Warnungen | keine |
+
+Jeder einzelne Monat stimmt mit der Summenspalte des Blatts überein, und
+eine unabhängig geschriebene Nachrechnung kommt auf dieselben Zahlen.
+Auch die Dateierkennung stimmt: Typ `objekt`, Jahr 2026, Objektnummer
+und Stand werden richtig gelesen.
+
+Zwei Eigenheiten des Formats, die dabei bestätigt wurden:
+
+- **Am Blattende steht eine Summenzeile** ("Monatstotal Arbeitstunden").
+  Wer sie als Person mitzählt, verdoppelt jede Zahl. Beim ersten
+  Nachrechnen ist mir genau das passiert, und die Gegenprobe stimmte
+  trotzdem, weil beide Seiten verdoppelt waren
+- **Das 31-Spalten-Raster gilt auch hier.** In einem 30-Tage-Monat trägt
+  die letzte Spalte schon den ersten des Folgemonats
+
+### Geklärt: das Anzeigeformat der Datumsfelder
+
+Die Frage war, ob `<input type="date">` bei euch TT.MM.JJJJ zeigt.
+
+Geprüft, mit einem Ergebnis in zwei Teilen:
+
+1. **Der Wert ist immer ISO.** Egal wie der Browser das Feld darstellt,
+   an unseren Code und an den Server geht `JJJJ-MM-TT`. Nachgemessen im
+   Browser, auch nach einer Tastatureingabe. Ein Datenrisiko gibt es also
+   nicht, nur eine Anzeigefrage
+2. **Die Darstellung hängt an der Ländereinstellung des Betriebssystems**,
+   nicht an der Seite und nicht an der Browsersprache. In der Umgebung
+   hier gibt es nur die Locale `C`, deshalb zeigt der Browser MM/TT/JJJJ,
+   auch mit `--lang=de-CH` und deutschem Sprachpaket. Auf einem Windows,
+   das auf Deutsch (Schweiz) steht, wird TT.MM.JJJJ angezeigt
+
+Bestätigen lässt sich Punkt 2 nur auf einem eurer Rechner. Falls dort
+doch MM/TT/JJJJ steht, liegt es an der Windows-Regionseinstellung, nicht
+an der Anwendung.

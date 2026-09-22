@@ -21,7 +21,7 @@ protokollRouter.use(brauchtRecht("benutzer:verwalten"));
 
 const AbfrageSchema = z.object({
   tabelle: z.string().max(40).optional(),
-  aktion: z.enum(["anlegen", "aendern", "loeschen"]).optional(),
+  aktion: z.enum(["anlegen", "aendern", "loeschen", "exportieren"]).optional(),
   suche: z.string().max(80).optional(),
   tage: z.coerce.number().int().min(1).max(3650).default(90),
   seite: z.coerce.number().int().min(1).default(1),

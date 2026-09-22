@@ -84,8 +84,60 @@ async function anfrage<T>(pfad: string, optionen: RequestInit = {}): Promise<T> 
   return inhalt as T;
 }
 
+/**
+ * Eine Datei herunterladen.
+ *
+ * Warum nicht einfach ein <a href="/api/export/...">? Weil ein Link bei
+ * einem Fehler die rohe JSON-Antwort des Servers im Browserfenster
+ * anzeigt ("keinZugriff: Fuer kalkulation:lesen fehlt..."). So bekommt
+ * der Benutzer dieselbe Fehlermeldung wie ueberall sonst.
+ *
+ * Der Dateiname kommt aus dem Content-Disposition-Kopf, damit ihn der
+ * Server bestimmt und nicht zwei Stellen ihn getrennt zusammenbauen.
+ */
+async function datei(pfad: string): Promise<void> {
+  let antwort: Response;
+
+  try {
+    antwort = await fetch(`${BASIS}/api${pfad}`, { credentials: "include" });
+  } catch {
+    throw new ApiFehler(0, "keine_verbindung", "Keine Verbindung zum Server.");
+  }
+
+  if (!antwort.ok) {
+    const inhalt: unknown = (antwort.headers.get("content-type") ?? "").includes("application/json")
+      ? await antwort.json()
+      : {};
+    const d = (inhalt ?? {}) as { code?: string; nachricht?: string };
+    throw new ApiFehler(
+      antwort.status,
+      d.code ?? "fehler",
+      d.nachricht ?? `Der Export ist fehlgeschlagen (${antwort.status}).`,
+    );
+  }
+
+  const kopf = antwort.headers.get("content-disposition") ?? "";
+  const name = /filename="([^"]+)"/.exec(kopf)?.[1] ?? "export.xlsx";
+
+  const blob = await antwort.blob();
+  const adresse = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = adresse;
+  link.download = name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  // Ohne das haelt der Browser den Speicher fuer die Datei bis zum
+  // Neuladen der Seite fest. Bei einem 5-MB-Export pro Monat faellt das
+  // nicht auf, bei zwanzig Klicks schon.
+  URL.revokeObjectURL(adresse);
+}
+
 export const api = {
   get: <T>(pfad: string) => anfrage<T>(pfad),
+  datei,
   post: <T>(pfad: string, daten?: unknown) =>
     anfrage<T>(pfad, { method: "POST", body: JSON.stringify(daten ?? {}) }),
   put: <T>(pfad: string, daten?: unknown) =>

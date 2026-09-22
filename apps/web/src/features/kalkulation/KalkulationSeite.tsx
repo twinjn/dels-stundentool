@@ -15,6 +15,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { chf, chf0, monatName, pct, rechne, vorzeichen } from "@dels/shared";
 import { ApiFehler, api } from "../../api/client.js";
+import { DruckKnopf, ExportKnopf } from "../../components/ExportKnopf.js";
 import type { Adminzeile, MonatEintrag, Monatsdaten, ObjektZeile, PersonZeile } from "./typen.js";
 
 /** Feld, das beim Verlassen speichert und vorher lokal weiterrechnet. */
@@ -200,9 +201,18 @@ export function KalkulationSeite() {
             </select>
           )}
         </div>
-        <button className="knopf" onClick={() => void monatAnlegen()}>
-          Monat anlegen
-        </button>
+        <div className="kopfhinweise">
+          {monat && (
+            <ExportKnopf
+              pfad={`/export/kalkulation?monat=${monat.slice(0, 7)}`}
+              titel={`Die Kalkulation ${monatName(monat)} als Excel-Datei`}
+            />
+          )}
+          <DruckKnopf />
+          <button className="knopf" onClick={() => void monatAnlegen()}>
+            Monat anlegen
+          </button>
+        </div>
       </div>
 
       {fehler && (

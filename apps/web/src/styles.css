@@ -6,6 +6,26 @@
  * spaeter an EINER Stelle, statt 200 Zeilen zu durchsuchen.
  */
 :root {
+  /* --- DELS Hausfarben ------------------------------------------------
+     Aus dem Logo ausgelesen, nicht geschaetzt: das Navy der Wortmarke und
+     das Orange der Zeile "Reinigung & Beratung".
+
+     Die Kontraste sind nachgerechnet, nicht nach Gefuehl gewaehlt:
+       weiss auf Navy            7.9 : 1   (AAA, taugt fuer die Seitenleiste)
+       Navy als Text auf weiss   7.9 : 1   (AAA)
+       Orange als Text auf weiss 3.1 : 1   (reicht NICHT fuer Fliesstext)
+       --farbe-orange-text       5.2 : 1   (AA, dafuer da, wo Orange Text ist)
+
+     Deshalb ist Orange hier eine Akzentfarbe fuer Flaechen, Balken und
+     Markierungen, keine Schriftfarbe. Wer das vertauscht, baut eine Seite,
+     die auf einem hellen Bildschirm nicht mehr lesbar ist. */
+  --dels-navy: #275387;
+  --dels-navy-hell: #2a63aa;
+  --dels-navy-dunkel: #1d3f68;
+  --dels-orange: #ff5a0f;
+  --farbe-orange-text: #c2410c;
+  --dels-navy-schrift: #cbd8e8;
+
   --farbe-text: #1a1d21;
   --farbe-gedaempft: #5c6570;
   --farbe-linie: #dfe3e8;
@@ -142,6 +162,10 @@ code {
   justify-content: center;
   min-height: 100vh;
   padding: var(--abstand-3);
+  /* Der einzige Bildschirm, den auch jemand von aussen zu Gesicht bekommt.
+     Deshalb traegt er die Hausfarbe, der Rest der Anwendung bleibt hell,
+     damit Tabellen mit 31 Spalten lesbar bleiben. */
+  background: linear-gradient(160deg, var(--dels-navy) 0%, var(--dels-navy-dunkel) 100%);
 }
 
 .anmeldekarte {
@@ -151,6 +175,14 @@ code {
   background: var(--farbe-flaeche);
   border: 1px solid var(--farbe-linie);
   border-radius: var(--radius);
+}
+
+.anmeldelogo {
+  display: block;
+  width: 172px;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: var(--abstand-4);
 }
 
 .anmeldekarte h1 {
@@ -182,7 +214,9 @@ code {
 
 .anmeldekarte input:focus-visible,
 button:focus-visible {
-  outline: 2px solid var(--farbe-text);
+  /* Orange, weil ein Fokusrahmen auffallen soll. Er umrandet nur, er
+     traegt keinen Text, also gilt hier die Textkontrast-Schwelle nicht. */
+  outline: 2px solid var(--dels-orange);
   outline-offset: 1px;
 }
 
@@ -192,7 +226,7 @@ button:focus-visible {
   font: inherit;
   font-weight: 600;
   color: #fff;
-  background: var(--farbe-text);
+  background: var(--dels-navy);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -264,21 +298,30 @@ button:focus-visible {
 
 .rahmen {
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 200px 1fr;
   min-height: 100vh;
 }
 
 .seitenleiste {
-  padding: var(--abstand-4) var(--abstand-3);
-  background: var(--farbe-flaeche);
-  border-right: 1px solid var(--farbe-linie);
+  padding: var(--abstand-4) var(--abstand-2);
+  background: var(--dels-navy);
+  border-right: 1px solid var(--dels-navy-dunkel);
 }
 
+/* Das Logo ist einfarbig Navy auf durchsichtigem Grund. Auf der navyfarbenen
+   Leiste waere es unsichtbar, also steht es auf einer weissen Flaeche. */
 .marke {
-  margin-bottom: var(--abstand-4);
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  display: block;
+  margin: 0 var(--abstand-1) var(--abstand-4);
+  padding: var(--abstand-2) var(--abstand-3);
+  background: var(--farbe-flaeche);
+  border-radius: var(--radius);
+}
+
+.marke img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .seitenleiste nav {
@@ -288,20 +331,35 @@ button:focus-visible {
 }
 
 .navlink {
+  position: relative;
   padding: var(--abstand-2) var(--abstand-3);
-  color: var(--farbe-gedaempft);
+  color: var(--dels-navy-schrift);
   text-decoration: none;
   border-radius: 6px;
 }
 
 .navlink:hover {
-  background: var(--farbe-hintergrund);
+  color: #fff;
+  background: var(--dels-navy-hell);
 }
 
 .navlink.aktiv {
-  color: var(--farbe-text);
+  color: #fff;
   font-weight: 600;
-  background: var(--farbe-hintergrund);
+  background: var(--dels-navy-dunkel);
+}
+
+/* Der orange Balken ist die einzige Stelle, an der die Akzentfarbe in der
+   Navigation vorkommt. Mehr braucht es nicht, um zu zeigen, wo man ist. */
+.navlink.aktiv::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--dels-orange);
 }
 
 .hauptbereich {
@@ -330,7 +388,7 @@ button:focus-visible {
   padding: 1px 6px;
   font-size: 11px;
   color: var(--farbe-flaeche);
-  background: var(--farbe-gedaempft);
+  background: var(--dels-navy);
   border-radius: 999px;
 }
 
@@ -398,10 +456,16 @@ button:focus-visible {
   font: inherit;
   font-weight: 600;
   color: #fff;
-  background: var(--farbe-text);
+  /* Navy, nicht Orange: weiss auf Orange kommt nur auf 3.1 : 1 und ist
+     auf einem hellen Bildschirm muehsam zu lesen. */
+  background: var(--dels-navy);
   border: none;
   border-radius: 6px;
   cursor: pointer;
+}
+
+.knopf:hover:not(:disabled) {
+  background: var(--dels-navy-hell);
 }
 
 .knopf:disabled {
@@ -587,7 +651,7 @@ button:focus-visible {
 
   .seitenleiste {
     border-right: none;
-    border-bottom: 1px solid var(--farbe-linie);
+    border-bottom: 1px solid var(--dels-navy-dunkel);
     padding: var(--abstand-3);
   }
 
@@ -596,8 +660,18 @@ button:focus-visible {
     flex-wrap: wrap;
   }
 
+  /* Auf dem Handy darf das Logo nicht das halbe Bild fuellen: die
+     Navigation und die erste Tabellenzeile sollen ohne Scrollen sichtbar
+     sein. Deshalb links ausgerichtet und in der Breite begrenzt. */
   .marke {
-    margin-bottom: var(--abstand-2);
+    width: max-content;
+    max-width: 180px;
+    margin: 0 0 var(--abstand-2);
+    padding: 6px var(--abstand-2);
+  }
+
+  .marke img {
+    width: 140px;
   }
 
   .inhalt {
@@ -750,7 +824,7 @@ button:focus-visible {
 }
 
 .zelle:focus-visible {
-  outline: 2px solid var(--farbe-text);
+  outline: 2px solid var(--dels-orange);
   outline-offset: -2px;
 }
 
@@ -984,4 +1058,398 @@ button:focus-visible {
   font: inherit;
   border: 1px solid var(--farbe-linie);
   border-radius: 6px;
+}
+
+/* --- Export ------------------------------------------------------------ */
+
+.exportknopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exportknopf button {
+  padding: 6px var(--abstand-3);
+  font: inherit;
+  font-size: 0.9em;
+  color: var(--farbe-text);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.exportknopf button:hover:not(:disabled) {
+  border-color: var(--farbe-text);
+}
+
+.exportknopf button:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.exportfehler {
+  color: var(--farbe-rot);
+  font-size: 0.85em;
+}
+
+/* --- Drucken und "als PDF speichern" ----------------------------------- */
+/*
+ * Es gibt bewusst KEINEN PDF-Export auf dem Server. Ein PDF entsteht hier
+ * ueber den Druckdialog des Browsers ("Als PDF speichern"). Das erspart
+ * eine schwergewichtige Abhaengigkeit und liefert immer genau das, was
+ * am Bildschirm steht. Was es dafuer braucht, ist dieses Stylesheet:
+ * ohne das wandert die Navigation mit aufs Papier und die Tabelle wird
+ * auf halber Seite abgeschnitten.
+ */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  /* Papier ist weiss. Graue Flaechen kosten hier nur Toner. */
+  :root {
+    --farbe-hintergrund: #fff;
+    --farbe-flaeche: #fff;
+    --farbe-text: #000;
+    --farbe-gedaempft: #444;
+    --farbe-linie: #999;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  /* Alles, was nur zum Bedienen da ist, gehoert nicht aufs Papier. */
+  .seitenleiste,
+  .kopfleiste,
+  .filterzeile,
+  .legende,
+  .exportknopf,
+  .zufuegenzeile,
+  .blaettern,
+  button:not(.aufgabe) {
+    display: none !important;
+  }
+
+  /* Ausnahme: die offenen Punkte auf der Startseite sind zwar Knoepfe,
+     aber inhaltlich eine Liste. Eine ausgedruckte Lagemeldung ohne den
+     Abschnitt "Zu erledigen" waere die halbe Meldung. Auf Papier
+     verlieren sie die Knopf-Optik und den Pfeil. */
+  .aufgabe {
+    display: flex !important;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--farbe-linie);
+    border-radius: 0;
+    padding-left: 0;
+  }
+
+  .aufgabe-pfeil {
+    display: none;
+  }
+
+  .aufgabe-zahl {
+    color: #000;
+    background: none;
+    border: 1px solid #999;
+  }
+
+  .artknopf {
+    display: none !important;
+  }
+
+  .rahmen,
+  .hauptbereich,
+  .inhalt {
+    display: block;
+    height: auto;
+    overflow: visible;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Der Rastercontainer scrollt am Bildschirm. Auf Papier muss er
+     stattdessen umbrechen duerfen, sonst endet das Blatt beim 12. Tag. */
+  .rastercontainer {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 7.5pt;
+  }
+
+  /* Kopfzeile auf jeder Seite wiederholen. Ohne das weiss ab Seite 2
+     niemand mehr, welche Spalte welcher Tag ist. */
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  .kachel,
+  .ansatzfeld {
+    break-inside: avoid;
+  }
+
+  /* Am Bildschirm klebt die Namensspalte beim Scrollen fest. Auf Papier
+     wird daraus eine Spalte, die ueber dem Text schwebt. */
+  .haftend {
+    position: static !important;
+  }
+
+  .kacheln {
+    break-inside: avoid;
+  }
+
+  a[href]::after {
+    content: "";
+  }
+}
+
+/* --- Startseite -------------------------------------------------------- */
+
+.kachel-einheit {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--farbe-gedaempft);
+}
+
+.kachel-hinweis.hoch {
+  color: var(--farbe-gruen);
+}
+
+.kachel-hinweis.runter,
+.kachel-hinweis.offen {
+  color: var(--farbe-orange-text);
+}
+
+.start-spalten {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--abstand-4);
+  align-items: start;
+}
+
+.startkarte {
+  min-width: 0;
+  padding: var(--abstand-3) var(--abstand-4) var(--abstand-4);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.startkarte h2 {
+  margin: 0 0 var(--abstand-3);
+  font-size: 15px;
+}
+
+.aufgaben {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-2);
+}
+
+.aufgabe {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: center;
+  width: 100%;
+  padding: var(--abstand-2) var(--abstand-3);
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: var(--farbe-hintergrund);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.aufgabe:hover {
+  border-color: var(--dels-navy);
+}
+
+.aufgabe-zahl {
+  flex: none;
+  min-width: 34px;
+  padding: 2px 8px;
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: #fff;
+  background: var(--dels-navy);
+  border-radius: 6px;
+}
+
+.aufgabe-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+
+.aufgabe-titel {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.aufgabe-namen,
+.aufgabe-hinweis {
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+}
+
+.aufgabe-hinweis {
+  font-style: italic;
+}
+
+.aufgabe-pfeil {
+  flex: none;
+  margin-left: auto;
+  color: var(--farbe-gedaempft);
+}
+
+.objektliste {
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-2);
+}
+
+.objektzeile-kopf {
+  display: flex;
+  gap: var(--abstand-2);
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.objektzeile-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.objektzeile-std {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  color: var(--farbe-gedaempft);
+}
+
+.objektbalken {
+  height: 6px;
+  margin-top: 3px;
+  background: var(--farbe-hintergrund);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* Die Balken sind die zweite Stelle nach der Navigation, an der die
+   Hausfarbe Orange vorkommt. Sie tragen keinen Text, also ist der
+   niedrige Textkontrast hier kein Problem. */
+.objektbalken-fuell {
+  height: 100%;
+  background: var(--dels-orange);
+  border-radius: 3px;
+}
+
+.dashboardseite .seitenkopf {
+  align-items: center;
+}
+
+/* --- Jahresuebersicht -------------------------------------------------- */
+
+.artwahl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--abstand-1);
+  margin-bottom: var(--abstand-3);
+}
+
+.artknopf {
+  padding: 5px var(--abstand-3);
+  font: inherit;
+  font-size: 13px;
+  color: var(--farbe-gedaempft);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.artknopf:hover {
+  color: var(--farbe-text);
+  border-color: var(--dels-navy);
+}
+
+.artknopf.aktiv {
+  font-weight: 600;
+  color: #fff;
+  background: var(--dels-navy);
+  border-color: var(--dels-navy);
+}
+
+.jahresraster td.zelle,
+.jahresraster th {
+  min-width: 56px;
+  text-align: right;
+}
+
+.jahresraster .haftend {
+  min-width: 210px;
+  text-align: left;
+}
+
+.jahresraster tfoot th {
+  font-variant-numeric: tabular-nums;
+  background: var(--farbe-hintergrund);
+  border-top: 2px solid var(--farbe-linie);
+}
+
+.jahresraster .summe.neg {
+  color: var(--farbe-rot);
+}
+
+.uebersichtseite {
+  min-width: 0;
+}
+
+.uebersichtseite .seitenkopf {
+  align-items: center;
+}
+
+/* --- Passwort aendern -------------------------------------------------- */
+
+.passwortformular {
+  max-width: 380px;
+  margin-top: var(--abstand-4);
+}
+
+.passwortformular label {
+  display: block;
+  margin-bottom: var(--abstand-1);
+  font-size: 13px;
+  color: var(--farbe-gedaempft);
+}
+
+.passwortformular input {
+  width: 100%;
+  margin-bottom: var(--abstand-3);
+  padding: 8px;
+  font: inherit;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.passwortformular .hinweis {
+  margin: calc(-1 * var(--abstand-2)) 0 var(--abstand-3);
+}
+
+/* Ein NavLink sieht sonst aus wie ein Navigationseintrag. In der
+   Kopfleiste soll er ein Knopf sein wie "Abmelden" daneben. */
+.kopfleiste .knopf-leise {
+  text-decoration: none;
 }

@@ -29,6 +29,13 @@ type AuthZustand = {
   serverfehler: string | null;
   anmelden: (email: string, passwort: string) => Promise<void>;
   abmelden: () => Promise<void>;
+  /**
+   * Nur den Browserzustand auf "abgemeldet" setzen, ohne den Server zu
+   * fragen. Gebraucht nach einer Passwortaenderung: der Server hat die
+   * Sitzung dabei schon beendet, ein zusaetzliches /auth/abmelden
+   * bekaeme nur ein 401 zurueck.
+   */
+  abgemeldet: () => void;
 };
 
 const AuthKontext = createContext<AuthZustand | null>(null);
@@ -81,9 +88,13 @@ export function AuthAnbieter({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const abgemeldet = useCallback(() => {
+    setBenutzer(null);
+  }, []);
+
   const wert = useMemo(
-    () => ({ benutzer, laedt, serverfehler, anmelden, abmelden }),
-    [benutzer, laedt, serverfehler, anmelden, abmelden],
+    () => ({ benutzer, laedt, serverfehler, anmelden, abmelden, abgemeldet }),
+    [benutzer, laedt, serverfehler, anmelden, abmelden, abgemeldet],
   );
 
   return <AuthKontext.Provider value={wert}>{children}</AuthKontext.Provider>;

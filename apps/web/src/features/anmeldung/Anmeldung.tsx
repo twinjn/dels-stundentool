@@ -8,6 +8,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { AnmeldungSchema } from "@dels/shared";
+import delsLogo from "../../assets/dels-logo.png";
 import { ApiFehler } from "../../api/client.js";
 import { useAuth } from "../../app/AuthKontext.js";
 
@@ -41,7 +42,8 @@ export function Anmeldung() {
   return (
     <main className="anmeldeseite">
       <form className="anmeldekarte" onSubmit={absenden} noValidate>
-        <h1>DELS Stundentool</h1>
+        <img className="anmeldelogo" src={delsLogo} alt="DELS Reinigung &amp; Beratung" />
+        <h1>Stundentool</h1>
         <p className="unterzeile">Bitte anmelden</p>
 
         <label htmlFor="email">E-Mail</label>

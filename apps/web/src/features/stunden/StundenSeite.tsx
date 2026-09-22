@@ -17,6 +17,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { KUERZEL, hatRecht, zeigeZelle } from "@dels/shared";
 import type { Eintragsart } from "@dels/shared";
 import { ApiFehler, api } from "../../api/client.js";
+import { DruckKnopf, ExportKnopf } from "../../components/ExportKnopf.js";
 import { useAuth } from "../../app/AuthKontext.js";
 import type { Monatsraster, ObjektAuswahl, Personenzeile, Rasterzeile } from "./typen.js";
 import { zeilenFlachLegen } from "./typen.js";
@@ -279,6 +280,11 @@ export function StundenSeite() {
           <span className="hinweis">
             {gesamtstunden.toLocaleString("de-CH", { maximumFractionDigits: 1 })} Std. im Monat
           </span>
+          <ExportKnopf
+            pfad={`/export/stunden?monat=${monat}`}
+            titel={`Das Monatsblatt ${monatText(monat)} als Excel-Datei`}
+          />
+          <DruckKnopf />
         </div>
       </div>
 

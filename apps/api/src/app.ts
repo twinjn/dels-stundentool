@@ -20,12 +20,15 @@ import { config, istProduktion } from "./config.js";
 import { fehlerBehandlung, routeNichtGefunden } from "./fehler.js";
 import { authRouter } from "./routes/auth.js";
 import { benutzerRouter } from "./routes/benutzer.js";
+import { dashboardRouter } from "./routes/dashboard.js";
+import { exportRouter } from "./routes/export.js";
 import { healthRouter } from "./routes/health.js";
 import { kalkulationRouter } from "./routes/kalkulation.js";
 import { mitarbeiterRouter } from "./routes/mitarbeiter.js";
 import { objekteRouter } from "./routes/objekte.js";
 import { protokollRouter } from "./routes/protokoll.js";
 import { stundenRouter } from "./routes/stunden.js";
+import { uebersichtRouter } from "./routes/uebersicht.js";
 
 export function baueApp() {
   const app = express();
@@ -68,6 +71,9 @@ export function baueApp() {
   app.use("/api/stunden", stundenRouter);
   app.use("/api/kalkulation", kalkulationRouter);
   app.use("/api/protokoll", protokollRouter);
+  app.use("/api/export", exportRouter);
+  app.use("/api/dashboard", dashboardRouter);
+  app.use("/api/uebersicht", uebersichtRouter);
 
   // --- Oberflaeche ----------------------------------------------------
   /**

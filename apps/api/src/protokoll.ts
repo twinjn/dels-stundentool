@@ -16,7 +16,7 @@ import type { AngemeldeterBenutzer } from "./auth/sitzung.js";
 import { db } from "./db/index.js";
 import { protokoll } from "./db/schema.js";
 
-export type Aktion = "anlegen" | "aendern" | "loeschen";
+export type Aktion = "anlegen" | "aendern" | "loeschen" | "exportieren";
 
 export async function protokolliere(angaben: {
   benutzer: AngemeldeterBenutzer | undefined;

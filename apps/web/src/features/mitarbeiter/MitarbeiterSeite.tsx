@@ -9,6 +9,7 @@ import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { hatRecht } from "@dels/shared";
 import { ApiFehler, api } from "../../api/client.js";
+import { ExportKnopf } from "../../components/ExportKnopf.js";
 import { useAuth } from "../../app/AuthKontext.js";
 import { useListe } from "../../app/useListe.js";
 import { Feld, Feldgruppe, Kontrollkaestchen } from "../../components/Feld.js";
@@ -115,11 +116,17 @@ export function MitarbeiterSeite() {
       <section className="spalte-liste">
         <div className="seitenkopf">
           <h1>Mitarbeiter</h1>
-          {darfSchreiben && (
-            <button className="knopf" onClick={() => setAuswahl("neu")}>
-              Neu
-            </button>
-          )}
+          <div className="kopfhinweise">
+            <ExportKnopf
+              pfad="/export/stammdaten"
+              titel="Mitarbeiter und Objekte als Excel-Datei"
+            />
+            {darfSchreiben && (
+              <button className="knopf" onClick={() => setAuswahl("neu")}>
+                Neu
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="filterzeile">

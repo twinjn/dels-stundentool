@@ -43,6 +43,25 @@ function argument(name: string): string | undefined {
 let leser: readline.Interface | undefined;
 let stumm = false;
 
+/**
+ * Zeilen, die schon angekommen sind, aber noch niemand abgeholt hat.
+ *
+ * DAS IST DER KERN DES PROBLEMS, das hier zweimal zugeschlagen hat:
+ * readline meldet jede fertige Zeile sofort, egal ob gerade jemand auf
+ * eine Antwort wartet. Kommt die Eingabe aus einer Weiterleitung, sind
+ * alle Zeilen auf einen Schlag da. Die erste Frage bekommt ihre Zeile,
+ * und waehrend ihre Zusage noch aufgeloest wird, meldet readline schon
+ * die zweite Zeile, auf die in diesem Moment niemand hoert. Sie ist
+ * damit weg. Die zweite Frage wartet dann ewig auf etwas, das bereits
+ * durchgelaufen ist.
+ *
+ * Mit rl.question() laesst sich das nicht beheben, weil die Luecke
+ * zwischen zwei question()-Aufrufen genau dort liegt. Deshalb hoert hier
+ * dauerhaft ein Zuhoerer mit und legt ab, was niemand abholt.
+ */
+const puffer: string[] = [];
+let wartet: ((zeile: string) => void) | undefined;
+
 function leserHolen(): readline.Interface {
   if (leser) return leser;
 
@@ -56,19 +75,52 @@ function leserHolen(): readline.Interface {
   leser = readline.createInterface({
     input: process.stdin,
     output: ausgabe,
-    terminal: true,
+    // Nur mit einer echten Tastatur. "terminal: true" schaltet die
+    // Zeilenbearbeitung ein, die auf einer Weiterleitung Steuerzeichen
+    // in die Ausgabe schreibt. Ohne Tastatur gibt es ausserdem kein Echo,
+    // also nichts zu unterdruecken.
+    terminal: process.stdin.isTTY === true,
   });
+
+  leser.on("line", (zeile) => {
+    if (wartet) {
+      const jetzt = wartet;
+      wartet = undefined;
+      jetzt(zeile);
+    } else {
+      puffer.push(zeile);
+    }
+  });
+
+  // Eingabe zu Ende, aber es fragt noch jemand. Lieber eine leere
+  // Antwort und eine klare Fehlermeldung als ein Skript, das haengt.
+  leser.on("close", () => {
+    if (wartet) {
+      const jetzt = wartet;
+      wartet = undefined;
+      jetzt("");
+    }
+  });
+
   return leser;
 }
 
 /** Fragt etwas ab. Bei "geheim" wird die Eingabe nicht dargestellt. */
 async function frage(text: string, geheim = false): Promise<string> {
-  const antwort = leserHolen().question(text);
+  leserHolen();
+  process.stdout.write(text);
+
   stumm = geheim;
-  const wert = await antwort;
+  const zeile =
+    puffer.length > 0
+      ? puffer.shift()!
+      : await new Promise<string>((aufloesen) => {
+          wartet = aufloesen;
+        });
   stumm = false;
+
   if (geheim) process.stdout.write("\n");
-  return wert.trim();
+  return zeile.trim();
 }
 
 try {
