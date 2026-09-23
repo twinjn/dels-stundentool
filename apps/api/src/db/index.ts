@@ -2,7 +2,7 @@
  * Datenbankverbindung.
  *
  * Ein Pool statt einzelner Verbindungen: Verbindungen aufzubauen ist teuer,
- * der Pool haelt eine Handvoll offen und teilt sie zwischen Anfragen.
+ * der Pool hält eine Handvoll offen und teilt sie zwischen Anfragen.
  */
 import { drizzle } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
@@ -11,9 +11,9 @@ import { config } from "../config.js";
 import * as schema from "./schema.js";
 
 /**
- * WICHTIG, und der Grund fuer viele "um einen Tag verschobene" Fehler:
+ * WICHTIG, und der Grund für viele "um einen Tag verschobene" Fehler:
  *
- * Standardmaessig macht der Postgres-Treiber aus einer "date"-Spalte ein
+ * Standardmässig macht der Postgres-Treiber aus einer "date"-Spalte ein
  * JavaScript-Date-Objekt. Das hat aber immer auch eine Uhrzeit und eine
  * Zeitzone. Aus dem 1. Februar wird dann je nach Zeitzone der 31. Januar
  * um 23 Uhr. In einer Stundenerfassung heisst das: eine Schicht rutscht in
@@ -30,13 +30,13 @@ pg.types.setTypeParser(1082, (wert) => wert);
  * Der einzige Weg, einen Verbindungspool zu bauen.
  *
  * Es gibt diese Funktion, weil die Datumseinstellung oben global gilt,
- * aber nur dann, wenn diese Datei ueberhaupt geladen wurde. Wer sich
+ * aber nur dann, wenn diese Datei überhaupt geladen wurde. Wer sich
  * anderswo schnell selbst ein "new pg.Pool(...)" baut, bekommt die
- * Einstellung unter Umstaenden nicht mit und handelt sich die
+ * Einstellung unter Umständen nicht mit und handelt sich die
  * Datumsverschiebung wieder ein. Genau das ist beim ersten Entwurf des
  * Importtests passiert.
  *
- * Deshalb: Pools immer hierueber anlegen, nie direkt.
+ * Deshalb: Pools immer hierüber anlegen, nie direkt.
  */
 export function erstellePool(verbindungszeichenfolge: string): pg.Pool {
   const neuerPool = new pg.Pool({
@@ -47,7 +47,7 @@ export function erstellePool(verbindungszeichenfolge: string): pg.Pool {
     connectionTimeoutMillis: 5_000,
   });
 
-  // Ein Fehler im Pool ohne Zuhoerer beendet sonst den ganzen Prozess.
+  // Ein Fehler im Pool ohne Zuhörer beendet sonst den ganzen Prozess.
   neuerPool.on("error", (fehler) => {
     console.error("Fehler in einer ungenutzten Datenbankverbindung:", fehler);
   });
@@ -61,7 +61,7 @@ export const db = drizzle(pool, { schema });
 
 export type Datenbank = typeof db;
 
-/** Kurzer Lebenstest fuer die Health-Route und das Startskript. */
+/** Kurzer Lebenstest für die Health-Route und das Startskript. */
 export async function datenbankErreichbar(): Promise<boolean> {
   try {
     await db.execute(sql`select 1`);

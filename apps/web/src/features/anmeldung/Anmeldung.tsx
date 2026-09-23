@@ -1,7 +1,7 @@
 /**
  * Anmeldemaske.
  *
- * Geprueft wird mit demselben Zod-Schema, das der Server benutzt. Der
+ * Geprüft wird mit demselben Zod-Schema, das der Server benutzt. Der
  * Unterschied: hier dient es der Bequemlichkeit (sofortige Rueckmeldung),
  * beim Server der Sicherheit.
  */

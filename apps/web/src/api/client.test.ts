@@ -3,13 +3,13 @@
  *
  * Diese Datei ist die Stelle im Frontend, an der sich ein Fehler am
  * weitesten ausbreitet: jede Seite ruft sie auf. Geht hier die
- * Fehlerbehandlung schief, sieht der Benutzer ueberall dieselbe falsche
+ * Fehlerbehandlung schief, sieht der Benutzer überall dieselbe falsche
  * oder gar keine Meldung.
  *
- * Der haeufigste Denkfehler mit fetch steckt gleich im ersten Test:
+ * Der häufigste Denkfehler mit fetch steckt gleich im ersten Test:
  * fetch wirft bei einem 500er NICHT. Es liefert einfach eine Antwort
- * mit Status 500 zurueck. Wer das vergisst, arbeitet froehlich mit
- * einer Fehlermeldung weiter, als waeren es Daten.
+ * mit Status 500 zurueck. Wer das vergisst, arbeitet fröhlich mit
+ * einer Fehlermeldung weiter, als wären es Daten.
  */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { ApiFehler, api } from "./client.js";
@@ -38,9 +38,9 @@ describe("Erfolgsfall", () => {
   test("schickt das Sitzungscookie mit", async () => {
     /*
      * Ohne credentials: "include" schickt der Browser bei einer Anfrage
-     * an einen anderen Ursprung kein Cookie mit. Die Anwendung waere
+     * an einen anderen Ursprung kein Cookie mit. Die Anwendung wäre
      * dann bei jedem Aufruf abgemeldet, und zwar nur in Produktion,
-     * wo API und Oberflaeche unter verschiedenen Adressen liegen
+     * wo API und Oberfläche unter verschiedenen Adressen liegen
      * koennen. Der Fehler, den niemand beim Entwickeln sieht.
      */
     vi.mocked(fetch).mockResolvedValue(antwort(200, {}));
@@ -51,7 +51,7 @@ describe("Erfolgsfall", () => {
   });
 
   test("gibt bei 204 nichts zurück, ohne den Körper zu lesen", async () => {
-    // 204 heisst "erledigt, kein Inhalt". Ein .json() darauf wuerde
+    // 204 heisst "erledigt, kein Inhalt". Ein .json() darauf würde
     // werfen, weil nichts da ist.
     const leer = antwort(204, null);
     vi.mocked(fetch).mockResolvedValue(leer);
@@ -102,12 +102,12 @@ describe("Fehlerbehandlung", () => {
     }
   });
 
-  test("uebersetzt 502, 503 und 504 in eine verstaendliche Meldung", async () => {
+  test("uebersetzt 502, 503 und 504 in eine verständliche Meldung", async () => {
     /*
      * Diese drei kommen nicht von der Anwendung, sondern von dem, was
-     * davorsteht: beim Entwickeln der Vite-Proxy, spaeter der
-     * Webserver. Der Koerper ist dann HTML oder leer, und ohne diese
-     * Sonderbehandlung stuende beim Benutzer "Serverfehler (502)".
+     * davorsteht: beim Entwickeln der Vite-Proxy, später der
+     * Webserver. Der Körper ist dann HTML oder leer, und ohne diese
+     * Sonderbehandlung stünde beim Benutzer "Serverfehler (502)".
      */
     for (const status of [502, 503, 504]) {
       vi.mocked(fetch).mockResolvedValue(antwort(status, "<html>Bad Gateway</html>", "text/html"));
@@ -118,9 +118,9 @@ describe("Fehlerbehandlung", () => {
     }
   });
 
-  test("faengt ein geworfenes fetch ab", async () => {
+  test("fängt ein geworfenes fetch ab", async () => {
     // Kein Netz, Server aus, DNS kaputt: nur in diesem Fall wirft fetch
-    // von sich aus. Ohne das Abfangen bekaeme der Benutzer einen rohen
+    // von sich aus. Ohne das Abfangen bekäme der Benutzer einen rohen
     // TypeError zu sehen.
     vi.mocked(fetch).mockRejectedValue(new TypeError("Failed to fetch"));
 

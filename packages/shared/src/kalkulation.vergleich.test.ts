@@ -1,17 +1,17 @@
 /**
  * Vergleichstest: alter Rechenkern gegen neuen.
  *
- * Statt die Portierung gegen einen einzigen echten Monat zu pruefen,
- * lassen wir beide Fassungen mit tausenden zufaellig erzeugten Szenarien
+ * Statt die Portierung gegen einen einzigen echten Monat zu prüfen,
+ * lassen wir beide Fassungen mit tausenden zufällig erzeugten Szenarien
  * rechnen und vergleichen jede einzelne Zahl. Das deckt deutlich mehr
- * Faelle ab als ein Monat, und es braucht keine einzige echte Lohnzahl.
+ * Fälle ab als ein Monat, und es braucht keine einzige echte Lohnzahl.
  *
- * Verglichen wird auf exakte Gleichheit, nicht auf "ungefaehr". Die
- * Portierung haelt die Reihenfolge der Rechenschritte ein, also muessen
+ * Verglichen wird auf exakte Gleichheit, nicht auf "ungefähr". Die
+ * Portierung hält die Reihenfolge der Rechenschritte ein, also müssen
  * auch die letzten Stellen uebereinstimmen. Sobald hier ein Rappen
  * abweicht, wurde beim Umbau etwas umgestellt.
  *
- * Der Test faellt weg, sobald legacy/ geloescht wird. Genau dann wird er
+ * Der Test fällt weg, sobald legacy/ gelöscht wird. Genau dann wird er
  * auch nicht mehr gebraucht.
  */
 import { describe, expect, test } from "vitest";
@@ -99,7 +99,7 @@ function baueSzenario(rnd: () => number): Szenario {
     abzugAlv: ja(0.85),
     abzugRpk: ja(0.85),
     abzugFak: ja(0.85),
-    // Drei Faelle: Handeingabe, leer als Text, gar nichts.
+    // Drei Fälle: Handeingabe, leer als Text, gar nichts.
     fakManuell: ja(0.25) ? zahl(0, 400) : ja(0.5) ? "" : null,
     bvg: ja(0.8),
     bvgManuell: ja(0.25) ? zahl(0, 900) : ja(0.5) ? "" : null,
@@ -108,7 +108,7 @@ function baueSzenario(rnd: () => number): Szenario {
   const anzahlMitarbeiter = Math.floor(rnd() * 6);
   const mitarbeiter: MitarbeiterSatz[] = Array.from({ length: anzahlMitarbeiter }, (_, i) => ({
     id: `m${i}`,
-    // Manche ohne Stundenlohn: das soll als Warnung gezaehlt werden.
+    // Manche ohne Stundenlohn: das soll als Warnung gezählt werden.
     stundenlohn: ja(0.75) ? zahl(0, 70) : 0,
   }));
 
@@ -137,7 +137,7 @@ function baueSzenario(rnd: () => number): Szenario {
   return { monat: "2026-02-01", s, objektMonat, personMonat, adminkosten, eintraege, mitarbeiter };
 }
 
-/** Uebersetzt ein Szenario in die Feldnamen des Altsystems. */
+/** Übersetzt ein Szenario in die Feldnamen des Altsystems. */
 function fuerAlt(sz: Szenario) {
   return {
     monat: sz.monat,
@@ -224,7 +224,7 @@ function zahlenVon(ergebnis: {
 }
 
 describe("Portierung: alt gegen neu", () => {
-  test("3000 zufaellige Szenarien liefern exakt dieselben Zahlen", () => {
+  test("3000 zufällige Szenarien liefern exakt dieselben Zahlen", () => {
     const rnd = wuerfel(20260921);
     let verglichen = 0;
 
@@ -251,7 +251,7 @@ describe("Portierung: alt gegen neu", () => {
       }
     }
 
-    // Damit der Test nicht still durchlaeuft, wenn die Szenarien leer sind.
+    // Damit der Test nicht still durchläuft, wenn die Szenarien leer sind.
     expect(verglichen).toBeGreaterThan(50_000);
   });
 

@@ -11,8 +11,8 @@
  *   U                 ->  Unfall
  *   S                 ->  Sonstiges
  *   FT                ->  Feiertag
- *   Fr  FF            ->  Frei (gehoert zum Objekt, nicht zur Person)
- *   leer              ->  Eintrag loeschen
+ *   Fr  FF            ->  Frei (gehört zum Objekt, nicht zur Person)
+ *   leer              ->  Eintrag löschen
  */
 
 export const EINTRAGSARTEN = [
@@ -65,8 +65,8 @@ export function istFehler(inhalt: Zelleninhalt): inhalt is { fehler: string } {
  * Deutet, was jemand in eine Zelle getippt hat.
  *
  * `fuerObjekt` sagt, ob die Zelle zu einer Objektzeile gehoert. Danach
- * richtet sich, welche Kuerzel erlaubt sind: Ferien gehoeren zur Person,
- * "Frei" zum Objekt. Wer sie verwechselt, verfaelscht den
+ * richtet sich, welche Kürzel erlaubt sind: Ferien gehören zur Person,
+ * "Frei" zum Objekt. Wer sie verwechselt, verfälscht den
  * Ferienanspruch, deshalb wird es hier abgelehnt statt stillschweigend
  * umgedeutet.
  */
@@ -94,8 +94,8 @@ export function deuteZelleneingabe(eingabe: string, fuerObjekt: boolean): Zellen
     return { leeren: false, art: objektArt, wert: "1.00" };
   }
 
-  // Zahl? Komma und Hochkomma wie in der Schweiz ueblich, dazu 8:24 als
-  // Schreibweise fuer 8 Stunden 24 Minuten.
+  // Zahl? Komma und Hochkomma wie in der Schweiz üblich, dazu 8:24 als
+  // Schreibweise für 8 Stunden 24 Minuten.
   const zeitTreffer = /^(\d{1,2}):([0-5]\d)$/.exec(roh);
   if (zeitTreffer) {
     const stunden = Number(zeitTreffer[1]) + Number(zeitTreffer[2]) / 60;

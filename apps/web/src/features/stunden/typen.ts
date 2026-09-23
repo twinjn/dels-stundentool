@@ -44,8 +44,8 @@ export type ObjektAuswahl = { id: string; objektNr: string | null; name: string 
 
 /**
  * Eine Zeile im Raster, flach durchnummeriert.
- * Gebraucht fuer die Tastaturnavigation: Enter springt zur naechsten
- * Zeile, und dafuer muss klar sein, welche das ist.
+ * Gebraucht für die Tastaturnavigation: Enter springt zur nächsten
+ * Zeile, und dafür muss klar sein, welche das ist.
  */
 export type Rasterzeile =
   | { art: "person"; personId: string; nummer: number }

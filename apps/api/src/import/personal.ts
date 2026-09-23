@@ -1,10 +1,10 @@
 /**
  * Liest das Blatt "Personal" aus einer Objektdatei.
  *
- * Es ist die eigentliche Personalverwaltung der bestehenden Loesung und
- * deutlich vollstaendiger als alles, was sonst vorliegt.
+ * Es ist die eigentliche Personalverwaltung der bestehenden Lösung und
+ * deutlich vollständiger als alles, was sonst vorliegt.
  *
- *   Zeile 2:  Spaltenueberschriften
+ *   Zeile 2:  Spaltenüberschriften
  *   Zeile 3+: je eine Person
  *
  *   A=PersNr.  B=Gruppe  C=Status  D=Anrede  E=Name  F=Vorname
@@ -14,7 +14,7 @@
  *   U=Geburtstag  V=Nation  W=Jahrestag
  *
  * Der Name steht auf zwei Spalten verteilt. Zusammengesetzt wird
- * "Nachname Vorname", so wie es auch in den Monatsblaettern steht, damit
+ * "Nachname Vorname", so wie es auch in den Monatsblättern steht, damit
  * dieselbe Person nicht zweimal unter verschiedener Schreibweise landet.
  */
 import XLSX from "xlsx";
@@ -93,7 +93,7 @@ export function excelDatum(wert: unknown): string | null {
     return /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : null;
   }
 
-  // Excel zaehlt ab dem 30.12.1899 und hat den Schaltjahrfehler von 1900
+  // Excel zählt ab dem 30.12.1899 und hat den Schaltjahrfehler von 1900
   // mit eingebaut, den dieser Nullpunkt ausgleicht.
   const millisekunden = Math.round(zahl) * 86_400_000;
   const datum = new Date(Date.UTC(1899, 11, 30) + millisekunden);

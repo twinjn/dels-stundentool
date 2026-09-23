@@ -1,14 +1,14 @@
 /**
- * Uebernimmt die Daten aus dem Altsystem (Supabase) in die eigene Datenbank.
+ * Übernimmt die Daten aus dem Altsystem (Supabase) in die eigene Datenbank.
  *
- * Grundsaetze:
+ * Grundsätze:
  *  - Die Daten fliessen direkt von Datenbank zu Datenbank. Sie landen weder
  *    in einer Datei im Repository noch in einem Chatverlauf. Personendaten
- *    sollen sich moeglichst wenig verteilen.
- *  - Die IDs bleiben erhalten. Dadurch bleiben alle Verknuepfungen heil und
- *    der Import laesst sich wiederholen.
- *  - Alles laeuft in EINER Transaktion. Entweder ist am Ende alles da oder
- *    gar nichts. Ein halb importierter Datenbestand waere schlimmer als
+ *    sollen sich möglichst wenig verteilen.
+ *  - Die IDs bleiben erhalten. Dadurch bleiben alle Verknüpfungen heil und
+ *    der Import lässt sich wiederholen.
+ *  - Alles läuft in EINER Transaktion. Entweder ist am Ende alles da oder
+ *    gar nichts. Ein halb importierter Datenbestand wäre schlimmer als
  *    keiner.
  *
  * Die Tabellen heissen in Version 2 teilweise anders. Die Zuordnung:
@@ -27,7 +27,7 @@ import type { Pool } from "pg";
 
 export type ImportBericht = Record<string, number>;
 
-/** Reihenfolge zaehlt: erst die Tabellen, auf die andere verweisen. */
+/** Reihenfolge zählt: erst die Tabellen, auf die andere verweisen. */
 const REIHENFOLGE = [
   "mitarbeiter",
   "objekte",
@@ -170,7 +170,7 @@ const ZUORDNUNG: Record<Zieltabelle, { quelle: string; spalten: Record<string, s
 
 function alsBezeichner(name: string): string {
   // Wir setzen Tabellen- und Spaltennamen selbst zusammen, sie kommen aus
-  // den Tabellen oben und nie von aussen. Trotzdem pruefen wir sie, damit
+  // den Tabellen oben und nie von aussen. Trotzdem prüfen wir sie, damit
   // ein Tippfehler nicht als SQL interpretiert werden kann.
   if (!/^[a-z_][a-z0-9_]*$/.test(name)) {
     throw new Error(`Unzulaessiger Bezeichner: ${name}`);
@@ -179,20 +179,20 @@ function alsBezeichner(name: string): string {
 }
 
 /**
- * Die Tabellen, die --leeren wegraeumt, in EINER truncate-Anweisung.
+ * Die Tabellen, die --leeren wegräumt, in EINER truncate-Anweisung.
  *
- * ferien_uebertrag steht mit drin, obwohl der Import sie nie fuellt:
+ * ferien_uebertrag steht mit drin, obwohl der Import sie nie füllt:
  * Postgres verweigert ein truncate auf eine Tabelle, auf die ein
- * Fremdschluessel zeigt, unabhaengig davon, ob dort Zeilen stehen.
+ * Fremdschlüssel zeigt, unabhängig davon, ob dort Zeilen stehen.
  *
- * Bewusst kein CASCADE. Das wuerde jede kuenftige Tabelle stillschweigend
+ * Bewusst kein CASCADE. Das würde jede künftige Tabelle stillschweigend
  * mitleeren, auch eine, die jemand gerade erst angelegt hat und die
  * wertvolle Daten haelt. Lieber bricht der Import ab und jemand schaut
- * hin. Damit das nicht erst im Ernstfall auffaellt, gibt es dazu einen
- * Test, der die Anweisung wirklich ausfuehrt und zurueckrollt.
+ * hin. Damit das nicht erst im Ernstfall auffällt, gibt es dazu einen
+ * Test, der die Anweisung wirklich ausführt und zurueckrollt.
  *
  * NICHT geleert werden benutzer, sitzungen und protokoll: Konten und
- * Spuren ueberleben einen erneuten Import.
+ * Spuren überleben einen erneuten Import.
  */
 export const ZU_LEEREN = [
   "eintraege",
@@ -205,7 +205,7 @@ export const ZU_LEEREN = [
   "mitarbeiter",
 ] as const;
 
-/** Zaehlt, was in der Zieldatenbank schon vorhanden ist. */
+/** Zählt, was in der Zieldatenbank schon vorhanden ist. */
 export async function zielBestand(ziel: Pool): Promise<ImportBericht> {
   const bericht: ImportBericht = {};
   for (const tabelle of REIHENFOLGE) {
@@ -218,8 +218,8 @@ export async function zielBestand(ziel: Pool): Promise<ImportBericht> {
 }
 
 /**
- * Kopiert alle Tabellen. quellSchema ist normalerweise "public"; fuer Tests
- * laesst sich damit eine Attrappe in einem anderen Schema ansprechen.
+ * Kopiert alle Tabellen. quellSchema ist normalerweise "public"; für Tests
+ * lässt sich damit eine Attrappe in einem anderen Schema ansprechen.
  */
 export async function importiere(
   quelle: Pool,
@@ -249,7 +249,7 @@ export async function importiere(
       }
 
       // Alle Zeilen einer Tabelle in EINER Anweisung einfuegen. 400 einzelne
-      // Anweisungen waeren nicht falsch, aber unnoetig langsam.
+      // Anweisungen wären nicht falsch, aber unnötig langsam.
       const werte: unknown[] = [];
       const platzhalter = rows.map((zeile: Record<string, unknown>) => {
         const stelle = quellspalten.map((q) => {

@@ -1,13 +1,13 @@
 /**
- * Tests fuer die beiden Passwortwege.
+ * Tests für die beiden Passwortwege.
  *
- * Beide gab es schon, aber ungetestet und in der Oberflaeche nicht
- * erreichbar. Mit den Knoepfen kommen deshalb die Tests.
+ * Beide gab es schon, aber ungetestet und in der Oberfläche nicht
+ * erreichbar. Mit den Knöpfen kommen deshalb die Tests.
  *
- * Der Punkt, auf den es ankommt: nach einer Aenderung muessen ALLE
- * Sitzungen weg sein. Wer sein Passwort aendert, tut das oft genau
+ * Der Punkt, auf den es ankommt: nach einer Änderung müssen ALLE
+ * Sitzungen weg sein. Wer sein Passwort ändert, tut das oft genau
  * deshalb, weil vielleicht noch jemand anders angemeldet ist. Bliebe
- * dessen Sitzung gueltig, waere die Aenderung wertlos.
+ * dessen Sitzung gültig, wäre die Änderung wertlos.
  */
 import { eq, inArray, like } from "drizzle-orm";
 import request from "supertest";
@@ -26,8 +26,8 @@ const NEUES = "ein-neues-langes-passwort";
 let adminId: string;
 let bueroId: string;
 
-// Vor JEDEM Test frisch: die Tests aendern Passwoerter, und ein Test
-// darf nicht davon abhaengen, welcher vorher lief.
+// Vor JEDEM Test frisch: die Tests ändern Passwörter, und ein Test
+// darf nicht davon abhängen, welcher vorher lief.
 beforeEach(async () => {
   await db
     .delete(sitzungen)
@@ -66,7 +66,7 @@ describe("Eigenes Passwort ändern", () => {
   });
 
   test("ALLE Sitzungen werden beendet, auch die eigene", async () => {
-    // Zwei Geraete, dieselbe Person.
+    // Zwei Geräte, dieselbe Person.
     const geraetA = await anmelden(app, BUERO);
     const geraetB = await anmelden(app, BUERO);
     expect((await geraetB.get("/api/auth/ich")).status).toBe(200);
@@ -75,7 +75,7 @@ describe("Eigenes Passwort ändern", () => {
       .post("/api/auth/passwort")
       .send({ altesPasswort: TESTPASSWORT, neuesPasswort: NEUES });
 
-    // Das zweite Geraet ist damit ebenfalls draussen.
+    // Das zweite Gerät ist damit ebenfalls draussen.
     expect((await geraetB.get("/api/auth/ich")).status).toBe(401);
     expect((await geraetA.get("/api/auth/ich")).status).toBe(401);
 

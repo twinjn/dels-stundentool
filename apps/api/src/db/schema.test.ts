@@ -2,8 +2,8 @@
  * Tests gegen eine ECHTE Postgres-Datenbank, nicht gegen eine Attrappe.
  *
  * Der Grund: wir testen hier genau die Regeln, die die Datenbank selbst
- * durchsetzt (Fremdschluessel, Pruefregeln, Eindeutigkeit, Zahlentypen).
- * Eine Attrappe wuerde davon nichts abbilden und uns in falscher
+ * durchsetzt (Fremdschlüssel, Prüfregeln, Eindeutigkeit, Zahlentypen).
+ * Eine Attrappe würde davon nichts abbilden und uns in falscher
  * Sicherheit wiegen.
  *
  * Voraussetzung: DATABASE_URL zeigt auf eine migrierte Datenbank.
@@ -13,17 +13,17 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { datenbankSchliessen, db } from "./index.js";
 import { benutzer, eintraege, mitarbeiter, objekte } from "./schema.js";
 
-// Eigener Namensraum, damit parallele Laeufe sich nicht ins Gehege kommen.
+// Eigener Namensraum, damit parallele Läufe sich nicht ins Gehege kommen.
 const marke = `test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 let mitarbeiterId: string;
 let objektId: string;
 
 /**
- * Drizzle verpackt den eigentlichen Datenbankfehler: die aeussere Meldung
+ * Drizzle verpackt den eigentlichen Datenbankfehler: die äussere Meldung
  * sagt nur "Failed query", der Grund mit dem Namen der verletzten Regel
  * steckt eine Ebene tiefer in "cause". Diese Funktion sammelt die ganze
- * Kette ein, damit Tests auf den echten Grund pruefen koennen.
+ * Kette ein, damit Tests auf den echten Grund prüfen koennen.
  */
 function fehlerkette(fehler: unknown): string {
   const teile: string[] = [];
@@ -35,7 +35,7 @@ function fehlerkette(fehler: unknown): string {
   return teile.join(" | ");
 }
 
-/** Fuehrt etwas aus, das scheitern MUSS, und liefert die Fehlerkette. */
+/** Führt etwas aus, das scheitern MUSS, und liefert die Fehlerkette. */
 async function scheitertMit(aktion: () => Promise<unknown>): Promise<string> {
   try {
     await aktion();
@@ -60,8 +60,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // Reihenfolge zaehlt: erst die Eintraege, dann die Stammdaten, sonst
-  // blockieren die Fremdschluessel das Aufraeumen.
+  // Reihenfolge zählt: erst die Einträge, dann die Stammdaten, sonst
+  // blockieren die Fremdschlüssel das Aufraeumen.
   await db.delete(eintraege).where(eq(eintraege.mitarbeiterId, mitarbeiterId));
   await db.delete(mitarbeiter).where(eq(mitarbeiter.id, mitarbeiterId));
   await db.delete(objekte).where(eq(objekte.id, objektId));
@@ -113,7 +113,7 @@ describe("Regeln, die die Datenbank selbst durchsetzt", () => {
 
   test("Sozialversicherungssaetze behalten sechs Nachkommastellen", async () => {
     // db.execute liefert das Ergebnisobjekt des Postgres-Treibers,
-    // die Datensaetze stehen in .rows.
+    // die Datensätze stehen in .rows.
     const ergebnis = await db.execute<{ probe: string }>(
       sql`select cast(0.014494 as numeric(10,6)) as probe`,
     );
@@ -138,8 +138,8 @@ describe("Regeln, die die Datenbank selbst durchsetzt", () => {
   });
 
   test("ein Mitarbeiter mit erfassten Stunden lässt sich nicht löschen", async () => {
-    // Schutz gegen den teuersten Bedienfehler: ein Klick auf "Loeschen",
-    // und die Lohndaten eines ganzen Jahres waeren weg.
+    // Schutz gegen den teuersten Bedienfehler: ein Klick auf "Löschen",
+    // und die Lohndaten eines ganzen Jahres wären weg.
     const grund = await scheitertMit(() =>
       db.delete(mitarbeiter).where(eq(mitarbeiter.id, mitarbeiterId)),
     );

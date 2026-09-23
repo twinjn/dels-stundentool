@@ -2,8 +2,8 @@
  * Die Jahresuebersicht als Excel-Arbeitsmappe.
  *
  * Ein Blatt je Eintragsart plus ein Blatt "Ferien" mit Anspruch,
- * bezogenen Tagen und dem uebernommenen Saldo. Getrennte Blaetter statt
- * eines breiten Blattes mit 72 Spalten: so laesst sich jedes einzeln
+ * bezogenen Tagen und dem übernommenen Saldo. Getrennte Blätter statt
+ * eines breiten Blattes mit 72 Spalten: so lässt sich jedes einzeln
  * filtern, sortieren und ausdrucken.
  */
 import { jahresuebersicht, ARTEN, type Jahresuebersicht } from "../uebersicht/jahr.js";
@@ -45,7 +45,7 @@ export function uebersichtsmappe(daten: Jahresuebersicht, erstelltAm = jetztInZu
     const datenAb = zeilen.length;
 
     for (const person of daten.mitarbeiter) {
-      // Wer in dieser Art nichts hat, faellt raus. Ein Blatt "Unfall"
+      // Wer in dieser Art nichts hat, fällt raus. Ein Blatt "Unfall"
       // mit 140 Nullzeilen und zwei echten Werten ist unbrauchbar.
       if (person.jahr[art] === 0) continue;
 
@@ -112,7 +112,7 @@ export function uebersichtsmappe(daten: Jahresuebersicht, erstelltAm = jetztInZu
   ]);
 
   // NICHT "Ferien": so heisst schon das Blatt mit den Monatswerten. Zwei
-  // Blaetter mit demselben Namen lehnt Excel ab, mappe() haengt dann eine
+  // Blätter mit demselben Namen lehnt Excel ab, mappe() hängt dann eine
   // 2 an, und niemand weiss mehr, welches welches ist.
   blaetter.push({
     name: "Ferien Anspruch",

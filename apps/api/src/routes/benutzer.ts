@@ -1,8 +1,8 @@
 /**
- * Benutzerverwaltung. Nur fuer die Rolle admin.
+ * Benutzerverwaltung. Nur für die Rolle admin.
  *
- * Benutzer werden nie geloescht, sondern stillgelegt (aktiv = false).
- * Ein geloeschter Benutzer wuerde seine Spur im Protokoll verlieren, und
+ * Benutzer werden nie gelöscht, sondern stillgelegt (aktiv = false).
+ * Ein gelöschter Benutzer würde seine Spur im Protokoll verlieren, und
  * genau die will man bei Lohndaten behalten.
  */
 import { BenutzerAendernSchema, BenutzerAnlegenSchema } from "@dels/shared";
@@ -18,12 +18,12 @@ import { HttpFehler, nichtGefunden, ungueltig } from "../fehler.js";
 
 export const benutzerRouter = Router();
 
-// Gilt fuer JEDE Route in dieser Datei.
+// Gilt für JEDE Route in dieser Datei.
 benutzerRouter.use(brauchtRecht("benutzer:verwalten"));
 
 const IdSchema = z.uuid("Ungültige Benutzer-ID.");
 
-/** Spalten, die nach aussen gehen duerfen. Der Passwort-Hash gehoert NICHT dazu. */
+/** Spalten, die nach aussen gehen duerfen. Der Passwort-Hash gehört NICHT dazu. */
 const oeffentlich = {
   id: benutzer.id,
   name: benutzer.name,
@@ -37,9 +37,9 @@ const oeffentlich = {
 /**
  * Verhindert, dass sich die Firma selbst aussperrt.
  *
- * Ohne diese Pruefung genuegt ein Klick: der letzte Admin legt sich still
+ * Ohne diese Prüfung genügt ein Klick: der letzte Admin legt sich still
  * oder macht sich zu "buero", und danach kann NIEMAND mehr Benutzer
- * verwalten. Das laesst sich dann nur noch von Hand in der Datenbank
+ * verwalten. Das lässt sich dann nur noch von Hand in der Datenbank
  * reparieren.
  */
 async function wuerdeLetztenAdminEntfernen(id: string): Promise<boolean> {
@@ -127,7 +127,7 @@ benutzerRouter.patch("/:id", async (req, res) => {
   res.json(geaendert);
 });
 
-/** Passwort fuer jemand anderen setzen, z.B. wenn es vergessen wurde. */
+/** Passwort für jemand anderen setzen, z.B. wenn es vergessen wurde. */
 benutzerRouter.post("/:id/passwort", async (req, res) => {
   const id = IdSchema.parse(req.params.id);
   const { passwort } = BenutzerAnlegenSchema.pick({ passwort: true }).parse(req.body);

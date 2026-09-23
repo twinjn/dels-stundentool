@@ -1,12 +1,12 @@
 /**
- * Das Aenderungsprotokoll ansehen.
+ * Das Änderungsprotokoll ansehen.
  *
- * Nur fuer Admins: hier steht drin, wer wann welche Personendaten
+ * Nur für Admins: hier steht drin, wer wann welche Personendaten
  * angefasst hat, mitsamt altem und neuem Wert.
  *
- * Es gibt bewusst KEINE Route zum Loeschen oder Aendern. Ein Protokoll,
- * das sich nachtraeglich bearbeiten laesst, beantwortet die Frage nicht
- * mehr, fuer die es da ist.
+ * Es gibt bewusst KEINE Route zum Löschen oder Aendern. Ein Protokoll,
+ * das sich nachträglich bearbeiten lässt, beantwortet die Frage nicht
+ * mehr, für die es da ist.
  */
 import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import { Router } from "express";
@@ -57,7 +57,7 @@ protokollRouter.get("/", async (req, res) => {
     .limit(PRO_SEITE)
     .offset((abfrage.seite - 1) * PRO_SEITE);
 
-  // Welche Tabellen kommen ueberhaupt vor: fuer die Auswahlliste.
+  // Welche Tabellen kommen überhaupt vor: für die Auswahlliste.
   const tabellen = await db
     .selectDistinct({ tabelle: protokoll.tabelle })
     .from(protokoll)

@@ -1,7 +1,7 @@
 /**
  * Knopf, der eine Datei vom Server holt.
  *
- * Waehrend des Herunterladens ist er gesperrt: ein Export ueber ein
+ * Während des Herunterladens ist er gesperrt: ein Export über ein
  * ganzes Jahr dauert einen Moment, und ohne Sperre klickt man dreimal
  * und bekommt dieselbe Datei dreimal.
  */
@@ -43,10 +43,10 @@ export function ExportKnopf({
 }
 
 /**
- * Oeffnet den Druckdialog des Browsers.
+ * Öffnet den Druckdialog des Browsers.
  *
  * Das ist der PDF-Weg dieser Anwendung: im Dialog "Als PDF speichern"
- * waehlen. Kein PDF-Erzeuger auf dem Server, dafuer ein Stylesheet fuer
+ * waehlen. Kein PDF-Erzeuger auf dem Server, dafür ein Stylesheet für
  * @media print, das Navigation und Bedienelemente wegnimmt und die
  * Tabellenkopfzeile auf jeder Seite wiederholt.
  */

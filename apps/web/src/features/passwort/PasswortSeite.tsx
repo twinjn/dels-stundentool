@@ -3,10 +3,10 @@
  *
  * WICHTIG FUER DIE BEDIENUNG: Der Server beendet dabei ALLE Sitzungen,
  * auch die eigene. Das ist Absicht und meist genau der Grund, warum
- * jemand sein Passwort aendert: weil vielleicht noch jemand anders
- * angemeldet ist. Die Seite sagt das vorher und schickt danach zurueck
- * zur Anmeldung, statt den Benutzer in eine Oberflaeche laufen zu
- * lassen, in der ploetzlich jede Anfrage mit 401 antwortet.
+ * jemand sein Passwort ändert: weil vielleicht noch jemand anders
+ * angemeldet ist. Die Seite sagt das vorher und schickt danach zurück
+ * zur Anmeldung, statt den Benutzer in eine Oberfläche laufen zu
+ * lassen, in der plötzlich jede Anfrage mit 401 antwortet.
  */
 import { useState } from "react";
 import type { FormEvent } from "react";
@@ -32,8 +32,8 @@ export function PasswortSeite() {
       return;
     }
 
-    // Dasselbe Schema, das auch der Server benutzt. Hier nur fuer die
-    // schnelle Rueckmeldung, die Sicherheit kommt vom Server.
+    // Dasselbe Schema, das auch der Server benutzt. Hier nur für die
+    // schnelle Rückmeldung, die Sicherheit kommt vom Server.
     const geprueft = PasswortAendernSchema.safeParse({ altesPasswort, neuesPasswort });
     if (!geprueft.success) {
       setFehler(geprueft.error.issues[0]?.message ?? "Eingabe unvollständig.");
@@ -48,12 +48,12 @@ export function PasswortSeite() {
       //
       // Der Server hat die Sitzung zwar schon beendet. Sobald aber der
       // Browserzustand auf "nicht angemeldet" springt, tauscht die
-      // Anwendung die ganze Oberflaeche gegen die Anmeldemaske. Die
-      // Erfolgsmeldung waere dann nie zu sehen, und der Benutzer stuende
-      // ohne Erklaerung wieder vor dem Anmeldebildschirm.
+      // Anwendung die ganze Oberfläche gegen die Anmeldemaske. Die
+      // Erfolgsmeldung wäre dann nie zu sehen, und der Benutzer stünde
+      // ohne Erklärung wieder vor dem Anmeldebildschirm.
       //
       // Aufgefallen ist das erst beim Durchspielen im Browser: die
-      // Aenderung ging durch, die Meldung erschien nie. Aufgeraeumt wird
+      // Änderung ging durch, die Meldung erschien nie. Aufgeräumt wird
       // deshalb erst mit dem Knopf auf der Erfolgsseite. Solange die
       // steht, wird ohnehin nichts vom Server geholt.
     } catch (e: unknown) {

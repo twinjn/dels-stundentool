@@ -22,7 +22,7 @@ objekteRouter.get("/", brauchtRecht("stammdaten:lesen"), async (req, res) => {
   const nurAktive = req.query.nurAktive === "true";
 
   // Sortiert nach Name, mit Schweizer Sortierregeln: sonst landet
-  // "Zuerich" hinter "Zwingen", weil das Umlaut-Z anders einsortiert wird.
+  // "Zürich" hinter "Zwingen", weil das Umlaut-Z anders einsortiert wird.
   const sortierung = asc(sql`${objekte.name} collate "de-CH-x-icu"`);
 
   const liste = nurAktive

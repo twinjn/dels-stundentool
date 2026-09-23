@@ -2,7 +2,7 @@
  * Wendet alle noch nicht angewendeten Migrationen an.
  *
  * Drizzle merkt sich in einer eigenen Tabelle, welche Dateien schon
- * gelaufen sind. Mehrfaches Ausfuehren ist deshalb gefahrlos.
+ * gelaufen sind. Mehrfaches Ausführen ist deshalb gefahrlos.
  *
  *   npm run db:migrate -w @dels/api
  */

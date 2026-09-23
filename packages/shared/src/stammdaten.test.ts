@@ -16,7 +16,7 @@ describe("IBAN", () => {
   });
 
   test("erkennt einen Zahlendreher", () => {
-    // Genau dafuer gibt es die Pruefsumme: zwei vertauschte Ziffern.
+    // Genau dafür gibt es die Prüfsumme: zwei vertauschte Ziffern.
     expect(ibanGueltig("CH93 0076 2011 6238 5297 5")).toBe(false);
   });
 
@@ -37,7 +37,7 @@ describe("AHV-Nummer", () => {
     expect(ahvGueltig("7561234567897")).toBe(true);
   });
 
-  test("erkennt eine falsche Pruefziffer", () => {
+  test("erkennt eine falsche Prüfziffer", () => {
     expect(ahvGueltig("756.1234.5678.98")).toBe(false);
   });
 
@@ -69,7 +69,7 @@ describe("Mitarbeiter-Schema", () => {
   });
 
   test("der 31. Februar wird abgelehnt", () => {
-    // JavaScript rechnet so ein Datum sonst still in den 3. Maerz um.
+    // JavaScript rechnet so ein Datum sonst still in den 3. März um.
     const ergebnis = MitarbeiterAnlegenSchema.safeParse({
       name: "Anna",
       eintrittsdatum: "2026-02-31",

@@ -1,7 +1,7 @@
 /**
- * Tests fuer Mitarbeiter und Objekte.
+ * Tests für Mitarbeiter und Objekte.
  *
- * Schwerpunkt: was die Rolle "buero" NICHT sehen und NICHT aendern darf.
+ * Schwerpunkt: was die Rolle "buero" NICHT sehen und NICHT ändern darf.
  * Ein Rechtesystem beweist man an dem, was es verweigert.
  */
 import { eq, inArray, like } from "drizzle-orm";
@@ -135,7 +135,7 @@ describe("Mitarbeiter anlegen und ändern", () => {
   });
 });
 
-describe("Loeschen", () => {
+describe("Löschen", () => {
   test("ein Mitarbeiter mit Stunden lässt sich nicht löschen", async () => {
     await db.insert(eintraege).values({
       mitarbeiterId,

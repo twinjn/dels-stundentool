@@ -1,5 +1,5 @@
 /**
- * Test fuer das Anlegen des ersten Admins.
+ * Test für das Anlegen des ersten Admins.
  *
  * WARUM ES DIESEN TEST GIBT: die Eingabe dieses Skripts ist jetzt zweimal
  * kaputtgegangen, beide Male auf dieselbe Weise und beide Male nur dann,
@@ -9,7 +9,7 @@
  *
  * Deshalb wird hier das echte Skript als eigener Prozess gestartet und
  * mit umgeleiteter Eingabe gefuettert. Eine nachgebaute Leseschleife
- * wuerde genau den Fehler nicht zeigen, um den es geht.
+ * würde genau den Fehler nicht zeigen, um den es geht.
  */
 import { spawn } from "node:child_process";
 import { eq, like } from "drizzle-orm";
@@ -47,7 +47,7 @@ function starte(
     prozess.stdout.on("data", (d: Buffer) => (ausgabe += d.toString()));
     prozess.stderr.on("data", (d: Buffer) => (ausgabe += d.toString()));
 
-    // Wenn das Skript haengt, soll der Test das melden und nicht
+    // Wenn das Skript hängt, soll der Test das melden und nicht
     // wortlos in den Zeitablauf von Vitest laufen.
     const wecker = setTimeout(() => {
       prozess.kill("SIGKILL");

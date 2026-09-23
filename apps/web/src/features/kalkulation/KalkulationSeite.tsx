@@ -5,12 +5,12 @@
  * Funktion, die auch der Server und der Export benutzen. Das hat zwei
  * Folgen, beide gewollt:
  *
- *  - Die Zahlen aendern sich sofort, waehrend jemand an einem Ansatz
+ *  - Die Zahlen ändern sich sofort, während jemand an einem Ansatz
  *    dreht. Kein Warten auf den Server.
  *  - Es gibt keine zweite Rechenfassung im Browser, die irgendwann von
  *    der auf dem Server abweicht.
  *
- * Gespeichert wird im Hintergrund, Feld fuer Feld.
+ * Gespeichert wird im Hintergrund, Feld für Feld.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { chf, chf0, monatName, pct, rechne, vorzeichen } from "@dels/shared";
@@ -99,7 +99,7 @@ export function KalkulationSeite() {
     if (monat) void laden(monat);
   }, [monat, laden]);
 
-  /** Hier passiert das Rechnen. Bei jeder Aenderung sofort neu. */
+  /** Hier passiert das Rechnen. Bei jeder Änderung sofort neu. */
   const ergebnis = useMemo(() => {
     if (!daten) return null;
     return rechne({
@@ -114,24 +114,24 @@ export function KalkulationSeite() {
   }, [daten]);
 
   /**
-   * Steht das Monatsergebnis auf vollstaendiger Erfassung?
+   * Steht das Monatsergebnis auf vollständiger Erfassung?
    *
-   * Zwei Luecken machen es unzuverlaessig, und beide ziehen es in
-   * dieselbe Richtung, naemlich zu gut:
+   * Zwei Lücken machen es unzuverlässig, und beide ziehen es in
+   * dieselbe Richtung, nämlich zu gut:
    *
    *   - Objekte ohne Stunden bringen ihr Abo in den Umsatz, ohne dass
    *     Lohnkosten dagegenstehen
-   *   - Personen mit Stunden, aber ohne hinterlegten Stundenlohn, zaehlen
+   *   - Personen mit Stunden, aber ohne hinterlegten Stundenlohn, zählen
    *     mit null Franken Lohnaufwand mit
    *
    * Beides ist im laufenden Monat der Normalfall und kein Fehler. Nur
-   * darf das Ergebnis dann nicht so aussehen, als waere es eines.
+   * darf das Ergebnis dann nicht so aussehen, als wäre es eines.
    */
   const basisUnvollstaendig =
     ergebnis !== null && (ergebnis.res.ohneStd > 0 || (ergebnis.t.ohneLohnsatz ?? 0) > 0);
 
   async function speichern(pfad: string, rumpf: unknown, oertlich: () => void) {
-    // Erst lokal uebernehmen, damit die Zahlen sofort stimmen, dann sichern.
+    // Erst lokal übernehmen, damit die Zahlen sofort stimmen, dann sichern.
     oertlich();
     try {
       await api.patch(pfad, rumpf);

@@ -233,7 +233,7 @@ function ObjektFormular({
       await api.delete(`/objekte/${vorhanden.id}`);
       onFertig();
     } catch (e: unknown) {
-      // Der haeufige Fall: es haengen Stunden dran. Die Meldung vom
+      // Der häufige Fall: es hängen Stunden dran. Die Meldung vom
       // Server sagt, was stattdessen zu tun ist.
       setFehler(e instanceof ApiFehler ? e.message : "Löschen fehlgeschlagen.");
     }

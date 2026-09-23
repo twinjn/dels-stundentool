@@ -1,5 +1,5 @@
 /**
- * Konfiguration fuer drizzle-kit, das Werkzeug, das aus src/db/schema.ts
+ * Konfiguration für drizzle-kit, das Werkzeug, das aus src/db/schema.ts
  * die SQL-Migrationen erzeugt.
  *
  *   npm run db:generate -w @dels/api    Migration aus dem Schema erzeugen
@@ -27,7 +27,7 @@ export default defineConfig({
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: { url },
-  // Erzeugt lesbare Namen statt Zufallsnamen fuer Migrationsdateien.
+  // Erzeugt lesbare Namen statt Zufallsnamen für Migrationsdateien.
   verbose: true,
   strict: true,
 });

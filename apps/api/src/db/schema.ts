@@ -1,10 +1,10 @@
 /**
  * Datenbankschema.
  *
- * Diese Datei ist die einzige Wahrheit ueber den Aufbau der Datenbank.
+ * Diese Datei ist die einzige Wahrheit über den Aufbau der Datenbank.
  * Aus ihr erzeugt drizzle-kit die Migrationen, und aus ihr leitet
  * TypeScript die Typen ab. Wer hier eine Spalte umbenennt, bekommt
- * ueberall dort einen Fehler angezeigt, wo sie benutzt wird.
+ * überall dort einen Fehler angezeigt, wo sie benutzt wird.
  *
  * ZAHLENTYPEN: Geld und Stunden liegen als "numeric", NIE als
  * Gleitkommazahl. 0.1 + 0.2 ergibt in Gleitkomma 0.30000000000000004.
@@ -12,8 +12,8 @@
  * falscher Betrag auf einem Lohnausweis. Drizzle liefert numeric-Werte
  * deshalb als Zeichenkette aus, damit unterwegs nichts gerundet wird.
  *
- * Die Nachkommastellen sind an den echten Bestandsdaten geprueft:
- * Saetze brauchen 6 (BU = 0.014494), Geld und Stunden brauchen 2.
+ * Die Nachkommastellen sind an den echten Bestandsdaten geprüft:
+ * Sätze brauchen 6 (BU = 0.014494), Geld und Stunden brauchen 2.
  */
 import { sql } from "drizzle-orm";
 import {
@@ -37,14 +37,14 @@ import {
 
 /** Geldbetrag in CHF. */
 const geld = (name: string) => numeric(name, { precision: 12, scale: 2 });
-/** Prozentsatz als Dezimalzahl, z.B. 0.014494 fuer 1.4494 %. */
+/** Prozentsatz als Dezimalzahl, z.B. 0.014494 für 1.4494 %. */
 const satz = (name: string) => numeric(name, { precision: 10, scale: 6 });
 /** Stundenzahl. */
 const stunden = (name: string) => numeric(name, { precision: 8, scale: 2 });
 
 const erstelltAm = timestamp("erstellt_am", { withTimezone: true }).notNull().defaultNow();
 
-// --- Aufzaehlungen -------------------------------------------------------
+// --- Aufzählungen -------------------------------------------------------
 
 export const rolleEnum = pgEnum("rolle", ["admin", "buero"]);
 
@@ -55,8 +55,8 @@ export const eintragsartEnum = pgEnum("eintragsart", [
   "unfall",
   "feiertag",
   // "Frei" im Sinne von arbeitsfrei, aber nicht Ferien: im bestehenden
-  // Excel als "Fr" gefuehrt und dort 200-mal verwendet. Ohne eigene
-  // Kategorie muesste man es unter "sonstiges" verstecken und koennte es
+  // Excel als "Fr" geführt und dort 200-mal verwendet. Ohne eigene
+  // Kategorie müsste man es unter "sonstiges" verstecken und könnte es
   // nachher nicht mehr auseinanderhalten.
   "frei",
   "sonstiges",
@@ -66,11 +66,11 @@ export const eintragsartEnum = pgEnum("eintragsart", [
 export const verteilschluesselEnum = pgEnum("verteilschluessel", ["abos", "objekt"]);
 
 /**
- * Wie jemand entloehnt wird. Steuert die Ferienrechnung, und zwar
+ * Wie jemand entlöhnt wird. Steuert die Ferienrechnung, und zwar
  * grundlegend, nicht nur im Detail:
  *
  *   monat   Ferien sind Tage. Es gibt einen Anspruch, einen Bezug und
- *           einen Rest, der ins naechste Jahr laeuft.
+ *           einen Rest, der ins nächste Jahr laeuft.
  *   stunde  Ferien sind Geld. Der Anspruch wird als Zuschlag auf den
  *           Stundenlohn ausbezahlt (bei 5 Wochen 10.638 %), einen
  *           Saldo in Tagen gibt es nicht.
@@ -78,7 +78,7 @@ export const verteilschluesselEnum = pgEnum("verteilschluessel", ["abos", "objek
  * Bis hierher steckte die Unterscheidung in "mitarbeiterstufe", einem
  * Freitextfeld aus dem Excel, das an einer Stelle gegen die Zeichenkette
  * "Monatslohn" verglichen wurde. Ein Tippfehler oder ein "Monatslohn 80%"
- * haette dort still das Falsche gerechnet. Eine Aufzaehlung kann das
+ * hätte dort still das Falsche gerechnet. Eine Aufzählung kann das
  * nicht: was nicht in der Liste steht, nimmt die Datenbank nicht an.
  */
 export const lohnartEnum = pgEnum("lohnart", ["monat", "stunde"]);
@@ -94,7 +94,7 @@ export const benutzer = pgTable(
     passwortHash: text("passwort_hash").notNull(),
     name: text("name").notNull(),
     rolle: rolleEnum("rolle").notNull().default("buero"),
-    // Statt loeschen: stilllegen. Ein geloeschter Benutzer wuerde seine
+    // Statt löschen: stilllegen. Ein gelöschter Benutzer würde seine
     // Spur im Protokoll verlieren.
     aktiv: boolean("aktiv").notNull().default(true),
     erstelltAm,
@@ -147,24 +147,24 @@ export const mitarbeiter = pgTable("mitarbeiter", {
   sollProTag: numeric("soll_pro_tag", { precision: 5, scale: 2 }).notNull().default("8.4"),
 
   /**
-   * Ferien-Saldo, wie er bei der Uebernahme aus dem Excel galt, mit dem
+   * Ferien-Saldo, wie er bei der Übernahme aus dem Excel galt, mit dem
    * Stichtag dazu.
    *
    * Das ist der STARTWERT der laufenden Rechnung, nicht ihr Ergebnis.
    * Vor dem Stichtag liegen Jahre, die nur im Excel existieren und die
    * niemand nachrechnen kann. Ab dem Stichtag rechnet ferien/saldo.ts
-   * Jahr fuer Jahr weiter: Anspruch plus Uebertrag minus Bezug.
+   * Jahr für Jahr weiter: Anspruch plus Übertrag minus Bezug.
    *
    * Fehlt der Wert, beginnt die Rechnung beim Eintrittsjahr.
    */
   ferienSaldo: numeric("ferien_saldo", { precision: 6, scale: 2 }),
   ferienSaldoStand: date("ferien_saldo_stand"),
 
-  // Lohn (nur fuer die Rolle admin sichtbar)
+  // Lohn (nur für die Rolle admin sichtbar)
   stundenlohn: geld("stundenlohn"),
   monatslohn: geld("monatslohn"),
 
-  /** Manager, Aussendienst, Teamleiter, Buero, Hauswart, UHR I-III, Temporaer. */
+  /** Manager, Aussendienst, Teamleiter, Büro, Hauswart, UHR I-III, Temporaer. */
   funktion: text("funktion"),
   einsatzort: text("einsatzort"),
   gruppe: text("gruppe"),
@@ -210,9 +210,9 @@ export const eintraege = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
 
-    // RESTRICT statt CASCADE, bewusst anders als im Altsystem: dort haette
-    // das Loeschen eines Mitarbeiters alle seine erfassten Stunden
-    // mitgerissen. Lohnrelevante Daten loescht man nicht aus Versehen,
+    // RESTRICT statt CASCADE, bewusst anders als im Altsystem: dort hätte
+    // das Löschen eines Mitarbeiters alle seine erfassten Stunden
+    // mitgerissen. Lohnrelevante Daten löscht man nicht aus Versehen,
     // man legt den Mitarbeiter still (aktiv = false).
     mitarbeiterId: uuid("mitarbeiter_id")
       .notNull()
@@ -226,7 +226,7 @@ export const eintraege = pgTable(
     wert: numeric("wert", { precision: 10, scale: 2 }).notNull(),
     notiz: text("notiz"),
 
-    /** Wer hat das eingetragen. Fuer Rueckfragen und das Protokoll. */
+    /** Wer hat das eingetragen. Für Rückfragen und das Protokoll. */
     erfasstVon: uuid("erfasst_von").references(() => benutzer.id, { onDelete: "set null" }),
     erstelltAm,
     geaendertAm: timestamp("geaendert_am", { withTimezone: true }),
@@ -235,8 +235,8 @@ export const eintraege = pgTable(
     index("eintraege_mitarbeiter_datum_idx").on(t.mitarbeiterId, t.datum),
     index("eintraege_datum_idx").on(t.datum),
     index("eintraege_objekt_idx").on(t.objektId),
-    // Gearbeitete Stunden ohne Objekt waeren in der Kalkulation nicht
-    // zuzuordnen und wuerden aus dem Deckungsbeitrag verschwinden.
+    // Gearbeitete Stunden ohne Objekt wären in der Kalkulation nicht
+    // zuzuordnen und würden aus dem Deckungsbeitrag verschwinden.
     check(
       "eintraege_arbeit_braucht_objekt",
       sql`${t.art} <> 'arbeit' OR ${t.objektId} IS NOT NULL`,
@@ -247,9 +247,9 @@ export const eintraege = pgTable(
 // --- Kalkulation ---------------------------------------------------------
 
 /**
- * Ansaetze pro Monat. Der Kern des Ganzen: pro Monat wird festgehalten,
- * welche Saetze damals galten. Sonst rechnet man alte Monate mit heutigen
- * Saetzen nach, und genau dieser Fehler steckte im urspruenglichen Excel.
+ * Ansätze pro Monat. Der Kern des Ganzen: pro Monat wird festgehalten,
+ * welche Sätze damals galten. Sonst rechnet man alte Monate mit heutigen
+ * Sätzen nach, und genau dieser Fehler steckte im ursprünglichen Excel.
  */
 export const kalkMonat = pgTable("kalk_monat", {
   /** Immer der erste Tag des Monats. */
@@ -268,8 +268,8 @@ export const kalkMonat = pgTable("kalk_monat", {
   /** Stunden pro Woche, ab denen die NBU-Pflicht greift. */
   nbuSchwelle: stunden("nbu_schwelle").notNull().default("8"),
   /**
-   * Nach Art. 91 UVG traegt die NBU-Praemie der Arbeitnehmer. Nur wenn die
-   * Firma sie freiwillig uebernimmt, ist sie eine Arbeitgeberkost.
+   * Nach Art. 91 UVG trägt die NBU-Praemie der Arbeitnehmer. Nur wenn die
+   * Firma sie freiwillig übernimmt, ist sie eine Arbeitgeberkost.
    */
   nbuTraegtAg: boolean("nbu_traegt_ag").notNull().default(false),
 
@@ -317,7 +317,7 @@ export const kalkObjektMonat = pgTable(
       .notNull()
       .references(() => objekte.id, { onDelete: "restrict" }),
     aboBetrag: geld("abo_betrag"),
-    /** Rueckfallwert, solange fuer dieses Objekt keine Stunden erfasst sind. */
+    /** Rückfallwert, solange für dieses Objekt keine Stunden erfasst sind. */
     stdManuell: stunden("std_manuell"),
     /** Ansatz, wenn ohne Stundendaten gerechnet wird. */
     lohnManuell: geld("lohn_manuell"),
@@ -329,8 +329,8 @@ export const kalkObjektMonat = pgTable(
 );
 
 /**
- * Nur Festpersonal ohne direkten Objektbezug. Wer ueber das Stundentool
- * auf Objekte bucht, erscheint hier nicht, sonst waere der Lohn doppelt.
+ * Nur Festpersonal ohne direkten Objektbezug. Wer über das Stundentool
+ * auf Objekte bucht, erscheint hier nicht, sonst wäre der Lohn doppelt.
  */
 export const kalkPersonMonat = pgTable(
   "kalk_person_monat",
@@ -358,19 +358,19 @@ export const kalkPersonMonat = pgTable(
 /**
  * Ferientage, die aus dem Vorjahr ins Jahr "jahr" mitgenommen werden.
  *
- * Normalerweise steht hier NICHTS. Der Uebertrag wird gerechnet: was am
- * 31. Dezember uebrig war, ist am 1. Januar da. Ein Datensatz hier ist
- * die Ausnahme und uebersteuert die Rechnung.
+ * Normalerweise steht hier NICHTS. Der Übertrag wird gerechnet: was am
+ * 31. Dezember übrig war, ist am 1. Januar da. Ein Datensatz hier ist
+ * die Ausnahme und übersteuert die Rechnung.
  *
  * Warum herum, und nicht andersherum:
  *
- * Der naheliegende Entwurf waere, den Saldo jedes Jahr auf null zu
- * setzen und den Uebertrag von Hand nachzutragen. Dann kostet einmal
+ * Der naheliegende Entwurf wäre, den Saldo jedes Jahr auf null zu
+ * setzen und den Übertrag von Hand nachzutragen. Dann kostet einmal
  * Vergessen im Januar jemandem seine Ferientage, still und ohne Spur.
  * So herum kostet Vergessen gar nichts, und das Streichen ist eine
- * bewusste Handlung mit Begruendung und Namen daran.
+ * bewusste Handlung mit Begründung und Namen daran.
  *
- * Ein Eintrag mit tage = 0 ist also die Aussage "der Rest verfaellt",
+ * Ein Eintrag mit tage = 0 ist also die Aussage "der Rest verfällt",
  * und die Bemerkung sagt warum.
  */
 export const ferienUebertrag = pgTable(
@@ -380,7 +380,7 @@ export const ferienUebertrag = pgTable(
     mitarbeiterId: uuid("mitarbeiter_id")
       .notNull()
       .references(() => mitarbeiter.id, { onDelete: "cascade" }),
-    /** Das Jahr, IN das uebertragen wird. 2027 heisst: Rest aus 2026. */
+    /** Das Jahr, IN das übertragen wird. 2027 heisst: Rest aus 2026. */
     jahr: integer("jahr").notNull(),
     tage: numeric("tage", { precision: 6, scale: 2 }).notNull(),
     bemerkung: text("bemerkung"),
@@ -390,7 +390,7 @@ export const ferienUebertrag = pgTable(
   },
   (t) => [
     uniqueIndex("ferien_uebertrag_person_jahr_idx").on(t.mitarbeiterId, t.jahr),
-    // Ein Uebertrag von 3000 Tagen ist ein Tippfehler, kein Sonderfall.
+    // Ein Übertrag von 3000 Tagen ist ein Tippfehler, kein Sonderfall.
     check("ferien_uebertrag_tage_grenzen", sql`${t.tage} between -100 and 100`),
   ],
 );

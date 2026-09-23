@@ -2,8 +2,8 @@
  * Tests der Ferienrechnung.
  *
  * Ohne Datenbank, weil die Regeln hier reine Rechnerei sind. Was diese
- * Datei festhaelt, sind Firmenregeln und keine technischen Details:
- * wenn jemand die Werte hier aendert, aendert er die Ferien der
+ * Datei festhält, sind Firmenregeln und keine technischen Details:
+ * wenn jemand die Werte hier ändert, ändert er die Ferien der
  * Belegschaft, und das soll er im Diff sehen.
  */
 import { describe, expect, it } from "vitest";
@@ -91,7 +91,7 @@ describe("ferienzuschlag", () => {
   });
 
   it("teilt durch die Arbeitswochen, nicht durch 52", () => {
-    // Der haeufigste Fehler waere 5/52 = 9.6 %. Dieser Test schlaegt an,
+    // Der häufigste Fehler wäre 5/52 = 9.6 %. Dieser Test schlägt an,
     // falls jemand die Formel "vereinfacht".
     expect(ferienzuschlag(25).anteil).not.toBeCloseTo(5 / 52, 4);
   });
@@ -131,7 +131,7 @@ describe("ferienentschaedigung", () => {
 
   it("bleibt über viele Stunden hinweg exakt", () => {
     /*
-     * Der Test, der in Gleitkomma schiefgeht. Zwoelf Monate zu 173.25
+     * Der Test, der in Gleitkomma schiefgeht. Zwölf Monate zu 173.25
      * Stunden, Lohn 27.35: einzeln gerechnet und aufsummiert muss
      * dasselbe herauskommen wie in einem Zug, auf den Rappen genau.
      */

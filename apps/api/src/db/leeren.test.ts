@@ -1,19 +1,19 @@
 /**
- * Prueft, dass --leeren beim Import ueberhaupt durchlaeuft.
+ * Prüft, dass --leeren beim Import überhaupt durchlaeuft.
  *
  * Warum es diesen Test gibt: Postgres verweigert ein truncate auf eine
- * Tabelle, auf die ein Fremdschluessel zeigt, und zwar unabhaengig davon,
+ * Tabelle, auf die ein Fremdschlüssel zeigt, und zwar unabhängig davon,
  * ob in der verweisenden Tabelle Zeilen stehen. Wer also eine neue
  * Tabelle mit einem Verweis auf mitarbeiter oder objekte anlegt, macht
  * damit still das Import-Kommando kaputt.
  *
- * Genau das ist passiert: ferien_uebertrag kam spaeter dazu als das
+ * Genau das ist passiert: ferien_uebertrag kam später dazu als das
  * Kommando, und --leeren brach danach mit "cannot truncate a table
  * referenced in a foreign key constraint" ab. Gemerkt hat das niemand,
  * weil das Kommando von Hand aufgerufen wird und selten.
  *
- * Der Test fuehrt die echte Anweisung aus und rollt sie zurueck. Kommt
- * eine neue verweisende Tabelle dazu, faellt er, und zwar mit genau der
+ * Der Test führt die echte Anweisung aus und rollt sie zurueck. Kommt
+ * eine neue verweisende Tabelle dazu, fällt er, und zwar mit genau der
  * Meldung, die Postgres auch im Ernstfall ausgeben wuerde.
  */
 import { sql } from "drizzle-orm";
@@ -29,8 +29,8 @@ test("die truncate-Anweisung von --leeren läuft durch", async () => {
   await expect(
     db.transaction(async (tx) => {
       await tx.execute(sql.raw(`truncate table ${ZU_LEEREN.join(", ")} restart identity`));
-      // Immer zuruecknehmen: der Test soll pruefen, ob die Anweisung
-      // zulaessig ist, nicht die Testdatenbank ausraeumen.
+      // Immer zurücknehmen: der Test soll prüfen, ob die Anweisung
+      // zulässig ist, nicht die Testdatenbank ausraeumen.
       throw new Error("absichtlicher Rollback");
     }),
   ).rejects.toThrow("absichtlicher Rollback");
@@ -39,7 +39,7 @@ test("die truncate-Anweisung von --leeren läuft durch", async () => {
 test("Konten, Sitzungen und Protokoll bleiben stehen", () => {
   /*
    * Ein erneuter Import darf niemanden aussperren und keine Spuren
-   * loeschen. Wer hier eine dieser Tabellen hinzufuegt, nimmt dem
+   * loeschen. Wer hier eine dieser Tabellen hinzufügt, nimmt dem
    * Protokoll seinen Zweck.
    */
   for (const tabelle of ["benutzer", "sitzungen", "protokoll"]) {
@@ -48,7 +48,7 @@ test("Konten, Sitzungen und Protokoll bleiben stehen", () => {
 });
 
 test("jede Tabelle mit Verweis auf mitarbeiter oder objekte steht in der Liste", async () => {
-  // Der eigentliche Waechter: er findet eine neue verweisende Tabelle
+  // Der eigentliche Wächter: er findet eine neue verweisende Tabelle
   // auch dann, wenn sie noch leer ist und nichts kaputtmacht.
   const { rows } = (await db.execute(sql`
     select distinct c.conrelid::regclass::text as verweiser

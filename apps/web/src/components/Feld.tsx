@@ -1,8 +1,8 @@
 /**
- * Ein beschriftetes Eingabefeld mit Platz fuer eine Fehlermeldung.
+ * Ein beschriftetes Eingabefeld mit Platz für eine Fehlermeldung.
  *
  * Das htmlFor/id-Paar ist nicht Deko: ohne das weiss ein Screenreader
- * nicht, welche Beschriftung zu welchem Feld gehoert, und ein Klick auf
+ * nicht, welche Beschriftung zu welchem Feld gehört, und ein Klick auf
  * die Beschriftung setzt den Cursor nicht ins Feld.
  */
 import type { ReactNode } from "react";
@@ -80,7 +80,7 @@ export function Feldgruppe({ titel, children }: { titel: string; children: React
  *
  * Bewusst ein select und kein Freitextfeld: die Lohnart steuert, welche
  * Ferienrechnung gilt. Was man tippen kann, wird irgendwann vertippt,
- * und ein Tippfehler waere hier kein Schoenheitsfehler, sondern eine
+ * und ein Tippfehler wäre hier kein Schönheitsfehler, sondern eine
  * falsche Abrechnung.
  */
 export function Auswahl<T extends string>({

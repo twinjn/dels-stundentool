@@ -1,8 +1,8 @@
 /**
  * Erweitert den Typ von Express' Request um unser eigenes Feld.
  *
- * Ohne das wuesste TypeScript nichts von req.benutzer und wir muessten
- * ueberall mit "as any" arbeiten, also genau die Typsicherheit wegwerfen,
+ * Ohne das wüsste TypeScript nichts von req.benutzer und wir müssten
+ * überall mit "as any" arbeiten, also genau die Typsicherheit wegwerfen,
  * wegen der wir TypeScript benutzen.
  */
 import type { AngemeldeterBenutzer } from "./auth/sitzung.js";

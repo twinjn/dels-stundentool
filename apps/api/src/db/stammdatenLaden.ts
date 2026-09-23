@@ -1,17 +1,17 @@
 /**
  * Spielt die Objektstammdaten und den Kalkulationsmonat Februar 2026 ein.
  *
- *   npm run db:stammdaten            Trockenlauf, zeigt nur was passieren wuerde
+ *   npm run db:stammdaten            Trockenlauf, zeigt nur was passieren würde
  *   npm run db:stammdaten -- --schreiben
  *
  * WOZU: Der Excel-Import aus den Stundendateien legt Objekte nur mit
  * Nummer an, weil dort kein Name steht. In der Kalkulation heissen sie
  * dann "Objekt 10002" und niemand kann eine Zeile zuordnen. Die echten
- * Namen, Adressen und Abo-Betraege stammen aus Kalkulationstabelle_DELS.xlsx
+ * Namen, Adressen und Abo-Beträge stammen aus Kalkulationstabelle_DELS.xlsx
  * und liegen als stammdaten2026.sql daneben.
  *
- * Alles laeuft in EINER Transaktion. Entweder ist am Ende alles da oder
- * gar nichts, ein halb eingespielter Stammdatenstand waere schlimmer als
+ * Alles läuft in EINER Transaktion. Entweder ist am Ende alles da oder
+ * gar nichts, ein halb eingespielter Stammdatenstand wäre schlimmer als
  * keiner.
  */
 import fs from "node:fs";

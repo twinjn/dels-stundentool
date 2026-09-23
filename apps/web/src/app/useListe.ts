@@ -1,7 +1,7 @@
 /**
- * Laedt eine Liste von der API und haelt Ladezustand und Fehler fest.
+ * Laedt eine Liste von der API und hält Ladezustand und Fehler fest.
  *
- * Fast jede Seite braucht genau das. Ohne diesen Haken stuenden in jeder
+ * Fast jede Seite braucht genau das. Ohne diesen Haken stünden in jeder
  * Komponente dieselben drei useState und derselbe useEffect.
  */
 import { useCallback, useEffect, useState } from "react";

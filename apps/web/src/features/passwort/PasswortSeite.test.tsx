@@ -1,16 +1,16 @@
 /**
- * Tests fuer das Passwortaendern.
+ * Tests für das Passwortaendern.
  *
  * Diese Datei existiert wegen eines konkreten Fehlers. Die Seite rief
- * nach dem erfolgreichen Aendern abgemeldet() auf. Der Server hatte die
+ * nach dem erfolgreichen Ändern abgemeldet() auf. Der Server hatte die
  * Sitzung ohnehin schon beendet, also schien das folgerichtig. Sobald
  * der Browserzustand aber auf "nicht angemeldet" sprang, tauschte die
- * Anwendung die ganze Oberflaeche gegen die Anmeldemaske: die
+ * Anwendung die ganze Oberfläche gegen die Anmeldemaske: die
  * Erfolgsmeldung war nie zu sehen, und der Benutzer stand ohne
- * Erklaerung wieder vor dem Anmeldebildschirm.
+ * Erklärung wieder vor dem Anmeldebildschirm.
  *
- * API-Tests waren gruen, Typecheck war gruen, die Funktion war kaputt.
- * Aufgefallen ist es erst beim Durchklicken. Der erste Test hier haelt
+ * API-Tests waren grün, Typecheck war grün, die Funktion war kaputt.
+ * Aufgefallen ist es erst beim Durchklicken. Der erste Test hier hält
  * genau das fest.
  */
 import { screen } from "@testing-library/react";
@@ -68,7 +68,7 @@ describe("Erfolgsfall", () => {
     expect(await screen.findByText(/Das Passwort ist gesetzt/i)).toBeInTheDocument();
 
     /*
-     * Der Kern des Ganzen. Wuerde hier abgemeldet() laufen, verschwaende
+     * Der Kern des Ganzen. Würde hier abgemeldet() laufen, verschwände
      * die Meldung im selben Augenblick, in dem sie erscheint.
      */
     expect(abgemeldet).not.toHaveBeenCalled();
@@ -86,14 +86,14 @@ describe("Erfolgsfall", () => {
   });
 
   test("sagt vorher, dass alle Geräte abgemeldet werden", async () => {
-    // Ohne diesen Hinweis ist das Abmelden auf dem Handy eine boese
-    // Ueberraschung statt einer gewollten Wirkung.
+    // Ohne diesen Hinweis ist das Abmelden auf dem Handy eine böse
+    // Überraschung statt einer gewollten Wirkung.
     rendere();
     expect(screen.getByText(/auf allen Geräten/i)).toBeInTheDocument();
   });
 });
 
-describe("Eingabepruefung im Browser", () => {
+describe("Eingabeprüfung im Browser", () => {
   test("schickt gar nicht erst ab, wenn die Wiederholung abweicht", async () => {
     const senden = vi.spyOn(api, "post").mockResolvedValue({});
     rendere();
@@ -126,7 +126,7 @@ describe("Fehlerfall", () => {
 
     expect(await screen.findByText("Das aktuelle Passwort stimmt nicht.")).toBeInTheDocument();
     // Weder abmelden noch Erfolgsseite: der Benutzer soll es nochmal
-    // versuchen koennen, ohne sich neu anzumelden.
+    // versuchen können, ohne sich neu anzumelden.
     expect(abgemeldet).not.toHaveBeenCalled();
     expect(screen.getByLabelText("Aktuelles Passwort")).toBeInTheDocument();
   });

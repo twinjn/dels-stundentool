@@ -7,7 +7,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    // Das Altsystem lassen wir in Ruhe, es soll unveraendert lauffaehig bleiben.
+    // Das Altsystem lassen wir in Ruhe, es soll unverändert lauffaehig bleiben.
     ignores: ["**/dist/**", "**/node_modules/**", "**/coverage/**", "legacy/**"],
   },
 

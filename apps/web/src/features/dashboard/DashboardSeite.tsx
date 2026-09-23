@@ -3,7 +3,7 @@
  *
  * Die Frage, die diese Seite beantworten soll, ist nicht "wie geht es
  * dir", sondern "was ist diesen Monat erfasst und was fehlt noch". Alle
- * Zahlen kommen aus den Eintraegen, nichts ist geschaetzt oder
+ * Zahlen kommen aus den Einträgen, nichts ist geschätzt oder
  * hochgerechnet. Gerechnet wird im Server, hier wird nur angezeigt.
  */
 import { useEffect, useState } from "react";
@@ -48,10 +48,10 @@ const zahl = (wert: number, stellen = 1): string =>
   wert.toLocaleString("de-CH", { maximumFractionDigits: stellen });
 
 /**
- * Veraenderung gegenueber dem Vormonat.
+ * Veränderung gegenüber dem Vormonat.
  *
  * Der Vergleich ist nur ehrlich, weil der Server im laufenden Monat auch
- * im Vormonat nur bis zum gleichen Tag rechnet. Sonst stuende hier am
+ * im Vormonat nur bis zum gleichen Tag rechnet. Sonst stünde hier am
  * 2. jedes Monats "93 % weniger als im Vormonat".
  */
 function trend(jetzt: number, vorher: number): { text: string; art: string } {
@@ -192,10 +192,10 @@ export function DashboardSeite() {
           .map((p) => `${p.name} (${zahl(p.rest)})`)
           .join(", "),
         // Der Zweck der Meldung steht dran, sonst wirkt sie wie eine
-        // Ruege statt wie eine Planungshilfe.
+        // Rüge statt wie eine Planungshilfe.
         //
         // Und der Vorbehalt kommt mit: die Ferienseite kennzeichnet
-        // Saldi ohne Stichtag sorgfaeltig, und wenn hier dieselbe Zahl
+        // Saldi ohne Stichtag sorgfältig, und wenn hier dieselbe Zahl
         // ohne den Hinweis steht, ist die Sorgfalt dort wertlos.
         hinweis:
           unsicher > 0

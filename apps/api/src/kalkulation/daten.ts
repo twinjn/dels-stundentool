@@ -30,7 +30,7 @@ export function monatsgrenzen(monat: string): { von: string; bis: string } {
 
 /**
  * @param monat "JJJJ-MM-01"
- * @throws wenn fuer den Monat noch keine Kalkulation angelegt ist
+ * @throws wenn für den Monat noch keine Kalkulation angelegt ist
  */
 export async function kalkulationsdaten(monat: string) {
   const [ansaetze] = await db.select().from(kalkMonat).where(eq(kalkMonat.monat, monat));
@@ -86,7 +86,7 @@ export async function kalkulationsdaten(monat: string) {
       .where(eq(kalkAdminkosten.monat, monat))
       .orderBy(asc(kalkAdminkosten.sortierung), asc(kalkAdminkosten.position)),
 
-    // Nur die Arbeitseintraege des Monats: mehr braucht der Rechenkern nicht.
+    // Nur die Arbeitseinträge des Monats: mehr braucht der Rechenkern nicht.
     db
       .select({
         mitarbeiterId: eintraege.mitarbeiterId,

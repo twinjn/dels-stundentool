@@ -1,9 +1,9 @@
 /**
- * Tests fuer die Jahresuebersicht.
+ * Tests für die Jahresuebersicht.
  *
- * Schwerpunkt: dass die Eintraege im richtigen Monat und in der richtigen
+ * Schwerpunkt: dass die Einträge im richtigen Monat und in der richtigen
  * Art landen. Eine Matrix, die Werte um eine Spalte verschiebt, sieht
- * voellig richtig aus, und genau deshalb wird hier auf den Monat genau
+ * völlig richtig aus, und genau deshalb wird hier auf den Monat genau
  * geprueft.
  */
 import { eq, inArray, like } from "drizzle-orm";
@@ -47,7 +47,7 @@ beforeAll(async () => {
   objektId = o!.id;
 
   await db.insert(eintraege).values([
-    // Januar und Dezember: die beiden Raender der Matrix.
+    // Januar und Dezember: die beiden Ränder der Matrix.
     { mitarbeiterId: aktivId, objektId, datum: `${JAHR}-01-15`, art: "arbeit", wert: "7.00" },
     { mitarbeiterId: aktivId, objektId, datum: `${JAHR}-12-31`, art: "arbeit", wert: "3.00" },
     { mitarbeiterId: aktivId, objektId, datum: `${JAHR}-06-10`, art: "arbeit", wert: "5.50" },
@@ -133,7 +133,7 @@ describe("Matrix", () => {
   test("ein Eintrag im Folgejahr zählt nicht mit", async () => {
     const daten = await holeJahr();
     const person = daten.mitarbeiter.find((p) => p.name === `${marke} Aktiv`)!;
-    // 99 Stunden am 2. Januar des Folgejahres duerfen nirgends auftauchen.
+    // 99 Stunden am 2. Januar des Folgejahres dürfen nirgends auftauchen.
     expect(person.jahr.arbeit).toBeCloseTo(15.5, 6);
 
     const naechstes = await holeJahr(JAHR + 1);
@@ -190,7 +190,7 @@ describe("Export", () => {
       "Sonstiges",
       "Ferien Anspruch",
     ]);
-    // Keine automatisch angehaengte 2: die Namen sind von sich aus eindeutig.
+    // Keine automatisch angehängte 2: die Namen sind von sich aus eindeutig.
     expect(mappe.SheetNames.some((n) => /\s\d$/.test(n))).toBe(false);
   });
 
@@ -213,7 +213,7 @@ describe("Export", () => {
     expect(zeile[14]).toBe(person.jahr.arbeit); // Total
   });
 
-  test("Blaetter ohne Einträge bleiben leer statt voller Nullen", async () => {
+  test("Blätter ohne Einträge bleiben leer statt voller Nullen", async () => {
     const klient = await anmelden(app, MAIL);
     const antwort = await klient.get(`/api/export/uebersicht?jahr=${JAHR}`).responseType("blob");
     const mappe = XLSX.read(antwort.body, { type: "buffer" });

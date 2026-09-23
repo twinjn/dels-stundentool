@@ -1,9 +1,9 @@
 /**
  * Ein einziger Ort, an dem der Browser mit der API redet.
  *
- * Warum kein nacktes fetch() ueberall: fetch wirft bei einem 500er keinen
+ * Warum kein nacktes fetch() überall: fetch wirft bei einem 500er keinen
  * Fehler, es liefert einfach eine Antwort mit Status 500. Wer das vergisst,
- * arbeitet froehlich mit einer Fehlermeldung weiter, als waeren es Daten.
+ * arbeitet fröhlich mit einer Fehlermeldung weiter, als wären es Daten.
  * Dieser Wrapper macht daraus einen echten Fehler, den man fangen muss.
  */
 
@@ -38,7 +38,7 @@ async function anfrage<T>(pfad: string, optionen: RequestInit = {}): Promise<T> 
   try {
     antwort = await fetch(`${BASIS}/api${pfad}`, {
       ...optionen,
-      // Sorgt dafuer, dass das Session-Cookie mitgeschickt wird.
+      // Sorgt dafür, dass das Session-Cookie mitgeschickt wird.
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -62,8 +62,8 @@ async function anfrage<T>(pfad: string, optionen: RequestInit = {}): Promise<T> 
   if (!antwort.ok) {
     // 502, 503 und 504 heissen: zwischen Browser und API steht etwas, aber
     // die API selbst antwortet nicht. Beim Entwickeln ist das der
-    // Vite-Proxy, spaeter waere es der Webserver vor der Anwendung.
-    // Fuer den Benutzer ist die Zahl bedeutungslos, die Ursache nicht.
+    // Vite-Proxy, später wäre es der Webserver vor der Anwendung.
+    // Für den Benutzer ist die Zahl bedeutungslos, die Ursache nicht.
     if (antwort.status === 502 || antwort.status === 503 || antwort.status === 504) {
       throw new ApiFehler(
         antwort.status,
@@ -90,7 +90,7 @@ async function anfrage<T>(pfad: string, optionen: RequestInit = {}): Promise<T> 
  * Warum nicht einfach ein <a href="/api/export/...">? Weil ein Link bei
  * einem Fehler die rohe JSON-Antwort des Servers im Browserfenster
  * anzeigt ("keinZugriff: Für kalkulation:lesen fehlt..."). So bekommt
- * der Benutzer dieselbe Fehlermeldung wie ueberall sonst.
+ * der Benutzer dieselbe Fehlermeldung wie überall sonst.
  *
  * Der Dateiname kommt aus dem Content-Disposition-Kopf, damit ihn der
  * Server bestimmt und nicht zwei Stellen ihn getrennt zusammenbauen.
@@ -129,8 +129,8 @@ async function datei(pfad: string): Promise<void> {
   link.click();
   link.remove();
 
-  // Ohne das haelt der Browser den Speicher fuer die Datei bis zum
-  // Neuladen der Seite fest. Bei einem 5-MB-Export pro Monat faellt das
+  // Ohne das hält der Browser den Speicher für die Datei bis zum
+  // Neuladen der Seite fest. Bei einem 5-MB-Export pro Monat fällt das
   // nicht auf, bei zwanzig Klicks schon.
   URL.revokeObjectURL(adresse);
 }

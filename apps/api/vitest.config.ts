@@ -8,7 +8,7 @@ const hier = path.dirname(fileURLToPath(import.meta.url));
  * Tests laufen gegen eine EIGENE Datenbank.
  *
  * Steht TEST_DATABASE_URL in der .env, wird sie hier vor allen anderen
- * Modulen gesetzt und ueberschreibt DATABASE_URL fuer diesen Lauf. So
+ * Modulen gesetzt und überschreibt DATABASE_URL für diesen Lauf. So
  * muss niemand daran denken, vor jedem Testlauf etwas umzustellen, und
  * die Entwicklungsdaten bleiben unberuehrt.
  *
@@ -30,8 +30,8 @@ export default defineConfig({
     /**
      * Testdateien laufen nacheinander, nicht parallel.
      *
-     * Grund: alle teilen sich EINE Datenbank. Parallel wuerde eine Datei
-     * Zeilen anlegen, zaehlen oder aufraeumen, waehrend eine andere
+     * Grund: alle teilen sich EINE Datenbank. Parallel würde eine Datei
+     * Zeilen anlegen, zählen oder aufräumen, während eine andere
      * dasselbe tut. Solche Tests schlagen dann mal fehl und mal nicht,
      * je nach Laune des Rechners, und niemand findet die Ursache.
      */

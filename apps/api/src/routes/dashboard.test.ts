@@ -1,7 +1,7 @@
 /**
- * Tests fuer die Startseite.
+ * Tests für die Startseite.
  *
- * Der wichtigste Test ist der auf die Zeitraeume: ohne den gleichen
+ * Der wichtigste Test ist der auf die Zeiträume: ohne den gleichen
  * Stichtag im Vormonat meldet die Seite am 2. jedes Monats einen
  * Einbruch von 90 Prozent, und dann glaubt ihr der Zahl zu Recht nicht
  * mehr.
@@ -76,7 +76,7 @@ beforeAll(async () => {
       art: "krankheit",
       wert: "1.00",
     },
-    // Im Vormonat, fuer den Vergleich.
+    // Im Vormonat, für den Vergleich.
     { mitarbeiterId: personId, objektId, datum: "2034-02-05", art: "arbeit", wert: "10.00" },
     // Drei Ferientage bei zwei Tagen Anspruch.
     { mitarbeiterId: zweiteId, objektId: null, datum: `${MONAT}-11`, art: "ferien", wert: "3.00" },
@@ -94,7 +94,7 @@ afterAll(async () => {
   await datenbankSchliessen();
 });
 
-describe("Zeitraeume", () => {
+describe("Zeiträume", () => {
   test("im laufenden Monat wird bis heute gerechnet, im Vormonat bis zum gleichen Tag", () => {
     const z = zeitraeume("2026-09", "2026-09-21");
     expect(z.laufend).toBe(true);
@@ -163,7 +163,7 @@ describe("Zahlen", () => {
     const klient = await anmelden(app, ADMIN);
     const { body } = await klient.get(`/api/dashboard?monat=${MONAT}`);
 
-    // Zwei Tage Anspruch, drei bezogen, kein Uebertrag: minus einer.
+    // Zwei Tage Anspruch, drei bezogen, kein Übertrag: minus einer.
     const treffer = body.offen.ferienMinus.find(
       (p: { name: string }) => p.name === `${marke} Faellt auf`,
     );
@@ -200,11 +200,11 @@ describe("Rechte", () => {
     expect(Array.isArray(body.offen.ohneStundenlohn)).toBe(true);
     const namen = body.offen.ohneStundenlohn.map((p: { name: string }) => p.name);
     expect(namen).toContain(`${marke} Ohne Lohn`);
-    // Hat einen Stundenlohn, gehoert also nicht auf die Liste.
+    // Hat einen Stundenlohn, gehört also nicht auf die Liste.
     expect(namen).not.toContain(`${marke} Arbeitet`);
     // Monatslohn: dort ist ein fehlender Stundenlohn kein Mangel,
-    // sondern der Normalfall. Frueher stand diese Gruppe faelschlich
-    // mit drauf, weil gegen den Freitext "mitarbeiterstufe" geprueft
+    // sondern der Normalfall. Früher stand diese Gruppe fälschlich
+    // mit drauf, weil gegen den Freitext "mitarbeiterstufe" geprüft
     // wurde und der bei den Testdaten leer war.
     expect(namen).not.toContain(`${marke} Monatslohn`);
   });
@@ -228,8 +228,8 @@ describe("Eingaben", () => {
 describe("Erinnerung an offene Ferientage", () => {
   test("schweigt vor Oktober", async () => {
     const klient = await anmelden(app, ADMIN);
-    // MONAT ist der Maerz. Im Fruehling hat fast jeder fast alles offen,
-    // eine Warnung waere hier reines Rauschen.
+    // MONAT ist der Maerz. Im Frühling hat fast jeder fast alles offen,
+    // eine Warnung wäre hier reines Rauschen.
     const { body } = await klient.get(`/api/dashboard?monat=${MONAT}`);
     expect(body.offen.ferienOffen).toBeNull();
   });
@@ -244,7 +244,7 @@ describe("Erinnerung an offene Ferientage", () => {
     // Monatslohn, 25 Tage Anspruch, nichts bezogen: 25 offen.
     expect(zeilen.find((z) => z.name === `${marke} Monatslohn`)?.rest).toBe(25);
 
-    // Wer im Stundenlohn ist, gehoert nicht auf diese Liste: dort sind
+    // Wer im Stundenlohn ist, gehört nicht auf diese Liste: dort sind
     // die Ferien mit jedem Lohn schon ausbezahlt.
     expect(zeilen.some((z) => z.name === `${marke} Arbeitet`)).toBe(false);
   });

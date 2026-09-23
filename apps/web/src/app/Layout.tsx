@@ -1,8 +1,8 @@
 /**
  * Rahmen der Anwendung: Seitenleiste mit Navigation, Kopfzeile, Inhalt.
  *
- * Was in der Navigation steht, haengt an den Rechten. Zur Erinnerung:
- * das ist Aufraeumen, keine Sicherheit. Wer /benutzer von Hand eintippt,
+ * Was in der Navigation steht, hängt an den Rechten. Zur Erinnerung:
+ * das ist Aufräumen, keine Sicherheit. Wer /benutzer von Hand eintippt,
  * sieht die Seite, aber die API liefert ihm nichts.
  */
 import { NavLink, Outlet } from "react-router-dom";
@@ -41,7 +41,7 @@ export function Layout() {
             <NavLink
               key={eintrag.pfad}
               to={eintrag.pfad}
-              // Ohne "end" waere "/" auf jeder Unterseite als aktiv markiert,
+              // Ohne "end" wäre "/" auf jeder Unterseite als aktiv markiert,
               // weil jeder Pfad mit "/" anfaengt.
               end={eintrag.pfad === "/"}
               className={({ isActive }) => (isActive ? "navlink aktiv" : "navlink")}

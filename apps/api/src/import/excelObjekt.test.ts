@@ -1,9 +1,9 @@
 /**
- * Tests fuer den Import der Objektdateien.
+ * Tests für den Import der Objektdateien.
  *
  * Wieder mit einer selbst gebauten Mappe im echten Format: die
- * Vorlagendatei, die zum Pruefen vorlag, war komplett leer, und echte
- * Objektdateien gehoeren nicht ins Repository.
+ * Vorlagendatei, die zum Prüfen vorlag, war komplett leer, und echte
+ * Objektdateien gehören nicht ins Repository.
  */
 import XLSX from "xlsx";
 import { describe, expect, test } from "vitest";
@@ -123,7 +123,7 @@ describe("Objektdatei lesen", () => {
 describe("Mehrere Objektdateien zusammenfuehren", () => {
   test("Ferien derselben Person zählen einmal, nicht je Datei", () => {
     // Der entscheidende Fall: wer auf drei Objekten arbeitet, hat seine
-    // Ferien in drei Dateien stehen. Ohne Entdopplung waeren das drei Tage.
+    // Ferien in drei Dateien stehen. Ohne Entdopplung wären das drei Tage.
     const ausDrei = ["10002", "10003", "10004"].map((nr) => {
       const mappe = baueObjektmappe([person("1010", "Person", { 5: "F" })], nr);
       return leseObjektblatt(mappe, "Februar", 2026).eintraege;
@@ -146,7 +146,7 @@ describe("Mehrere Objektdateien zusammenfuehren", () => {
     expect(summenNachrechnen(eintraege).get("1010|2026-02")?.arbeit).toBe(8);
   });
 
-  test("widerspruechliche Kuerzel in zwei Dateien werden gemeldet", () => {
+  test("widerspruechliche Kürzel in zwei Dateien werden gemeldet", () => {
     const a = leseObjektblatt(
       baueObjektmappe([person("1010", "Person", { 5: "F" })], "10002"),
       "Februar",
@@ -164,7 +164,7 @@ describe("Mehrere Objektdateien zusammenfuehren", () => {
   });
 
   test('"Frei" auf zwei Objekten bleibt zweimal stehen', () => {
-    // Es gehoert zum Objekt, nicht zur Person, also ist das kein Doppel.
+    // Es gehört zum Objekt, nicht zur Person, also ist das kein Doppel.
     const ausZwei = ["10002", "10003"].map(
       (nr) =>
         leseObjektblatt(baueObjektmappe([person("1010", "P", { 5: "Fr" })], nr), "Februar", 2026)

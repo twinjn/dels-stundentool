@@ -2,9 +2,9 @@
  * Rollen und Rechte.
  *
  * Warum das hier im gemeinsamen Paket liegt und nicht in der API:
- * Server und Browser muessen dieselbe Vorstellung davon haben, wer was darf.
- * Der Server, weil er es durchsetzt. Der Browser, weil er Knoepfe ausblendet,
- * die der Benutzer ohnehin nicht druecken darf.
+ * Server und Browser müssen dieselbe Vorstellung davon haben, wer was darf.
+ * Der Server, weil er es durchsetzt. Der Browser, weil er Knöpfe ausblendet,
+ * die der Benutzer ohnehin nicht drücken darf.
  *
  * WICHTIG: Das Ausblenden im Browser ist KEINE Sicherheit. Wer die Seite
  * kennt, schickt die Anfrage auch ohne Knopf. Sicherheit entsteht
@@ -28,8 +28,8 @@ export const RECHTE = [
 export type Recht = (typeof RECHTE)[number];
 
 /**
- * Wer darf was. Buero deckt den Alltag ab: Stunden und Stammdaten.
- * Loehne, Kalkulation und Benutzerverwaltung bleiben beim Admin.
+ * Wer darf was. Büro deckt den Alltag ab: Stunden und Stammdaten.
+ * Löhne, Kalkulation und Benutzerverwaltung bleiben beim Admin.
  */
 const RECHTE_JE_ROLLE: Record<Rolle, readonly Recht[]> = {
   admin: RECHTE,
@@ -44,7 +44,7 @@ export function rechteVon(rolle: Rolle): readonly Recht[] {
   return RECHTE_JE_ROLLE[rolle];
 }
 
-/** Prueft zur Laufzeit, ob ein unbekannter Wert eine gueltige Rolle ist. */
+/** Prüft zur Laufzeit, ob ein unbekannter Wert eine gültige Rolle ist. */
 export function istRolle(wert: unknown): wert is Rolle {
   return typeof wert === "string" && (ROLLEN as readonly string[]).includes(wert);
 }

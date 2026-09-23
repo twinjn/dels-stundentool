@@ -1,9 +1,9 @@
 /**
- * Laeuft vor jeder Testdatei der Oberflaeche.
+ * Läuft vor jeder Testdatei der Oberflaeche.
  *
- * Zwei Aufgaben: die zusaetzlichen Vergleiche von jest-dom anmelden
+ * Zwei Aufgaben: die zusätzlichen Vergleiche von jest-dom anmelden
  * (toBeInTheDocument, toBeDisabled und so weiter), und nach jedem Test
- * aufraeumen, damit die naechste Pruefung nicht Reste der vorherigen
+ * aufräumen, damit die nächste Prüfung nicht Reste der vorherigen
  * im Dokument findet.
  */
 import "@testing-library/jest-dom/vitest";

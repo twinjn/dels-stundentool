@@ -1,6 +1,6 @@
 /**
- * Tests fuer das Protokoll.
- * Schwerpunkt: es ist admin-Sache, und es laesst sich nicht veraendern.
+ * Tests für das Protokoll.
+ * Schwerpunkt: es ist admin-Sache, und es lässt sich nicht veraendern.
  */
 import { inArray, like } from "drizzle-orm";
 import request from "supertest";
@@ -84,7 +84,7 @@ describe("Inhalt", () => {
     const ersteId = body.zeilen[0]?.id;
     expect(ersteId).toBeDefined();
 
-    // Ein Protokoll, das sich bereinigen laesst, ist wertlos.
+    // Ein Protokoll, das sich bereinigen lässt, ist wertlos.
     expect((await klient.delete(`/api/protokoll/${ersteId}`)).status).toBe(404);
     expect((await klient.patch(`/api/protokoll/${ersteId}`).send({ aktion: "x" })).status).toBe(
       404,

@@ -30,8 +30,8 @@ describe("Rollen und Rechte", () => {
   });
 
   test("jede Rolle ist in der Rechtetabelle hinterlegt", () => {
-    // Faengt den Fall ab, dass jemand eine Rolle ergaenzt und die
-    // Rechte dazu vergisst. Dann waere hatRecht() undefined-Zugriff.
+    // Fängt den Fall ab, dass jemand eine Rolle ergänzt und die
+    // Rechte dazu vergisst. Dann wäre hatRecht() undefined-Zugriff.
     for (const rolle of ROLLEN) {
       expect(() => hatRecht(rolle, "stunden:lesen")).not.toThrow();
     }

@@ -8,13 +8,13 @@
  * ZWEI WELTEN, und das ist der Kern:
  *
  *   Monatslohn   Ferien sind Tage. Anspruch, Bezug, Rest, und der Rest
- *                laeuft ins naechste Jahr.
+ *                läuft ins nächste Jahr.
  *   Stundenlohn  Ferien sind Geld. Der Anspruch wird als Zuschlag auf
  *                den Stundenlohn ausbezahlt. Einen Saldo in Tagen gibt
- *                es nicht, und einer waere auch falsch: die Ferien sind
+ *                es nicht, und einer wäre auch falsch: die Ferien sind
  *                mit jedem Lohn schon bezahlt.
  *
- * Wer beide Gruppen ueber einen Kamm schert, zeigt der halben Belegschaft
+ * Wer beide Gruppen über einen Kamm schert, zeigt der halben Belegschaft
  * eine Zahl, die es nicht gibt.
  */
 
@@ -24,10 +24,10 @@ export type Datumstext = string;
 /**
  * Tagesnummer seit 1970, aus einem Datumstext.
  *
- * Bewusst ueber Date.UTC und nicht ueber new Date("2026-03-01"): der
- * zweite Weg ist zwar auch UTC, aber sobald jemand spaeter eine Uhrzeit
- * anhaengt, kippt die Auswertung in die Ortszeit und ein Datum rutscht
- * um einen Tag. Das faellt erst im Winter auf, oder nie.
+ * Bewusst über Date.UTC und nicht über new Date("2026-03-01"): der
+ * zweite Weg ist zwar auch UTC, aber sobald jemand später eine Uhrzeit
+ * anhängt, kippt die Auswertung in die Ortszeit und ein Datum rutscht
+ * um einen Tag. Das fällt erst im Winter auf, oder nie.
  */
 function tagesnummer(text: Datumstext): number {
   const [jahr, monat, tag] = text.split("-").map(Number);
@@ -38,7 +38,7 @@ function istSchaltjahr(jahr: number): boolean {
   return (jahr % 4 === 0 && jahr % 100 !== 0) || jahr % 400 === 0;
 }
 
-/** Auf halbe Tage. Ferien werden halbtagsweise gewaehrt, nicht in Minuten. */
+/** Auf halbe Tage. Ferien werden halbtagsweise gewährt, nicht in Minuten. */
 function aufHalbe(wert: number): number {
   return Math.round(wert * 2) / 2;
 }
@@ -46,15 +46,15 @@ function aufHalbe(wert: number): number {
 /**
  * Jahresanspruch in Tagen, anteilig bei Ein- oder Austritt mitten im Jahr.
  *
- * Gerechnet wird ueber Kalendertage, nicht ueber Monate. Das Ergebnis ist
+ * Gerechnet wird über Kalendertage, nicht über Monate. Das Ergebnis ist
  * dasselbe (Eintritt am 1. Juli, 25 Tage Anspruch, gibt 12.5), aber es
- * braucht keine Regel fuer den angebrochenen Monat. "Zaehlt der 20. Maerz
+ * braucht keine Regel für den angebrochenen Monat. "Zählt der 20. März
  * als ganzer Monat?" ist eine Frage, die man sich so gar nicht erst
  * stellen muss.
  *
- * Nach Arbeitstagen zu rechnen waere der naechste Schritt und lohnt sich
+ * Nach Arbeitstagen zu rechnen wäre der nächste Schritt und lohnt sich
  * nicht: der Unterschied liegt bei einem halben Tag, der Aufwand bei
- * Pensen, Feiertagen und unregelmaessigen Einsaetzen bei einem
+ * Pensen, Feiertagen und unregelmässigen Einsätzen bei einem
  * Vielfachen davon.
  */
 export function jahresanspruch(
@@ -84,26 +84,26 @@ export function jahresanspruch(
  * Ferienzuschlag auf den Stundenlohn, als Anteil (0.10638 = 10.638 %).
  *
  * Die Formel ist Ferienwochen geteilt durch Arbeitswochen, nicht durch
- * 52. Wer fuenf Wochen Ferien hat, arbeitet 47 Wochen und muss in diesen
- * 47 Wochen auch die fuenf mitverdienen: 5/47 = 10.638 %. Mit 5/52
- * kaeme 9.6 % heraus, und das ist der Klassiker unter den zu tief
+ * 52. Wer fünf Wochen Ferien hat, arbeitet 47 Wochen und muss in diesen
+ * 47 Wochen auch die fünf mitverdienen: 5/47 = 10.638 %. Mit 5/52
+ * käme 9.6 % heraus, und das ist der Klassiker unter den zu tief
  * abgerechneten Ferienzuschlaegen.
  *
- * Die ueblichen Werte: 4 Wochen = 8.333 %, 5 Wochen = 10.638 %,
+ * Die üblichen Werte: 4 Wochen = 8.333 %, 5 Wochen = 10.638 %,
  * 6 Wochen = 13.043 %.
  */
 export function ferienzuschlag(anspruchTage: number): { wochen: number; anteil: number } {
   const wochen = anspruchTage / 5;
 
   // Ohne Anspruch kein Zuschlag, und 52 Wochen Ferien sind kein
-  // Sonderfall, sondern ein Tippfehler. Beides faengt der Nenner ab.
+  // Sonderfall, sondern ein Tippfehler. Beides fängt der Nenner ab.
   if (wochen <= 0 || wochen >= 52) return { wochen, anteil: 0 };
 
   return { wochen, anteil: wochen / (52 - wochen) };
 }
 
 /**
- * Ferienentschaedigung in Rappen.
+ * Ferienentschädigung in Rappen.
  *
  * In ganzen Rappen gerechnet und nicht in Franken als Gleitkommazahl.
  * Das ist derselbe Grund wie beim numeric in der Datenbank: dieser

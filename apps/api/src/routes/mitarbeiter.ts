@@ -1,12 +1,12 @@
 /**
  * Mitarbeiter-Stammdaten.
  *
- * Besonderheit: Lohnfelder sind nicht fuer alle sichtbar. Wer das Recht
+ * Besonderheit: Lohnfelder sind nicht für alle sichtbar. Wer das Recht
  * "loehne:lesen" nicht hat, bekommt sie gar nicht erst geschickt.
  *
- * Wichtig ist das WO: gefiltert wird hier, im Server. Es waere verlockend,
+ * Wichtig ist das WO: gefiltert wird hier, im Server. Es wäre verlockend,
  * alle Felder zu schicken und im Browser die Spalte auszublenden. Dann
- * staenden die Loehne aber trotzdem in der Antwort und jeder koennte sie
+ * ständen die Löhne aber trotzdem in der Antwort und jeder könnte sie
  * im Entwicklerwerkzeug seines Browsers lesen.
  */
 import {
@@ -72,7 +72,7 @@ function spaltenFuer(rolle: Rolle) {
 }
 
 /**
- * Wer keine Loehne sehen darf, darf sie auch nicht setzen.
+ * Wer keine Löhne sehen darf, darf sie auch nicht setzen.
  * Bewusst ein Fehler statt stillem Weglassen: sonst klickt jemand
  * "Speichern", bekommt "gespeichert" zu sehen, und der Wert ist nicht da.
  */
@@ -156,11 +156,11 @@ mitarbeiterRouter.patch("/:id", brauchtRecht("stammdaten:schreiben"), async (req
 });
 
 /**
- * Loeschen geht nur, solange nichts daran haengt.
+ * Löschen geht nur, solange nichts daran haengt.
  *
  * Sobald Stunden oder Kalkulationszeilen vorliegen, verweigert schon die
- * Datenbank das Loeschen (Fremdschluessel auf RESTRICT). Wir fangen das
- * vorher ab, um eine verstaendliche Meldung zu geben statt eines
+ * Datenbank das Löschen (Fremdschlüssel auf RESTRICT). Wir fangen das
+ * vorher ab, um eine verständliche Meldung zu geben statt eines
  * Datenbankfehlers, und weisen auf den richtigen Weg hin: stilllegen.
  */
 mitarbeiterRouter.delete("/:id", brauchtRecht("stammdaten:schreiben"), async (req, res) => {

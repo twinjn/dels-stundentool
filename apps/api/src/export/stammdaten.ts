@@ -2,13 +2,13 @@
  * Mitarbeiter und Objekte als Excel-Arbeitsmappe.
  *
  * WICHTIG, und der Grund, warum hier eine Rolle hineingereicht wird:
- * Stundenlohn und Monatslohn duerfen nur mit dem Recht "loehne:lesen"
+ * Stundenlohn und Monatslohn dürfen nur mit dem Recht "loehne:lesen"
  * hinaus. Ein Export ist keine Ausnahme von den Rechten, er ist die
- * gefaehrlichste Stelle dafuer: eine Datei wandert per Mail weiter,
- * waehrend eine Bildschirmansicht im Programm bleibt.
+ * gefährlichste Stelle dafür: eine Datei wandert per Mail weiter,
+ * während eine Bildschirmansicht im Programm bleibt.
  *
- * AHV-Nummer und IBAN sind fuer beide Rollen sichtbar, so wie am
- * Bildschirm auch. Das war ein ausdruecklicher Entscheid.
+ * AHV-Nummer und IBAN sind für beide Rollen sichtbar, so wie am
+ * Bildschirm auch. Das war ein ausdrücklicher Entscheid.
  */
 import { hatRecht, type Rolle } from "@dels/shared";
 import { asc, sql } from "drizzle-orm";

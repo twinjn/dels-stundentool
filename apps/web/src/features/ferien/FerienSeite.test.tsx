@@ -1,16 +1,16 @@
 /**
  * Tests der Ferienseite.
  *
- * Geprueft wird nicht, ob die Rechnung stimmt, das machen die Tests in
+ * Geprüft wird nicht, ob die Rechnung stimmt, das machen die Tests in
  * der API. Hier geht es darum, was die Seite aus einer Antwort MACHT:
  *
- *   - Zeigt sie einem Buero-Benutzer wirklich keine Frankenbetraege?
- *   - Nimmt sie eine hochgerechnete Zahl optisch zurueck, oder steht
+ *   - Zeigt sie einem Büro-Benutzer wirklich keine Frankenbeträge?
+ *   - Nimmt sie eine hochgerechnete Zahl optisch zurück, oder steht
  *     sie fett da wie eine Tatsache?
  *   - Kommt bei einer abgelehnten Eingabe die konkrete Feldmeldung an
  *     oder nur ein nichtssagendes "Eingabe ist ungültig"?
  *
- * Alle drei sind Fehler, die gruene API-Tests nicht bemerken.
+ * Alle drei sind Fehler, die grüne API-Tests nicht bemerken.
  */
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -76,7 +76,7 @@ describe("Trennung nach Lohnart", () => {
     await screen.findByRole("heading", { name: "Stundenlohn" });
 
     // Der Satz ist keine Deko. Ohne ihn sucht jemand den Restsaldo und
-    // haelt sein Fehlen fuer einen Fehler im Tool.
+    // hält sein Fehlen für einen Fehler im Tool.
     expect(screen.getByText(/keinen Saldo in Tagen/i)).toBeInTheDocument();
   });
 });
@@ -92,7 +92,7 @@ describe("Lohndaten", () => {
 
   test("Büro sieht die Frankenspalten gar nicht erst", async () => {
     /*
-     * Der Server schickt fuer diese Rolle basis und entschaedigung als
+     * Der Server schickt für diese Rolle basis und entschaedigung als
      * null. Die Seite darf daraus kein "0.00" machen: ein Betrag von
      * null Franken ist eine Aussage, "du siehst das nicht" ist eine
      * andere.
@@ -153,9 +153,9 @@ describe("Hochgerechneter Saldo", () => {
 describe("Übertrag von Hand", () => {
   test("Büro sieht keinen Übertrag-Knopf", async () => {
     // Die Rolle darf Stammdaten schreiben, also SIEHT sie ihn. Dieser
-    // Test haelt fest, dass die Sichtbarkeit am Recht haengt und nicht
-    // an der Rolle, damit ein spaeteres Umhaengen der Rechte hier
-    // auffaellt statt im Betrieb.
+    // Test hält fest, dass die Sichtbarkeit am Recht hängt und nicht
+    // an der Rolle, damit ein späteres Umhängen der Rechte hier
+    // auffällt statt im Betrieb.
     rendereAngemeldet(<FerienSeite />, "buero");
     await screen.findByRole("heading", { name: "Monatslohn" });
     expect(screen.getByRole("button", { name: "Übertrag" })).toBeInTheDocument();
@@ -202,8 +202,8 @@ describe("Übertrag von Hand", () => {
     await benutzerIn.type(screen.getByLabelText(/Begründung/), "Rest gestrichen, so vereinbart.");
     await benutzerIn.click(screen.getByRole("button", { name: "Speichern" }));
 
-    // Ohne das Nachladen stuende in der Tabelle weiter der alte Rest,
-    // und der Benutzer haette keinen Hinweis, dass sein Eintrag wirkt.
+    // Ohne das Nachladen stünde in der Tabelle weiter der alte Rest,
+    // und der Benutzer hätte keinen Hinweis, dass sein Eintrag wirkt.
     await waitFor(() => expect(holen).toHaveBeenCalledTimes(2));
   });
 });
@@ -219,7 +219,7 @@ describe("Suche", () => {
     expect(screen.queryByText("Anna Monat")).not.toBeInTheDocument();
     expect(screen.getByText("Beat Stunde")).toBeInTheDocument();
     // Der Abschnitt bleibt stehen und sagt, dass er leer ist. Ihn
-    // auszublenden waere verwirrender: dann sieht es aus, als gaebe es
+    // auszublenden wäre verwirrender: dann sieht es aus, als gäbe es
     // gar keine Monatsloehner.
     const monatslohn = screen.getByRole("heading", { name: "Monatslohn" }).closest("section")!;
     expect(within(monatslohn).getByText("Niemand im Monatslohn.")).toBeInTheDocument();

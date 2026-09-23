@@ -3,7 +3,7 @@
  *
  * Warum nicht direkt gegen die echte Quelle: ein Migrationsskript probiert
  * man nicht zum ersten Mal an Produktivdaten aus. Hier liegen erfundene
- * Daten mit genau den Eigenschaften, die schiefgehen koennten:
+ * Daten mit genau den Eigenschaften, die schiefgehen könnten:
  * sechsstellige Nachkommazahlen, Datumswerte und umbenannte Spalten.
  */
 import type pg from "pg";
@@ -35,7 +35,7 @@ async function raeumeZielAuf() {
 }
 
 beforeAll(async () => {
-  // Ueber erstellePool, damit die Datumseinstellung sicher greift.
+  // Über erstellePool, damit die Datumseinstellung sicher greift.
   quelle = erstellePool(config.DATABASE_URL);
   ziel = erstellePool(config.DATABASE_URL);
 
@@ -183,7 +183,7 @@ describe("Import aus dem Altsystem", () => {
   });
 
   test("bricht vollständig ab, wenn eine Tabelle Mist enthält", async () => {
-    // Zweiter Durchlauf mit derselben ID: der Primaerschluessel muss
+    // Zweiter Durchlauf mit derselben ID: der Primärschlüssel muss
     // zuschlagen. Wichtig ist, dass dabei NICHTS halb importiert bleibt.
     await expect(importiere(quelle, ziel, { quellSchema: SCHEMA })).rejects.toThrow();
 

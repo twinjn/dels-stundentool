@@ -1,15 +1,15 @@
 /**
- * Kalkulation: Ansaetze, Objekte und Personal je Monat.
+ * Kalkulation: Ansätze, Objekte und Personal je Monat.
  *
  * Gerechnet wird NICHT hier, sondern mit rechne() aus @dels/shared.
  * Diese Route liefert die Eingangsdaten, der Browser rechnet damit
- * sofort, waehrend jemand an einem Ansatz dreht. Dieselbe Funktion
- * benutzt spaeter der Export auf dem Server. Eine Rechenlogik, zwei
+ * sofort, während jemand an einem Ansatz dreht. Dieselbe Funktion
+ * benutzt später der Export auf dem Server. Eine Rechenlogik, zwei
  * Verwendungen, keine zweite Fassung, die auseinanderlaufen kann.
  *
  * Der Monat ist immer der erste Tag des Monats. Pro Monat werden die
- * damals gueltigen Ansaetze festgehalten, sonst rechnet man alte Monate
- * mit heutigen Saetzen nach. Genau dieser Fehler steckte im Excel.
+ * damals gültigen Ansätze festgehalten, sonst rechnet man alte Monate
+ * mit heutigen Sätzen nach. Genau dieser Fehler steckte im Excel.
  */
 import { and, desc, eq, lt } from "drizzle-orm";
 import { Router } from "express";
@@ -56,7 +56,7 @@ kalkulationRouter.get("/:monat", async (req, res) => {
 /**
  * Einen Monat anlegen.
  *
- * Vorlage ist der zuletzt angelegte Monat: Ansaetze, Objektzeilen,
+ * Vorlage ist der zuletzt angelegte Monat: Ansätze, Objektzeilen,
  * Personalzeilen und Adminposten werden uebernommen. Gibt es noch keinen,
  * kommen die Standardwerte aus der Tabelle und alle aktiven Objekte.
  */
@@ -115,7 +115,7 @@ kalkulationRouter.post("/:monat", brauchtRecht("kalkulation:schreiben"), async (
       };
     }
 
-    // Kein Vormonat: Standardansaetze und alle aktiven Objekte.
+    // Kein Vormonat: Standardansätze und alle aktiven Objekte.
     await tx.insert(kalkMonat).values({ monat });
 
     const aktive = await db
@@ -145,7 +145,7 @@ kalkulationRouter.post("/:monat", brauchtRecht("kalkulation:schreiben"), async (
   res.status(201).json({ monat, ...angelegt });
 });
 
-/** Die Ansaetze eines Monats aendern. */
+/** Die Ansätze eines Monats aendern. */
 const AnsaetzeSchema = zod
   .object({
     ahv: zod.union([zod.string(), zod.number()]),
@@ -285,7 +285,7 @@ kalkulationRouter.patch(
   },
 );
 
-/** Adminposten anlegen, aendern, loeschen. */
+/** Adminposten anlegen, ändern, loeschen. */
 const PostenSchema = zod.object({
   position: zod.string().trim().min(1, "Bezeichnung fehlt.").max(120),
   betrag: zod.union([zod.string(), zod.number()]),

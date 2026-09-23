@@ -8,19 +8,19 @@
  *   Zeile 5:  A=ZCode B=Z C=PerNr. D=Name/Objekt E=Obj.Nr. F=Pos. G=KA
  *             ab Spalte I die Tagesdaten, dahinter die Summen
  *             AN=Arbeit AO=Ferien AP=Krank AQ=Unfall AR=Sonst AS=Spesen
- *   Zeile 6+: Bloecke je Person
+ *   Zeile 6+: Blöcke je Person
  *             ZCode 1 = Summenzeile der Person (Name in D)
  *             ZCode 2 = je eine Zeile pro Objekt (Obj.Nr. in E)
  *
- * ZWEI FALLEN, die ein naiver Import uebersieht:
+ * ZWEI FALLEN, die ein naiver Import übersieht:
  *
  * 1. Abwesenheiten stehen auf JEDER Objektzeile einer Person, an denselben
- *    Tagen. Wer zwei Objekte hat, hat das "F" zweimal dastehen. Excel zaehlt
+ *    Tagen. Wer zwei Objekte hat, hat das "F" zweimal dastehen. Excel zählt
  *    es trotzdem einmal. Wer das nicht entdoppelt, verdoppelt die Ferientage.
  *
- * 2. Das Raster ist immer 31 Spalten breit, auch im Februar. Die ueberzaehligen
- *    Spalten gehoeren zum Folgemonat. Wir rechnen die Tage deshalb selbst aus
- *    dem Monat aus, statt den Spaltenkoepfen zu glauben. Das umgeht auch alle
+ * 2. Das Raster ist immer 31 Spalten breit, auch im Februar. Die überzähligen
+ *    Spalten gehören zum Folgemonat. Wir rechnen die Tage deshalb selbst aus
+ *    dem Monat aus, statt den Spaltenköpfen zu glauben. Das umgeht auch alle
  *    Zeitzonenprobleme beim Lesen von Excel-Datumswerten.
  */
 import XLSX from "xlsx";
@@ -52,15 +52,15 @@ export type { Eintragsart };
  * Wichtig ist die Unterscheidung, und sie stammt aus den Daten selbst,
  * nicht aus einer Vermutung:
  *
- * ABWESENHEITEN DER PERSON (F, K, U, S, FT) gelten fuer den ganzen Tag.
+ * ABWESENHEITEN DER PERSON (F, K, U, S, FT) gelten für den ganzen Tag.
  * Sie stehen auf jeder Objektzeile der Person und werden einmal gezaehlt.
  * Excel summiert sie rechts in den Spalten Ferien, Krank, Unfall, Sonst.
  *
  * FREI (Fr, FF) ist etwas anderes. In den echten Daten steht es an
  * verschiedenen Tagen auf verschiedenen Objektzeilen derselben Person, und
- * Excel zaehlt es in KEINE der Summenspalten. Es gehoert also zum Objekt
+ * Excel zählt es in KEINE der Summenspalten. Es gehört also zum Objekt
  * ("hier ist heute nichts zu tun"), nicht zur Person. Wer es mit Ferien in
- * einen Topf wirft, verfaelscht den Ferienanspruch.
+ * einen Topf wirft, verfälscht den Ferienanspruch.
  */
 export const CODES_PERSON: Record<string, Eintragsart> = {
   F: "ferien",
@@ -88,7 +88,7 @@ export type ExcelEintrag = {
 
 export type ExcelSummen = {
   personalnummer: string;
-  /** Monat als YYYY-MM. Ohne den laesst sich nichts sinnvoll vergleichen. */
+  /** Monat als YYYY-MM. Ohne den lässt sich nichts sinnvoll vergleichen. */
   monat: string;
   name: string;
   arbeit: number;
@@ -179,17 +179,17 @@ export function leseVerwaltungsblatt(
   /**
    * Wertet einen fertigen Personenblock aus.
    *
-   * Der heikle Teil sind die Abwesenheiten. Sie gehoeren zur Person, stehen
+   * Der heikle Teil sind die Abwesenheiten. Sie gehören zur Person, stehen
    * aber auf jeder Objektzeile. Excel teilt jede Markierung durch die Anzahl
-   * Objektzeilen, um doppeltes Zaehlen zu vermeiden. Nebenwirkung: fehlt die
+   * Objektzeilen, um doppeltes Zählen zu vermeiden. Nebenwirkung: fehlt die
    * Markierung auf einer Zeile, wird daraus ein halber Tag, und niemand
    * merkt es. Wir nehmen stattdessen den Tag als ganzen und melden die
    * Ungereimtheit.
    */
   function blockAuswerten(b: Block): void {
-    // Nur Zeilen zaehlen, die ueberhaupt eine Personen-Abwesenheit tragen.
-    // "Frei" darf hier nicht mitzaehlen, sonst meldet die Pruefung unten
-    // lauter Faelle, die voellig in Ordnung sind.
+    // Nur Zeilen zählen, die überhaupt eine Personen-Abwesenheit tragen.
+    // "Frei" darf hier nicht mitzählen, sonst meldet die Prüfung unten
+    // lauter Fälle, die völlig in Ordnung sind.
     const mitCode = b.zeilen.filter((z) =>
       [...z.tage.values()].some(
         (w) => typeof w === "string" && CODES_PERSON[w.trim().toUpperCase()] !== undefined,
@@ -318,7 +318,7 @@ export function leseVerwaltungsblatt(
       if (roh !== null && roh !== undefined && roh !== "") tage.set(tag, roh);
     }
 
-    // Steht in den ueberzaehligen Spalten (Folgemonat) doch etwas?
+    // Steht in den überzähligen Spalten (Folgemonat) doch etwas?
     for (let spalte = ERSTE_TAGESSPALTE + anzahlTage; spalte < ERSTE_TAGESSPALTE + 31; spalte++) {
       const roh = zelle(blatt, zeile, spalte);
       const zahl = alsZahl(roh);
@@ -345,11 +345,11 @@ export function leseVerwaltungsblatt(
 }
 
 /**
- * Rechnet aus den gelesenen Eintraegen dieselben Summen nach, die Excel
+ * Rechnet aus den gelesenen Einträgen dieselben Summen nach, die Excel
  * rechts anzeigt. Weicht etwas ab, haben wir das Blatt falsch verstanden.
  *
- * Der Schluessel ist "Personalnummer|YYYY-MM". Nur je Person UND Monat
- * laesst sich vergleichen: Excel fuehrt seine Summen pro Monatsblatt.
+ * Der Schlüssel ist "Personalnummer|YYYY-MM". Nur je Person UND Monat
+ * lässt sich vergleichen: Excel führt seine Summen pro Monatsblatt.
  */
 export function summenNachrechnen(eintraege: ExcelEintrag[]): Map<string, ExcelSummen> {
   const ergebnis = new Map<string, ExcelSummen>();
@@ -377,7 +377,7 @@ export function summenNachrechnen(eintraege: ExcelEintrag[]): Map<string, ExcelS
     else if (eintrag.art === "ferien") zeile.ferien += wert;
     else if (eintrag.art === "krankheit") zeile.krank += wert;
     else if (eintrag.art === "unfall") zeile.unfall += wert;
-    // "frei" bleibt bewusst aussen vor: Excel zaehlt es in keine Summe.
+    // "frei" bleibt bewusst aussen vor: Excel zählt es in keine Summe.
     else if (eintrag.art === "sonstiges") zeile.sonst += wert;
   }
 

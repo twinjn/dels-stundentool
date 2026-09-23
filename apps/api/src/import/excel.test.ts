@@ -1,13 +1,13 @@
 /**
- * Tests fuer den Excel-Import.
+ * Tests für den Excel-Import.
  *
  * Gebaut wird eine Mappe im echten Format, aber mit erfundenen Daten.
- * So laufen die Tests ueberall, auch in der CI, und es liegen keine
+ * So laufen die Tests überall, auch in der CI, und es liegen keine
  * Personendaten im Repository.
  *
- * Die Faelle stammen alle aus der echten Datei: doppelt gesetzte
+ * Die Fälle stammen alle aus der echten Datei: doppelt gesetzte
  * Abwesenheiten, eine vergessene Markierung, "Fr" statt "FF",
- * kleingeschriebene Kuerzel und das 31-Spalten-Raster im Februar.
+ * kleingeschriebene Kürzel und das 31-Spalten-Raster im Februar.
  */
 import XLSX from "xlsx";
 import { describe, expect, test } from "vitest";
@@ -95,7 +95,7 @@ describe("Stunden lesen", () => {
 });
 
 describe("Abwesenheiten der Person", () => {
-  test("dasselbe Kuerzel auf zwei Objektzeilen ergibt EINEN Tag", () => {
+  test("dasselbe Kürzel auf zwei Objektzeilen ergibt EINEN Tag", () => {
     // Genau hier verdoppelt ein naiver Import die Ferientage.
     const mappe = baueMappe([
       zeile(1, "1001", "Person", "0", {}, [0, 2]),
@@ -124,7 +124,7 @@ describe("Abwesenheiten der Person", () => {
     expect(e.warnungen[0]).toMatch(/1 von 2/);
   });
 
-  test("kleingeschriebene Kuerzel zählen genauso", () => {
+  test("kleingeschriebene Kürzel zählen genauso", () => {
     const mappe = baueMappe([
       zeile(1, "1001", "Person", "0", {}, [0, 1]),
       zeile(2, "1001", "Objekt A", "10001", { 5: "f" }),
@@ -143,7 +143,7 @@ describe("Abwesenheiten der Person", () => {
     expect(arten).toEqual(["krankheit", "unfall", "sonstiges"]);
   });
 
-  test("zwei verschiedene Kuerzel am selben Tag werden gemeldet", () => {
+  test("zwei verschiedene Kürzel am selben Tag werden gemeldet", () => {
     const mappe = baueMappe([
       zeile(1, "1001", "Person", "0", {}, []),
       zeile(2, "1001", "Objekt A", "10001", { 2: "F" }),
@@ -155,10 +155,10 @@ describe("Abwesenheiten der Person", () => {
   });
 });
 
-describe('"Frei" gehoert zum Objekt, nicht zur Person', () => {
+describe('"Frei" gehört zum Objekt, nicht zur Person', () => {
   test("bleibt am Objekt und wird nicht entdoppelt", () => {
     // In der echten Datei steht Fr an verschiedenen Tagen auf verschiedenen
-    // Objektzeilen, und Excel zaehlt es in keine Summenspalte.
+    // Objektzeilen, und Excel zählt es in keine Summenspalte.
     const mappe = baueMappe([
       zeile(1, "1048", "Person", "0", {}, []),
       zeile(2, "1048", "Objekt A", "10012", { 5: "Fr" }),
@@ -210,7 +210,7 @@ describe("Raster und Randfaelle", () => {
     expect(leseVerwaltungsblatt(mappe, "Februar", 2026).eintraege).toHaveLength(0);
   });
 
-  test("unbekannte Kuerzel werden gemeldet statt still verschluckt", () => {
+  test("unbekannte Kürzel werden gemeldet statt still verschluckt", () => {
     const mappe = baueMappe([
       zeile(1, "1001", "Person", "0", {}, []),
       zeile(2, "1001", "Objekt A", "10001", { 2: "XY" }),
@@ -240,7 +240,7 @@ describe("Raster und Randfaelle", () => {
 describe("Summen je Person und Monat", () => {
   test("der Schlüssel enthält den Monat, sonst vermischen sich die Monate", () => {
     // Genau hier lag ein Fehler: wer nur nach Personalnummer zusammenfasst,
-    // vergleicht spaeter die Jahressumme mit einer Monatssumme aus Excel.
+    // vergleicht später die Jahressumme mit einer Monatssumme aus Excel.
     const februar = leseVerwaltungsblatt(
       baueMappe([
         zeile(1, "1001", "Person", "0", {}, []),

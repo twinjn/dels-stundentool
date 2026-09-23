@@ -147,8 +147,8 @@ export function leseObjektblatt(
         continue;
       }
 
-      // objektNr bleibt null: die Abwesenheit gehoert zur Person, nicht zum
-      // Objekt. Entdoppelt wird beim Zusammenfuehren der Dateien.
+      // objektNr bleibt null: die Abwesenheit gehört zur Person, nicht zum
+      // Objekt. Entdoppelt wird beim Zusammenführen der Dateien.
       eintraege.push({ personalnummer, objektNr: null, datum, art, wert: "1.00" });
     }
 
@@ -191,7 +191,7 @@ export function zusammenfuehren(teile: ExcelEintrag[][]): {
 
   for (const teil of teile) {
     for (const eintrag of teil) {
-      // Alles mit Objektbezug (Arbeit, Frei) gehoert zum Objekt und bleibt.
+      // Alles mit Objektbezug (Arbeit, Frei) gehört zum Objekt und bleibt.
       if (eintrag.objektNr !== null) {
         eintraege.push(eintrag);
         continue;

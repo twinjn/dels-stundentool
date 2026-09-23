@@ -1,23 +1,23 @@
 /**
- * Ferienstand je Mitarbeiter fuer ein Jahr.
+ * Ferienstand je Mitarbeiter für ein Jahr.
  *
  * Holt die Daten und wendet die Regeln aus rechnung.ts an. Die Trennung
  * ist Absicht: dort stehen die Firmenregeln, hier die Abfragen.
  *
- * WIE DER SALDO ENTSTEHT, in einem Satz: was am 31. Dezember uebrig
- * war, ist am 1. Januar da. Der Uebertrag wird also gerechnet und nicht
+ * WIE DER SALDO ENTSTEHT, in einem Satz: was am 31. Dezember übrig
+ * war, ist am 1. Januar da. Der Übertrag wird also gerechnet und nicht
  * eingetippt. Wer ihn streichen will, legt einen Datensatz in
- * ferien_uebertrag an, und der traegt dann einen Namen und eine
+ * ferien_uebertrag an, und der trägt dann einen Namen und eine
  * Begruendung.
  *
  * WARUM DIE SUMMEN IN JAVASCRIPT GEBILDET WERDEN und nicht per GROUP BY:
- * Die Rechnung braucht pro Person ein Jahr-fuer-Jahr-Fortschreiben und
- * einen Vergleich gegen den persoenlichen Stichtag. In SQL waere das
+ * Die Rechnung braucht pro Person ein Jahr-für-Jahr-Fortschreiben und
+ * einen Vergleich gegen den persönlichen Stichtag. In SQL wäre das
  * eine Abfrage mit rohen Bausteinen in der SELECT-Liste, und genau dort
  * setzt Drizzle keine Tabellenpraefixe. Dieses Projekt hat sich daran
  * schon einmal eine still falsche Zahl eingehandelt (siehe den langen
  * Kommentar in routes/dashboard.ts). Die Datenmenge gibt das her: es
- * sind die Ferieneintraege weniger Jahre, keine Bewegungsdaten.
+ * sind die Ferieneinträge weniger Jahre, keine Bewegungsdaten.
  */
 import { and, asc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
@@ -25,8 +25,8 @@ import { eintraege, ferienUebertrag, mitarbeiter } from "../db/schema.js";
 import { ferienentschaedigung, ferienzuschlag, jahresanspruch } from "./rechnung.js";
 
 /**
- * Wie weit zurueck hoechstens gerechnet wird, wenn weder ein Stichtag
- * noch ein Eintrittsdatum hinterlegt ist. Ohne Grenze wuerde die
+ * Wie weit zurück höchstens gerechnet wird, wenn weder ein Stichtag
+ * noch ein Eintrittsdatum hinterlegt ist. Ohne Grenze würde die
  * Schleife bei einer kaputten Jahreszahl ewig laufen.
  */
 const MAX_JAHRE_ZURUECK = 10;
@@ -36,31 +36,31 @@ export type FerienMonatslohn = {
   id: string;
   name: string;
   jahr: number;
-  /** Anspruch fuer dieses Jahr, bei Ein- oder Austritt anteilig. */
+  /** Anspruch für dieses Jahr, bei Ein- oder Austritt anteilig. */
   anspruch: number;
   /** Der volle Jahresanspruch, zum Vergleich. */
   anspruchVoll: number;
   anteilig: boolean;
   uebertrag: number;
-  /** Wurde der Uebertrag von Hand gesetzt statt gerechnet? */
+  /** Wurde der Übertrag von Hand gesetzt statt gerechnet? */
   uebertragGesetzt: boolean;
   uebertragBemerkung: string | null;
   bezogen: number;
   rest: number;
   /**
-   * Der Uebertrag wurde aus der Historie gerechnet, ohne dass es einen
+   * Der Übertrag wurde aus der Historie gerechnet, ohne dass es einen
    * Stichtag gibt, ab dem der Saldo als gesichert gilt.
    *
    * Das ist ein Warnschild, keine Fehlermeldung. Wer 2021 eingetreten
-   * ist und dessen Ferien erst ab 2026 im Tool stehen, bekommt hier fuer
+   * ist und dessen Ferien erst ab 2026 im Tool stehen, bekommt hier für
    * die Jahre davor den vollen Anspruch gutgeschrieben, weil dort keine
-   * Bezuege erfasst sind. Die Rechnung ist formal richtig und das
-   * Ergebnis trotzdem Unsinn, denn die Luecke ist fehlende Erfassung und
+   * Bezüge erfasst sind. Die Rechnung ist formal richtig und das
+   * Ergebnis trotzdem Unsinn, denn die Lücke ist fehlende Erfassung und
    * kein nicht bezogener Urlaub.
    *
-   * Die Loesung ist ein Stichtag mit uebernommenem Saldo pro Person.
-   * Solange der fehlt, sagt das Tag der Oberflaeche, dass sie die Zahl
-   * nicht als bare Muenze verkaufen soll.
+   * Die Lösung ist ein Stichtag mit übernommenem Saldo pro Person.
+   * Solange der fehlt, sagt das Tag der Oberfläche, dass sie die Zahl
+   * nicht als bare Münze verkaufen soll.
    */
   verlaufUnvollstaendig: boolean;
 };
@@ -89,11 +89,11 @@ const zahl = (wert: string | null | undefined): number => Number(wert ?? 0);
 const jahrVon = (datum: string): number => Number(datum.slice(0, 4));
 
 /**
- * Ab welchem Jahr fuer eine Person gerechnet wird.
+ * Ab welchem Jahr für eine Person gerechnet wird.
  *
- * Der Stichtag gewinnt: ab dort gibt es einen uebernommenen Saldo, und
- * was davor liegt, steht nur im alten Excel und laesst sich nicht
- * nachrechnen. Ohne Stichtag zaehlt das Eintrittsjahr.
+ * Der Stichtag gewinnt: ab dort gibt es einen übernommenen Saldo, und
+ * was davor liegt, steht nur im alten Excel und lässt sich nicht
+ * nachrechnen. Ohne Stichtag zählt das Eintrittsjahr.
  */
 function startjahr(zieljahr: number, stand: string | null, eintritt: string | null): number {
   const grenze = zieljahr - MAX_JAHRE_ZURUECK;
@@ -105,12 +105,12 @@ function startjahr(zieljahr: number, stand: string | null, eintritt: string | nu
 type Person = typeof mitarbeiter.$inferSelect;
 
 /**
- * Rechnet den Stand einer Person im Monatslohn fuer ein Jahr aus, indem
- * sie vom Startjahr an Jahr fuer Jahr fortgeschrieben wird.
+ * Rechnet den Stand einer Person im Monatslohn für ein Jahr aus, indem
+ * sie vom Startjahr an Jahr für Jahr fortgeschrieben wird.
  *
  * @param bezogenJeJahr  bezogene Ferientage, Jahr -> Tage
  * @param nachStichtag   im Stichtagsjahr: nur was NACH dem Stichtag bezogen wurde
- * @param manuell        gesetzte Uebertraege, Jahr -> Datensatz
+ * @param manuell        gesetzte Überträge, Jahr -> Datensatz
  */
 function fortschreiben(
   person: Person,
@@ -143,14 +143,14 @@ function fortschreiben(
 
     if (stand && jahr === jahrVon(stand) && !gesetzt) {
       /*
-       * Das Jahr, in dem der Saldo aus dem Excel uebernommen wurde.
+       * Das Jahr, in dem der Saldo aus dem Excel übernommen wurde.
        *
-       * Hier wird KEIN Jahresanspruch dazugerechnet: der uebernommene
+       * Hier wird KEIN Jahresanspruch dazugerechnet: der übernommene
        * Saldo ist bereits der Rest nach dem Anspruch dieses Jahres.
-       * Wuerde man ihn trotzdem addieren, bekaeme jeder einmalig ein
+       * Würde man ihn trotzdem addieren, bekäme jeder einmalig ein
        * ganzes Jahr Ferien geschenkt.
        *
-       * Und es zaehlt nur, was NACH dem Stichtag bezogen wurde. Was
+       * Und es zählt nur, was NACH dem Stichtag bezogen wurde. Was
        * davor liegt, steckt schon im Saldo drin.
        */
       anspruch = 0;
@@ -171,8 +171,8 @@ function fortschreiben(
 
     const rest = uebertrag + anspruch - bezogen;
 
-    // Ergebnis dieses Jahres ist der Uebertrag ins naechste, ausser das
-    // naechste Jahr setzt ihn selbst.
+    // Ergebnis dieses Jahres ist der Übertrag ins nächste, ausser das
+    // nächste Jahr setzt ihn selbst.
     if (jahr < zieljahr) uebertrag = rest;
   }
 
@@ -193,7 +193,7 @@ function fortschreiben(
   };
 }
 
-/** Ferienstand aller aktiven Mitarbeiter fuer ein Jahr. */
+/** Ferienstand aller aktiven Mitarbeiter für ein Jahr. */
 export async function ferienstand(zieljahr: number): Promise<FerienZeile[]> {
   const personen = await db
     .select()
@@ -203,8 +203,8 @@ export async function ferienstand(zieljahr: number): Promise<FerienZeile[]> {
 
   if (personen.length === 0) return [];
 
-  // Wie weit muss zurueckgeschaut werden, damit jede Person ihre
-  // Vorjahre hat? Eine Abfrage fuer alle, statt einer pro Person.
+  // Wie weit muss zurückgeschaut werden, damit jede Person ihre
+  // Vorjahre hat? Eine Abfrage für alle, statt einer pro Person.
   const aeltestesJahr = Math.min(
     ...personen.map((p) => startjahr(zieljahr, p.ferienSaldoStand, p.eintrittsdatum)),
   );
@@ -228,7 +228,7 @@ export async function ferienstand(zieljahr: number): Promise<FerienZeile[]> {
         ),
       ),
 
-    // Fuer die Stundenloehner: Arbeitsstunden des Zieljahres als Basis
+    // Für die Stundenlöhner: Arbeitsstunden des Zieljahres als Basis
     // der Ferienentschaedigung.
     db
       .select({ mitarbeiterId: eintraege.mitarbeiterId, wert: eintraege.wert })

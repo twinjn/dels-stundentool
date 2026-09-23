@@ -1,6 +1,6 @@
 /**
- * Tests fuer die Kalkulations-Routen.
- * Gerechnet wird hier nicht, das prueft der Vergleichstest in
+ * Tests für die Kalkulations-Routen.
+ * Gerechnet wird hier nicht, das prüft der Vergleichstest in
  * @dels/shared. Hier geht es um Rechte, Monatsanlage und Vorlagen.
  */
 import { eq, inArray, like } from "drizzle-orm";
@@ -27,8 +27,8 @@ const BUERO = `${marke}-buero@dels.ch`;
 /**
  * Bewusst 1999, nicht ein Jahr in der Zukunft.
  *
- * Der Test prueft unter anderem, was beim ALLERERSTEN Monat passiert,
- * und das haengt daran, dass es keinen frueheren gibt. Mit einem
+ * Der Test prüft unter anderem, was beim ALLERERSTEN Monat passiert,
+ * und das hängt daran, dass es keinen früheren gibt. Mit einem
  * Zukunftsjahr stimmte das nur in einer leeren Datenbank: sobald jemand
  * lokal einen echten Monat angelegt hatte, wurde der zur Vorlage und der
  * Test fiel um. Vor 1999 wird nie ein Monat liegen.
@@ -117,7 +117,7 @@ describe("Monat anlegen", () => {
   test("die Ansätze stehen mit ihren Standardwerten da", async () => {
     const klient = await anmelden(app, ADMIN);
     const { body } = await klient.get(`/api/kalkulation/${ERSTER}`);
-    // Die Saetze brauchen sechs Nachkommastellen, sonst wird aus
+    // Die Sätze brauchen sechs Nachkommastellen, sonst wird aus
     // 1.4494 Prozent ein glattes Prozent.
     expect(body.ansaetze.bu).toBe("0.014494");
     expect(body.ansaetze.ahv).toBe("0.053000");
@@ -125,7 +125,7 @@ describe("Monat anlegen", () => {
   });
 });
 
-describe("Aendern", () => {
+describe("Ändern", () => {
   test("Ansätze lassen sich ändern und bleiben genau", async () => {
     const klient = await anmelden(app, ADMIN);
     const antwort = await klient
@@ -202,7 +202,7 @@ describe("Folgemonat", () => {
     expect(angelegt.body.vorlage).toBe(ERSTER);
 
     const { body } = await klient.get(`/api/kalkulation/${ZWEITER}`);
-    // Der geaenderte Satz aus dem Vormonat ist mitgekommen.
+    // Der geänderte Satz aus dem Vormonat ist mitgekommen.
     expect(body.ansaetze.bu).toBe("0.015123");
     expect(body.ansaetze.nbuTraegtAg).toBe(true);
     // Und die Objektzeile inklusive ihres angepassten Abos.

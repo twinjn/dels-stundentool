@@ -1,8 +1,8 @@
 /**
  * Jahresuebersicht je Mitarbeiter.
  *
- * Bewusst KEINE Lohnzahlen: hier geht es um Zeit. Wer Loehne sehen will,
- * geht in die Kalkulation, und dafuer braucht es ein anderes Recht.
+ * Bewusst KEINE Lohnzahlen: hier geht es um Zeit. Wer Löhne sehen will,
+ * geht in die Kalkulation, und dafür braucht es ein anderes Recht.
  */
 import { Router } from "express";
 import { z } from "zod";

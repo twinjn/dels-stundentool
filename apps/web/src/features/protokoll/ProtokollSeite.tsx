@@ -1,10 +1,10 @@
 /**
- * Aenderungsprotokoll: wer hat wann was angefasst.
+ * Änderungsprotokoll: wer hat wann was angefasst.
  *
  * Da alle mit Zugang die kompletten Personendaten sehen, ist das die
  * Stelle, an der sich das nachvollziehen laesst. Es gibt bewusst keinen
- * Knopf zum Loeschen: ein Protokoll, das man bereinigen kann, beantwortet
- * die Frage nicht mehr, fuer die es da ist.
+ * Knopf zum Löschen: ein Protokoll, das man bereinigen kann, beantwortet
+ * die Frage nicht mehr, für die es da ist.
  */
 import { useEffect, useMemo, useState } from "react";
 import { ApiFehler, api } from "../../api/client.js";
@@ -35,7 +35,7 @@ const AKTION_TEXT: Record<string, string> = {
   exportieren: "exportiert",
 };
 
-/** Zeigt die geaenderten Felder als "Feld: alt -> neu". */
+/** Zeigt die geänderten Felder als "Feld: alt -> neu". */
 function Unterschiede({ vorher, nachher }: { vorher: Zeile["vorher"]; nachher: Zeile["nachher"] }) {
   const felder = useMemo(
     () => [...new Set([...Object.keys(vorher ?? {}), ...Object.keys(nachher ?? {})])],

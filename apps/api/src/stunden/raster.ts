@@ -3,8 +3,8 @@
  * Objekt, Tage als Spalten.
  *
  * Warum das hier liegt und nicht in der Route: es wird zweimal gebraucht,
- * einmal fuer den Bildschirm und einmal fuer den Excel-Export. Zwei
- * Abfragen, die dasselbe meinen, laufen frueher oder spaeter auseinander.
+ * einmal für den Bildschirm und einmal für den Excel-Export. Zwei
+ * Abfragen, die dasselbe meinen, laufen früher oder später auseinander.
  * Dann zeigt der Bildschirm 148.5 Stunden und die exportierte Datei 147,
  * und niemand weiss mehr, welche Zahl stimmt. Also: eine Quelle.
  */
@@ -127,8 +127,8 @@ export async function monatsraster(monat: string, alleZeigen: boolean): Promise<
     )
     .orderBy(asc(sql`${mitarbeiter.name} collate "de-CH-x-icu"`));
 
-  // Einmal nach Person gruppieren statt je Person durch alle Eintraege zu
-  // laufen. Bei 140 Personen und 4000 Eintraegen ist das der Unterschied
+  // Einmal nach Person gruppieren statt je Person durch alle Einträge zu
+  // laufen. Bei 140 Personen und 4000 Einträgen ist das der Unterschied
   // zwischen 4000 und 560'000 Vergleichen.
   const nachPerson = new Map<string, typeof zeilen>();
   for (const z of zeilen) {

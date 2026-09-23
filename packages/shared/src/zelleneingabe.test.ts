@@ -39,7 +39,7 @@ describe("Stunden eintippen", () => {
   });
 });
 
-describe("Kuerzel", () => {
+describe("Kürzel", () => {
   test("F, K, U, S und FT gehören zur Person", () => {
     expect(person("F")).toEqual({ leeren: false, art: "ferien", wert: "1.00" });
     expect(person("k")).toEqual({ leeren: false, art: "krankheit", wert: "1.00" });
@@ -82,7 +82,7 @@ describe("Anzeige", () => {
     expect(zeigeZelle("arbeit", "1.75")).toBe("1.75");
   });
 
-  test("Abwesenheiten als Kuerzel", () => {
+  test("Abwesenheiten als Kürzel", () => {
     expect(zeigeZelle("ferien", "1.00")).toBe("F");
     expect(zeigeZelle("frei", "1.00")).toBe("Fr");
     expect(zeigeZelle("krankheit", "1.00")).toBe("K");

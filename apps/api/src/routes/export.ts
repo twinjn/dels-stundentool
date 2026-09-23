@@ -3,14 +3,14 @@
  *
  * Drei Dinge, die hier bewusst so gemacht sind:
  *
- * 1. Jede Route hat denselben Waechter wie die Ansicht, die sie
- *    exportiert. Ein Export ist keine Hintertuer an den Rechten vorbei.
+ * 1. Jede Route hat denselben Wächter wie die Ansicht, die sie
+ *    exportiert. Ein Export ist keine Hintertür an den Rechten vorbei.
  *
  * 2. Jeder Export wird protokolliert. Eine Datei mit Personendaten
- *    verlaesst damit das System nachvollziehbar. Wer sie spaeter in
+ *    verlässt damit das System nachvollziehbar. Wer sie später in
  *    einem Mailanhang findet, kann herausfinden, woher sie kam.
  *
- * 3. Cache-Control: no-store. Eine Antwort mit Loehnen und AHV-Nummern
+ * 3. Cache-Control: no-store. Eine Antwort mit Löhnen und AHV-Nummern
  *    hat in keinem Zwischenspeicher etwas verloren.
  */
 import { Router, type Response } from "express";
@@ -110,7 +110,7 @@ exportRouter.get("/stammdaten", brauchtRecht("stammdaten:lesen"), async (req, re
     benutzer: req.benutzer,
     aktion: "exportieren",
     tabelle: "mitarbeiter",
-    // Festhalten, OB Loehne mit hinausgegangen sind. Das ist die Angabe,
+    // Festhalten, OB Löhne mit hinausgegangen sind. Das ist die Angabe,
     // nach der im Zweifel gefragt wird.
     nachher: { export: "stammdaten", rolle, mitLoehnen: rolle === "admin" },
   });

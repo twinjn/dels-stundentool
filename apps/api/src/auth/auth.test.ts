@@ -1,8 +1,8 @@
 /**
- * Tests fuer Anmeldung und Rechte.
+ * Tests für Anmeldung und Rechte.
  *
- * Hier wird nicht geprueft, ob etwas "funktioniert", sondern ob es
- * zuverlaessig ABLEHNT. Ein Anmeldesystem, bei dem der richtige Benutzer
+ * Hier wird nicht geprüft, ob etwas "funktioniert", sondern ob es
+ * zuverlässig ABLEHNT. Ein Anmeldesystem, bei dem der richtige Benutzer
  * hereinkommt, ist trivial. Eines, bei dem alle anderen draussen bleiben,
  * ist die eigentliche Aufgabe.
  */
@@ -28,8 +28,8 @@ let buoroId: string;
 let admin2Id: string;
 
 /**
- * Admins, die vor dem Test schon aktiv waren. Fuer den Test zur
- * Letzter-Admin-Sperre muessen wir genau wissen, wie viele aktive Admins
+ * Admins, die vor dem Test schon aktiv waren. Für den Test zur
+ * Letzter-Admin-Sperre müssen wir genau wissen, wie viele aktive Admins
  * es gibt. Deshalb legen wir fremde vorher still und stellen sie hinterher
  * wieder her.
  */
@@ -211,7 +211,7 @@ describe("Rechte", () => {
   });
 
   test("ohne Anmeldung ist die Benutzerverwaltung 401, nicht 403", async () => {
-    // Der Unterschied zaehlt: 401 heisst "melde dich an", 403 heisst
+    // Der Unterschied zählt: 401 heisst "melde dich an", 403 heisst
     // "du bist angemeldet, darfst aber nicht".
     const antwort = await request(app).get("/api/benutzer");
     expect(antwort.status).toBe(401);
@@ -235,16 +235,16 @@ describe("Schutz vor dem Aussperren", () => {
     const ersterVersuch = await klient.patch(`/api/benutzer/${admin2Id}`).send({ aktiv: false });
     expect(ersterVersuch.status).toBe(200);
 
-    // Und der laesst sich jetzt nicht mehr stilllegen.
+    // Und der lässt sich jetzt nicht mehr stilllegen.
     const zweiterVersuch = await klient.patch(`/api/benutzer/${adminId}`).send({ aktiv: false });
     expect(zweiterVersuch.status).toBe(400);
     expect(zweiterVersuch.body.nachricht).toMatch(/letzte aktive Admin/i);
 
-    // Auch nicht ueber den Umweg "mach mich zu buero".
+    // Auch nicht über den Umweg "mach mich zu buero".
     const dritterVersuch = await klient.patch(`/api/benutzer/${adminId}`).send({ rolle: "buero" });
     expect(dritterVersuch.status).toBe(400);
 
-    // Wiederherstellen fuer die restlichen Tests.
+    // Wiederherstellen für die restlichen Tests.
     await db.update(benutzer).set({ aktiv: true }).where(eq(benutzer.id, admin2Id));
   });
 });

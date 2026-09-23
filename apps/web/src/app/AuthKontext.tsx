@@ -6,8 +6,8 @@
  * direkt nach.
  *
  * WICHTIG: das hier ist Bequemlichkeit, keine Sicherheit. Der Zustand
- * lebt im Browser und laesst sich manipulieren. Wer hier "rolle: admin"
- * hineinschreibt, sieht Knoepfe, aber die API lehnt ihn trotzdem ab.
+ * lebt im Browser und lässt sich manipulieren. Wer hier "rolle: admin"
+ * hineinschreibt, sieht Knöpfe, aber die API lehnt ihn trotzdem ab.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
@@ -31,19 +31,19 @@ type AuthZustand = {
   abmelden: () => Promise<void>;
   /**
    * Nur den Browserzustand auf "abgemeldet" setzen, ohne den Server zu
-   * fragen. Gebraucht nach einer Passwortaenderung: der Server hat die
-   * Sitzung dabei schon beendet, ein zusaetzliches /auth/abmelden
-   * bekaeme nur ein 401 zurueck.
+   * fragen. Gebraucht nach einer Passwortänderung: der Server hat die
+   * Sitzung dabei schon beendet, ein zusätzliches /auth/abmelden
+   * bekäme nur ein 401 zurueck.
    */
   abgemeldet: () => void;
 };
 
 /**
- * Exportiert, damit Tests ihn direkt fuellen koennen.
+ * Exportiert, damit Tests ihn direkt füllen koennen.
  *
  * Im Anwendungscode benutzt man useAuth() und nie diesen Kontext.
- * Tests brauchen ihn trotzdem: wuerden sie den echten AuthAnbieter
- * verwenden, fragte der beim Start /auth/ich ab, und jeder Test haette
+ * Tests brauchen ihn trotzdem: würden sie den echten AuthAnbieter
+ * verwenden, fragte der beim Start /auth/ich ab, und jeder Test hätte
  * eine Ladephase, die mit seiner eigentlichen Frage nichts zu tun hat.
  */
 export const AuthKontext = createContext<AuthZustand | null>(null);
@@ -64,7 +64,7 @@ export function AuthAnbieter({ children }: { children: ReactNode }) {
       })
       .catch((fehler: unknown) => {
         if (abgebrochen) return;
-        // 401 ist hier kein Fehler, sondern die normale Antwort fuer
+        // 401 ist hier kein Fehler, sondern die normale Antwort für
         // "noch nicht angemeldet".
         if (fehler instanceof ApiFehler && !fehler.istNichtAngemeldet) {
           setServerfehler(fehler.message);
@@ -91,7 +91,7 @@ export function AuthAnbieter({ children }: { children: ReactNode }) {
       await api.post("/auth/abmelden");
     } finally {
       // Auch wenn der Server nicht antwortet: im Browser gilt man als
-      // abgemeldet. Alles andere waere verwirrend.
+      // abgemeldet. Alles andere wäre verwirrend.
       setBenutzer(null);
     }
   }, []);

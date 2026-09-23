@@ -1,11 +1,11 @@
 /**
- * Startseite: keine Begruessung, sondern eine Lagemeldung.
+ * Startseite: keine Begrüssung, sondern eine Lagemeldung.
  *
  * Was ist diesen Monat erfasst, was fehlt noch, wo geht die Zeit hin.
  *
  * WARUM HIER GERECHNET WIRD UND NICHT IM BROWSER: ein Jahr hat rund
  * 4000 Eintraege. Die alle zu schicken, damit der Browser daraus vier
- * Zahlen bildet, waere genau die Langsamkeit, die am bisherigen Excel
+ * Zahlen bildet, wäre genau die Langsamkeit, die am bisherigen Excel
  * stoert. Postgres summiert das in einer Abfrage.
  */
 import { and, asc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
@@ -34,7 +34,7 @@ function tageImMonat(jahr: number, monat: number): number {
 }
 
 /**
- * Der Zeitraum, ueber den gerechnet wird, und der vergleichbare Zeitraum
+ * Der Zeitraum, über den gerechnet wird, und der vergleichbare Zeitraum
  * im Vormonat.
  *
  * DER WICHTIGE TEIL: Im laufenden Monat wird nur bis heute gerechnet und
@@ -139,7 +139,7 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
       .orderBy(sql`sum(${eintraege.wert}) desc`),
 
     // Aktive Leute, von denen in diesem Zeitraum keine Arbeitsstunde
-    // erfasst ist. Das ist die haeufigste offene Aufgabe im Monat.
+    // erfasst ist. Das ist die häufigste offene Aufgabe im Monat.
     db
       .select({ id: mitarbeiter.id, name: mitarbeiter.name })
       .from(mitarbeiter)
@@ -163,10 +163,10 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
   for (const art of ABSENZARTEN) absenzJeArt[art] = 0;
   for (const zeile of absenzen) absenzJeArt[zeile.art] = zahl(zeile.summe);
 
-  // Wer keinen Stundenlohn hinterlegt hat, zaehlt in der Kalkulation mit
-  // 0 Franken Lohnkosten mit und verfaelscht damit jeden
-  // Deckungsbeitrag. Die Liste sieht nur, wer Loehne sehen darf: sie
-  // nennt zwar keinen Betrag, gehoert aber trotzdem zum Lohnbereich.
+  // Wer keinen Stundenlohn hinterlegt hat, zählt in der Kalkulation mit
+  // 0 Franken Lohnkosten mit und verfälscht damit jeden
+  // Deckungsbeitrag. Die Liste sieht nur, wer Löhne sehen darf: sie
+  // nennt zwar keinen Betrag, gehört aber trotzdem zum Lohnbereich.
   const darfLoehne = hatRecht(req.benutzer!.rolle, "loehne:lesen");
   const ohneStundenlohn = darfLoehne
     ? await db
@@ -175,7 +175,7 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
         .where(
           and(
             eq(mitarbeiter.aktiv, true),
-            // Frueher stand hier ein Vergleich gegen den Freitext
+            // Früher stand hier ein Vergleich gegen den Freitext
             // "Monatslohn" aus dem Excel. Seit es die Spalte lohnart
             // gibt, fragt man die, und ein Tippfehler im Freitext kann
             // die Liste nicht mehr verfaelschen.
@@ -199,10 +199,10 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
   /*
    * Wer mehr bezogen hat, als ihm zusteht.
    *
-   * Frueher stand hier ein direkter Vergleich "bezogene Tage gegen
-   * Jahresanspruch", ohne Uebertrag und ohne anteiligen Anspruch. Der
+   * Früher stand hier ein direkter Vergleich "bezogene Tage gegen
+   * Jahresanspruch", ohne Übertrag und ohne anteiligen Anspruch. Der
    * meldete jeden, der seine mitgenommenen Resttage aufbrauchte, als
-   * Ueberzug. Seit es die richtige Rechnung gibt, waeren das zwei
+   * Ueberzug. Seit es die richtige Rechnung gibt, wären das zwei
    * widersprechende Zahlen auf einem Bildschirm, und dann glaubt man
    * keiner mehr.
    */
@@ -212,7 +212,7 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
    * Ab Oktober: wer hat noch Ferientage offen.
    *
    * Drei Monate Vorlauf, damit die Leute ihre Tage noch planen koennen.
-   * Vorher waere es nur Rauschen: im Maerz hat naturgemaess fast jeder
+   * Vorher wäre es nur Rauschen: im März hat naturgemäss fast jeder
    * fast alles offen, und eine Warnung, die immer leuchtet, schaut nach
    * zwei Wochen niemand mehr an.
    */

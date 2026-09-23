@@ -245,7 +245,7 @@ function MitarbeiterFormular({
     setLaeuft(true);
 
     // Lohnfelder gar nicht erst mitschicken, wenn die Rolle sie nicht darf:
-    // der Server wuerde die Anfrage sonst komplett ablehnen.
+    // der Server würde die Anfrage sonst komplett ablehnen.
     const { stundenlohn, monatslohn, ...rest } = werte;
     const rumpf = darfLoehne ? { ...rest, stundenlohn, monatslohn } : rest;
 
@@ -269,13 +269,13 @@ function MitarbeiterFormular({
   }
 
   /**
-   * Endgueltig loeschen.
+   * Endgültig loeschen.
    *
-   * Der Server laesst das nur zu, solange es zu der Person weder Stunden
+   * Der Server lässt das nur zu, solange es zu der Person weder Stunden
    * noch Kalkulationszeilen gibt, und antwortet sonst mit 409 und einer
-   * Meldung, die auf das Stilllegen verweist. Diese Pruefung gehoert
-   * dorthin und nicht hierher: die Oberflaeche kennt den Datenbestand
-   * nicht und koennte ihn zwischen Laden und Klicken ohnehin nicht
+   * Meldung, die auf das Stilllegen verweist. Diese Prüfung gehört
+   * dorthin und nicht hierher: die Oberfläche kennt den Datenbestand
+   * nicht und könnte ihn zwischen Laden und Klicken ohnehin nicht
    * garantieren.
    *
    * Hier steht nur die Rueckfrage. Sie nennt den Namen, damit niemand

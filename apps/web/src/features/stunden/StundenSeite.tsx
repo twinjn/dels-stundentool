@@ -8,7 +8,7 @@
  *
  * WARUM NICHT 4000 EINGABEFELDER: 45 Personen mal 31 Tage mal mehrere
  * Objektzeilen ergeben schnell ein paar tausend Zellen. So viele echte
- * <input> wuerde der Browser spuerbar langsam darstellen, und langsam ist
+ * <input> würde der Browser spürbar langsam darstellen, und langsam ist
  * genau das, was am bisherigen Excel stoert. Deshalb sind die Zellen
  * einfacher Text, und nur die Zelle, in der gerade jemand tippt, bekommt
  * ein Eingabefeld.
@@ -66,7 +66,7 @@ export function StundenSeite() {
   const [fehler, setFehler] = useState<string | null>(null);
   const [speichert, setSpeichert] = useState(false);
 
-  /** Objektzeilen, die jemand hinzugefuegt hat, aber noch leer sind. */
+  /** Objektzeilen, die jemand hinzugefügt hat, aber noch leer sind. */
   const [zusatzzeilen, setZusatzzeilen] = useState<Record<string, string[]>>({});
   const [aktiv, setAktiv] = useState<AktiveZelle | null>(null);
   const [entwurf, setEntwurf] = useState("");
@@ -101,8 +101,8 @@ export function StundenSeite() {
 
   /**
    * Gefiltert wird im Browser, nicht auf dem Server: ein Monat sind ein
-   * paar hundert Zeilen, die sind laengst geladen. Beim Tippen im
-   * Suchfeld nochmal zu laden waere nur langsamer.
+   * paar hundert Zeilen, die sind längst geladen. Beim Tippen im
+   * Suchfeld nochmal zu laden wäre nur langsamer.
    */
   const sichtbare = useMemo(() => {
     const begriff = suche.trim().toLowerCase();
@@ -123,7 +123,7 @@ export function StundenSeite() {
       );
   }, [raster, suche, nurMitErfassung, zusatzzeilen]);
 
-  // Die Tastaturnavigation zaehlt nur die Zeilen, die man auch sieht.
+  // Die Tastaturnavigation zählt nur die Zeilen, die man auch sieht.
   const zeilen = useMemo(
     () => zeilenFlachLegen(sichtbare, zusatzzeilen),
     [sichtbare, zusatzzeilen],

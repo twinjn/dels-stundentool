@@ -1,5 +1,5 @@
 /**
- * Jahresuebersicht: zwoelf Monate je Person.
+ * Jahresuebersicht: zwölf Monate je Person.
  *
  * Die Monatsansicht beantwortet "was war am 14. September". Diese hier
  * beantwortet "wie viele Ferientage hat jemand dieses Jahr schon bezogen"
@@ -93,7 +93,7 @@ export function UebersichtSeite() {
     );
   }, [daten, suche]);
 
-  // Monatssummen ueber alle sichtbaren Zeilen, fuer die Fusszeile.
+  // Monatssummen über alle sichtbaren Zeilen, für die Fusszeile.
   const spaltensummen = useMemo(() => {
     const summen = Array.from({ length: 12 }, () => 0);
     let gesamt = 0;

@@ -1,9 +1,9 @@
 /**
- * Erkennt, was fuer eine Datei vorliegt.
+ * Erkennt, was für eine Datei vorliegt.
  *
  * Wir verlassen uns bewusst NICHT auf den Dateinamen. Dateien werden
  * umbenannt, kopiert, mit "(2)" versehen oder in einen Jahresordner
- * geschoben. Der Inhalt luegt nicht.
+ * geschoben. Der Inhalt lügt nicht.
  */
 import XLSX from "xlsx";
 import { alsText, alsZahl, zelle } from "./excel.js";
@@ -40,7 +40,7 @@ function ausDatenblatt(mappe: XLSX.WorkBook, beschriftung: string): string {
  * Der Stand, auf den sich die Zahlen der Datei beziehen.
  *
  * Der Wert im Blatt "Daten" ist ein Datumswert, kein Text. Deshalb
- * dieselbe Umrechnung wie beim Personalblatt statt einer Textpruefung:
+ * dieselbe Umrechnung wie beim Personalblatt statt einer Textprüfung:
  * String(new Date(...)) ergibt "Mon Dec 29 2025 ..." und passt auf kein
  * ISO-Muster.
  */
@@ -70,7 +70,7 @@ export function erkenneDatei(mappe: XLSX.WorkBook, dateiname = ""): DateiInfo {
     };
   }
 
-  // Die Verwaltungsdatei hat ihre Spaltenueberschriften in Zeile 5 und
+  // Die Verwaltungsdatei hat ihre Spaltenüberschriften in Zeile 5 und
   // beginnt mit "ZCode". Die Objektdatei hat sie in Zeile 4 mit "PersNr.".
   const verwaltung = alsText(zelle(januar, 5, 1)).toUpperCase() === "ZCODE";
   const objekt = alsText(zelle(januar, 4, 1))

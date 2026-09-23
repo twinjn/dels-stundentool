@@ -28,8 +28,8 @@ export const authRouter = Router();
 
 /**
  * Immer dieselbe Meldung, egal ob die E-Mail unbekannt ist, das Passwort
- * falsch oder das Konto stillgelegt. Wer hier unterscheidet, verraet
- * Angreifern, welche Adressen ueberhaupt ein Konto haben.
+ * falsch oder das Konto stillgelegt. Wer hier unterscheidet, verrät
+ * Angreifern, welche Adressen überhaupt ein Konto haben.
  */
 const ABGELEHNT = "E-Mail oder Passwort stimmt nicht.";
 
@@ -77,8 +77,8 @@ authRouter.post("/anmelden", async (req, res) => {
 
   await db.update(benutzer).set({ letzterLoginAm: new Date() }).where(eq(benutzer.id, konto.id));
 
-  // Gelegenheit nutzen: alte Sitzungen wegraeumen, damit die Tabelle
-  // nicht unbegrenzt waechst. Ein eigener Zeitplan waere hier Overkill.
+  // Gelegenheit nutzen: alte Sitzungen wegräumen, damit die Tabelle
+  // nicht unbegrenzt waechst. Ein eigener Zeitplan wäre hier Overkill.
   await abgelaufeneAufraeumen();
 
   res.cookie(COOKIE_NAME, token, cookieOptionen());
@@ -121,8 +121,8 @@ authRouter.post("/passwort", angemeldet, async (req, res) => {
     .set({ passwortHash: await hashePasswort(daten.neuesPasswort) })
     .where(eq(benutzer.id, ich.id));
 
-  // Nach einer Passwortaenderung fliegen ALLE Sitzungen raus, auch die
-  // eigene. Genau dafuer aendert man ja oft das Passwort: weil jemand
+  // Nach einer Passwortänderung fliegen ALLE Sitzungen raus, auch die
+  // eigene. Genau dafür ändert man ja oft das Passwort: weil jemand
   // anders vielleicht noch angemeldet ist.
   await alleSitzungenBeenden(ich.id);
   res.clearCookie(COOKIE_NAME, cookieLoeschOptionen());

@@ -1,18 +1,18 @@
 /**
- * Eingabepruefung, einmal definiert, von beiden Seiten benutzt.
+ * Eingabeprüfung, einmal definiert, von beiden Seiten benutzt.
  *
- * Der Server prueft, WEIL er muss: alles, was hereinkommt, ist erstmal
- * unvertrauenswuerdig. Der Browser prueft, DAMIT der Benutzer den Fehler
+ * Der Server prüft, WEIL er muss: alles, was hereinkommt, ist erstmal
+ * unvertrauenswuerdig. Der Browser prüft, DAMIT der Benutzer den Fehler
  * sofort sieht und nicht erst nach dem Absenden.
  *
- * Eine Definition, zwei Verwendungen. Waeren es zwei Definitionen, wuerden
+ * Eine Definition, zwei Verwendungen. Wären es zwei Definitionen, würden
  * sie irgendwann auseinanderlaufen, und dann meldet das Formular "passt",
- * waehrend der Server ablehnt.
+ * während der Server ablehnt.
  */
 import { z } from "zod";
 import { ROLLEN } from "./rollen.js";
 
-/** Laenge schlaegt Sonderzeichen. Ein langer Satz ist besser als "P4ss!". */
+/** Länge schlägt Sonderzeichen. Ein langer Satz ist besser als "P4ss!". */
 export const MINDESTLAENGE_PASSWORT = 12;
 
 /** Erst Leerzeichen weg und kleinschreiben, dann pruefen. */
@@ -29,9 +29,9 @@ const passwort = z
 
 export const AnmeldungSchema = z.object({
   email,
-  // Beim Anmelden pruefen wir die Laenge NICHT. Sonst verraet die
+  // Beim Anmelden prüfen wir die Länge NICHT. Sonst verrät die
   // Fehlermeldung, wie lang das richtige Passwort mindestens sein muss,
-  // und alte Konten mit kuerzerem Passwort kaemen nicht mehr hinein.
+  // und alte Konten mit kürzerem Passwort kämen nicht mehr hinein.
   passwort: z.string().min(1, "Bitte Passwort eingeben.").max(200),
 });
 export type Anmeldung = z.infer<typeof AnmeldungSchema>;

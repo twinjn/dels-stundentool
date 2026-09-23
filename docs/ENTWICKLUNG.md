@@ -153,7 +153,7 @@ Das gemeinsame Paket ist noch nicht gebaut:
 npm run build -w @dels/shared
 ```
 
-**"Konfiguration ist unvollstaendig oder falsch"**
+**"Konfiguration ist unvollständig oder falsch"**
 Es fehlt eine `.env` oder ein Wert darin. Die Meldung sagt, welcher.
 
 **"Keine Verbindung zum Server" in der Oberfläche**

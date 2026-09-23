@@ -1,21 +1,21 @@
 /**
  * Rechenkern der Kalkulation.
  *
- * Portiert aus legacy/src/kalkulation.js, Zeile fuer Zeile und in
- * derselben Reihenfolge der Rechenschritte. Das ist kein Schoenheitsfehler,
+ * Portiert aus legacy/src/kalkulation.js, Zeile für Zeile und in
+ * derselben Reihenfolge der Rechenschritte. Das ist kein Schönheitsfehler,
  * sondern Absicht: Gleitkommaaddition ist nicht assoziativ, (a+b)+c kann
- * sich vom a+(b+c) im letzten Rappen unterscheiden. Wer hier "aufraeumt",
- * bekommt Abweichungen, die niemand erklaeren kann.
+ * sich vom a+(b+c) im letzten Rappen unterscheiden. Wer hier "aufräumt",
+ * bekommt Abweichungen, die niemand erklären kann.
  *
- * Geprueft wird die Portierung durch einen Vergleichstest, der alten und
- * neuen Code mit tausenden zufaelligen Szenarien fuettert und auf
- * Gleichheit prueft (kalkulation.vergleich.test.ts).
+ * Geprüft wird die Portierung durch einen Vergleichstest, der alten und
+ * neuen Code mit tausenden zufälligen Szenarien füttert und auf
+ * Gleichheit prüft (kalkulation.vergleich.test.ts).
  *
- * Reine Funktionen: kein React, keine Datenbank. Nur so laesst sich das
- * Ergebnis ueberhaupt gegenrechnen.
+ * Reine Funktionen: kein React, keine Datenbank. Nur so lässt sich das
+ * Ergebnis überhaupt gegenrechnen.
  */
 
-/** Alles, was keine endliche Zahl ist, zaehlt als 0. */
+/** Alles, was keine endliche Zahl ist, zählt als 0. */
 export function z(v: unknown): number {
   if (typeof v === "number") return Number.isFinite(v) ? v : 0;
   if (typeof v === "string" && v.trim() !== "") {
@@ -28,7 +28,7 @@ export function z(v: unknown): number {
 /** Zahlwert, der auch als Zeichenkette aus der Datenbank kommen darf. */
 export type Zahl = number | string | null | undefined;
 
-/** Eine Zeile aus kalk_monat: die Ansaetze, die in diesem Monat galten. */
+/** Eine Zeile aus kalk_monat: die Ansätze, die in diesem Monat galten. */
 export type Ansaetze = {
   ahv: Zahl;
   alv: Zahl;
@@ -106,7 +106,7 @@ export type ObjektErfassung = {
 /**
  * Stunden und Lohnsumme je Objekt aus den erfassten Eintraegen.
  *
- * Ohne hinterlegten Stundenlohn zaehlt die Person zwar mit ihren Stunden,
+ * Ohne hinterlegten Stundenlohn zählt die Person zwar mit ihren Stunden,
  * steuert aber keinen Lohn bei. Das wird in der Ansicht als Warnung
  * sichtbar, statt still einen zu niedrigen Lohnaufwand zu melden.
  */
@@ -139,7 +139,7 @@ export function stundenJeObjekt(
   return map;
 }
 
-/** Stunden je Person im Monat, fuer die NBU-Schwelle. */
+/** Stunden je Person im Monat, für die NBU-Schwelle. */
 export function stundenJePerson(eintraege: Eintrag[], monat: string): Map<string, number> {
   const map = new Map<string, number>();
   for (const e of eintraege) {
@@ -222,9 +222,9 @@ export function rechne(eingabe: {
   const proPerson = stundenJePerson(eintraege, monat);
   const schwelleStd = (z(s.nbuSchwelle) * 52) / 12;
 
-  // Nur aktive Objekte zaehlen als Umsatz. Ein inaktives Objekt liefert in
+  // Nur aktive Objekte zählen als Umsatz. Ein inaktives Objekt liefert in
   // diesem Monat keine Leistung, also darf sein Abo weder in den Umsatz
-  // noch in die Verteilschluessel einfliessen.
+  // noch in die Verteilschlüssel einfliessen.
   const totalAbos = objektMonat.reduce((a, o) => a + (o.aktiv ? z(o.aboBetrag) : 0), 0);
   const aktiveObj = objektMonat.filter((o) => o.aktiv).length;
 
@@ -244,12 +244,12 @@ export function rechne(eingabe: {
     const ahv = loehne * z(s.ahv);
     const alv = loehne * z(s.alv);
 
-    // NBU nur, wenn die Firma sie uebernimmt. Nach Art. 91 UVG traegt sie
+    // NBU nur, wenn die Firma sie uebernimmt. Nach Art. 91 UVG trägt sie
     // sonst der Arbeitnehmer und ist keine Arbeitgeberkost.
     let nbu = 0;
     if (s.nbuTraegtAg) {
       if (ausErfassung) {
-        // Schwelle pro Person pruefen, wie es das Gesetz vorsieht.
+        // Schwelle pro Person prüfen, wie es das Gesetz vorsieht.
         let basis = 0;
         for (const pid of erfasst!.personen) {
           if ((proPerson.get(pid) || 0) >= schwelleStd) {
@@ -277,8 +277,8 @@ export function rechne(eingabe: {
     const rpk = loehne * z(s.rpk);
     const lohnSz = o.aktiv ? loehne + ahv + alv + nbu + bu + ktg + rpk : 0;
     // Inaktiv heisst: weder Ertrag noch Kosten. Bliebe hier das Abo stehen,
-    // waehrend die Loehne wegfallen, ergaebe das Objekt einen Gewinn in
-    // voller Abohoehe aus dem Nichts.
+    // während die Löhne wegfallen, ergäbe das Objekt einen Gewinn in
+    // voller Abohöhe aus dem Nichts.
     const abo = o.aktiv ? z(o.aboBetrag) : 0;
     const zt = abo - lohnSz;
     const mat = o.aktiv ? z(s.mat) : 0;

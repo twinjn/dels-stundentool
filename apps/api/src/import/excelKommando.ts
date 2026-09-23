@@ -4,20 +4,20 @@
  *   npm run db:import-excel -- --ordner "C:\\Pfad\\zu\\2026"
  *   npm run db:import-excel -- --datei  "C:\\Pfad\\zu\\10019_2026.xlsm"
  *
- * Standardmaessig ein TROCKENLAUF: es wird gelesen, gerechnet, verglichen
+ * Standardmässig ein TROCKENLAUF: es wird gelesen, gerechnet, verglichen
  * und berichtet, aber nichts geschrieben. Erst mit --schreiben landet
  * etwas in der Datenbank.
  *
- * Das Kommando laeuft auf dem Rechner, auf dem die Dateien liegen. Sie
- * muessen nirgendwohin hochgeladen werden.
+ * Das Kommando läuft auf dem Rechner, auf dem die Dateien liegen. Sie
+ * müssen nirgendwohin hochgeladen werden.
  *
  * Optionen:
  *   --schreiben           wirklich in die Datenbank schreiben
- *   --ersetzen            vorhandene Eintraege der betroffenen Monate
- *                         vorher loeschen (sonst bricht es ab)
+ *   --ersetzen            vorhandene Einträge der betroffenen Monate
+ *                         vorher löschen (sonst bricht es ab)
  *   --fehlende-anlegen    Mitarbeiter und Objekte anlegen, die es in der
  *                         Datenbank noch nicht gibt
- *   --stammdaten          zusaetzlich das Blatt "Personal" uebernehmen
+ *   --stammdaten          zusätzlich das Blatt "Personal" übernehmen
  *                         (Funktion, Einsatzort, Adresse, Ferien-Saldo)
  *   --jahr 2026           Jahr vorgeben, falls es in der Datei fehlt
  */
@@ -181,10 +181,10 @@ const abweichungen: string[] = [];
  * Summen aus Excel zusammenfassen, je Person UND Monat.
  *
  * Zwei verschiedene Regeln, und die Unterscheidung ist der ganze Punkt:
- *  - ueber MONATE wird addiert (Januar plus Februar plus ...)
- *  - ueber DATEIEN zum selben Monat gilt bei Abwesenheiten das Maximum,
+ *  - über MONATE wird addiert (Januar plus Februar plus ...)
+ *  - über DATEIEN zum selben Monat gilt bei Abwesenheiten das Maximum,
  *    denn dieselben Ferientage stehen in jeder Objektdatei der Person.
- *    Gearbeitete Stunden dagegen addieren sich, die gehoeren zu
+ *    Gearbeitete Stunden dagegen addieren sich, die gehören zu
  *    verschiedenen Objekten.
  */
 const excelSummen = new Map<string, ExcelSummen>();
@@ -272,7 +272,7 @@ if (fehlendePersonen.size > 0 && !fehlendeAnlegen) {
 
 /**
  * Personalstamm aus allen Dateien, je Personalnummer einmal.
- * Alle Objektdateien tragen dasselbe Blatt, also genuegt das erste.
+ * Alle Objektdateien tragen dasselbe Blatt, also genügt das erste.
  */
 const personalstamm = new Map<string, PersonalZeile>();
 let stichtag: string | null = null;
@@ -315,7 +315,7 @@ if (monate.length === 0 && !sollStammdaten) {
   process.exit(0);
 }
 
-// Zeitraum nur bestimmen, wenn ueberhaupt Stunden vorliegen. Eine Datei
+// Zeitraum nur bestimmen, wenn überhaupt Stunden vorliegen. Eine Datei
 // ohne erfasste Stunden kann trotzdem einen Personalstamm mitbringen.
 const vonDatum = monate.length > 0 ? `${monate[0]}-01` : null;
 const bisDatum =
@@ -351,8 +351,8 @@ try {
      * Personalstamm uebernehmen.
      *
      * Regel: Excel gewinnt dort, wo es einen Wert hat. Leere Felder
-     * lassen die Datenbank unangetastet. Sonst wuerde ein Import alles
-     * ueberschreiben, was jemand in der Anwendung nachgetragen hat, nur
+     * lassen die Datenbank unangetastet. Sonst würde ein Import alles
+     * überschreiben, was jemand in der Anwendung nachgetragen hat, nur
      * weil die Spalte im Excel leer ist.
      *
      * Name und Status gelten dagegen immer: das sind die Angaben, die im
@@ -452,7 +452,7 @@ try {
 
     const uebersprungen = alleEintraege.length - zuSchreiben.length;
 
-    // In Haeppchen, sonst wird die Anweisung bei tausenden Zeilen zu gross.
+    // In Häppchen, sonst wird die Anweisung bei tausenden Zeilen zu gross.
     for (let i = 0; i < zuSchreiben.length; i += 500) {
       await tx.insert(eintraegeTabelle).values(zuSchreiben.slice(i, i + 500));
     }

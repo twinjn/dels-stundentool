@@ -1,15 +1,15 @@
 /**
- * Hilfen fuer die Tests der Oberflaeche.
+ * Hilfen für die Tests der Oberflaeche.
  *
  * Kern der Sache: die API wird NICHT wirklich aufgerufen. Statt eines
  * echten Servers steht eine nachgebaute Fassung von api da, die genau
  * die Antworten liefert, die ein Test braucht.
  *
  * Warum nicht gegen den echten Server testen: das macht die API-Tests
- * schon, 243 Stueck davon. Hier geht es um die andere Haelfte, naemlich
- * was die Oberflaeche aus einer Antwort MACHT. Dafuer muss die Antwort
- * frei waehlbar sein, auch Faelle, die man mit echten Daten muehsam
- * herstellen muesste: ein Serverfehler, eine leere Liste, ein Benutzer
+ * schon, 243 Stück davon. Hier geht es um die andere Hälfte, nämlich
+ * was die Oberfläche aus einer Antwort MACHT. Dafür muss die Antwort
+ * frei wählbar sein, auch Fälle, die man mit echten Daten mühsam
+ * herstellen müsste: ein Serverfehler, eine leere Liste, ein Benutzer
  * ohne Lohnrecht.
  */
 import { render } from "@testing-library/react";
@@ -25,9 +25,9 @@ export function benutzer(rolle: Rolle = "admin", name = "Test Person"): Benutzer
 /**
  * Rendert eine Komponente mit angemeldetem Benutzer.
  *
- * Der Kontext wird direkt mit einem Wert gefuellt, statt den echten
- * AuthAnbieter zu benutzen. Der wuerde beim Start /auth/ich abfragen,
- * und dann haette jeder Test eine Ladephase, die ihn nichts angeht.
+ * Der Kontext wird direkt mit einem Wert gefüllt, statt den echten
+ * AuthAnbieter zu benutzen. Der würde beim Start /auth/ich abfragen,
+ * und dann hätte jeder Test eine Ladephase, die ihn nichts angeht.
  */
 export function rendereAngemeldet(
   element: ReactElement,

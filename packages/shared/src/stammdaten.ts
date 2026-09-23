@@ -1,9 +1,9 @@
 /**
- * Pruefregeln fuer Mitarbeiter und Objekte.
+ * Prüfregeln für Mitarbeiter und Objekte.
  *
  * Zahlen kommen als Zeichenkette heraus, nicht als JavaScript-Zahl.
  * Grund: die Datenbank speichert Geld und Stunden als "numeric", und
- * jeder Umweg ueber eine Gleitkommazahl kann runden. In einer
+ * jeder Umweg über eine Gleitkommazahl kann runden. In einer
  * Lohnabrechnung ist das ein falscher Betrag, kein Rundungsfehler.
  */
 import { z } from "zod";
@@ -45,9 +45,9 @@ function optionaleDezimalzahl(vorkomma: number, nachkomma: number, was: string) 
 }
 
 /**
- * Wie oben, aber leere Eingabe heisst "nicht aendern" statt "auf null
- * setzen". Fuer Spalten, die in der Datenbank NOT NULL sind und einen
- * Standardwert haben: dort waere null schlicht verboten.
+ * Wie oben, aber leere Eingabe heisst "nicht ändern" statt "auf null
+ * setzen". Für Spalten, die in der Datenbank NOT NULL sind und einen
+ * Standardwert haben: dort wäre null schlicht verboten.
  */
 function dezimalzahlOhneNull(vorkomma: number, nachkomma: number, was: string) {
   const muster = new RegExp(`^-?\\d{1,${vorkomma}}(\\.\\d{1,${nachkomma}})?$`);
@@ -67,8 +67,8 @@ function dezimalzahlOhneNull(vorkomma: number, nachkomma: number, was: string) {
 function istEchtesDatum(text: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return false;
   const datum = new Date(`${text}T00:00:00Z`);
-  // Faengt den 31. Februar ab: den rechnet JavaScript sonst still in den
-  // 3. Maerz um.
+  // Fängt den 31. Februar ab: den rechnet JavaScript sonst still in den
+  // 3. März um.
   return !Number.isNaN(datum.getTime()) && datum.toISOString().slice(0, 10) === text;
 }
 
@@ -82,7 +82,7 @@ function optionalesDatum(was: string) {
 
 // --- AHV-Nummer ----------------------------------------------------------
 
-/** Macht aus "7561234567897" die uebliche Schreibweise 756.1234.5678.97. */
+/** Macht aus "7561234567897" die übliche Schreibweise 756.1234.5678.97. */
 export function ahvFormatieren(eingabe: string): string {
   const ziffern = eingabe.replace(/\D/g, "");
   if (ziffern.length !== 13) return eingabe.trim();
@@ -93,7 +93,7 @@ export function ahvGueltig(eingabe: string): boolean {
   const ziffern = eingabe.replace(/\D/g, "");
   if (!/^756\d{10}$/.test(ziffern)) return false;
 
-  // Pruefziffer nach EAN-13: von rechts abwechselnd mal 3 und mal 1.
+  // Prüfziffer nach EAN-13: von rechts abwechselnd mal 3 und mal 1.
   const stellen = ziffern.split("").map(Number);
   const pruefziffer = stellen.pop()!;
   let summe = 0;
@@ -106,11 +106,11 @@ export function ahvGueltig(eingabe: string): boolean {
 // --- IBAN ----------------------------------------------------------------
 
 /**
- * Prueft eine IBAN nach dem Modulo-97-Verfahren.
+ * Prüft eine IBAN nach dem Modulo-97-Verfahren.
  *
- * Das ist keine Formalie: die Pruefsumme faengt Zahlendreher ab. Ohne sie
+ * Das ist keine Formalie: die Prüfsumme fängt Zahlendreher ab. Ohne sie
  * geht ein Lohn im schlimmsten Fall auf ein fremdes, aber existierendes
- * Konto, und zurueckholen laesst sich das kaum.
+ * Konto, und zurückholen lässt sich das kaum.
  */
 export function ibanGueltig(eingabe: string): boolean {
   const iban = eingabe.replace(/\s/g, "").toUpperCase();
@@ -120,7 +120,7 @@ export function ibanGueltig(eingabe: string): boolean {
   const umgestellt = iban.slice(4) + iban.slice(0, 4);
   const ziffern = umgestellt.replace(/[A-Z]/g, (b) => String(b.charCodeAt(0) - 55));
 
-  // Stueckweise rechnen, sonst reicht die Zahlengenauigkeit nicht.
+  // Stückweise rechnen, sonst reicht die Zahlengenauigkeit nicht.
   let rest = 0;
   for (const zeichen of ziffern) {
     rest = (rest * 10 + Number(zeichen)) % 97;
@@ -135,7 +135,7 @@ export function ibanFormatieren(eingabe: string): string {
 
 // --- Mitarbeiter ---------------------------------------------------------
 
-/** Muss zur Aufzaehlung "lohnart" in der Datenbank passen. */
+/** Muss zur Aufzählung "lohnart" in der Datenbank passen. */
 export const LOHNARTEN = ["monat", "stunde"] as const;
 export type Lohnart = (typeof LOHNARTEN)[number];
 
@@ -144,7 +144,7 @@ const mitarbeiterFelder = {
 
   personalnummer: optionalerText(40),
   mitarbeiterstufe: optionalerText(40),
-  /** Manager, Aussendienst, Teamleiter, Buero, Hauswart, UHR I-III, Temporaer. */
+  /** Manager, Aussendienst, Teamleiter, Büro, Hauswart, UHR I-III, Temporaer. */
   funktion: optionalerText(40),
   einsatzort: optionalerText(80),
   gruppe: optionalerText(40),
@@ -180,7 +180,7 @@ const mitarbeiterFelder = {
   geburtsdatum: optionalesDatum("Geburtsdatum"),
   nationalitaet: optionalerText(60),
 
-  /** Aus dem Excel uebernommener Ferien-Saldo, mit dem Stand dazu. */
+  /** Aus dem Excel übernommener Ferien-Saldo, mit dem Stand dazu. */
   ferienSaldo: optionaleDezimalzahl(4, 2, "Ferien-Saldo"),
   ferienSaldoStand: optionalesDatum("Stand des Ferien-Saldos"),
   ahvNummer: optionalerText(20)

@@ -6,7 +6,7 @@ export type Ferienzeile = {
   name: string;
   /** Rest in Tagen. Negativ heisst: mehr bezogen als zusteht. */
   rest: number;
-  /** Kein Stichtag hinterlegt, der Uebertrag ist aus der Historie gerechnet. */
+  /** Kein Stichtag hinterlegt, der Übertrag ist aus der Historie gerechnet. */
   unsicher: boolean;
 };
 
@@ -30,9 +30,9 @@ export type Lagebild = {
   offen: {
     ohneErfassung: Person[];
     ohneErfassungAnzahl: number;
-    /** Saldo im Minus: mehr bezogen, als Anspruch plus Uebertrag hergeben. */
+    /** Saldo im Minus: mehr bezogen, als Anspruch plus Übertrag hergeben. */
     ferienMinus: Ferienzeile[];
-    /** Ab Oktober: wer hat noch Tage offen. null = noch zu frueh im Jahr. */
+    /** Ab Oktober: wer hat noch Tage offen. null = noch zu früh im Jahr. */
     ferienOffen: Ferienzeile[] | null;
     /** null heisst: diese Rolle darf die Liste nicht sehen. */
     ohneStundenlohn: Person[] | null;

@@ -1,6 +1,6 @@
 /**
- * Tests fuer den Personalstamm-Import.
- * Wieder mit einer selbst gebauten Mappe: echte Personaldaten gehoeren
+ * Tests für den Personalstamm-Import.
+ * Wieder mit einer selbst gebauten Mappe: echte Personaldaten gehören
  * nicht ins Repository.
  */
 import XLSX from "xlsx";
@@ -71,7 +71,7 @@ describe("Personalstamm lesen", () => {
 
   test("ein leerer Ferienanspruch bleibt leer statt null Tage zu werden", () => {
     // Im echten Blatt ist die Spalte bei fast allen leer. Daraus 0 Tage
-    // Anspruch zu machen waere schlimmer als nichts zu wissen.
+    // Anspruch zu machen wäre schlimmer als nichts zu wissen.
     const mappe = baueMappe([zeile({ 0: "1001", 2: "Aktiv", 4: "A", 5: "A", 10: 0, 11: 0 })]);
     const [person] = lesePersonalblatt(mappe).zeilen;
     expect(person?.ferienanspruch).toBeNull();
@@ -106,8 +106,8 @@ describe("Personalstamm lesen", () => {
 
 describe("Excel-Datumswerte", () => {
   test("rechnet die Tageszahl in ein Datum um", () => {
-    // Nachgerechnete Eckwerte, nicht aus dem Gedaechtnis:
-    // Excel zaehlt ab dem 30.12.1899.
+    // Nachgerechnete Eckwerte, nicht aus dem Gedächtnis:
+    // Excel zählt ab dem 30.12.1899.
     expect(excelDatum(44927)).toBe("2023-01-01");
     expect(excelDatum(45000)).toBe("2023-03-15");
     expect(excelDatum(45292)).toBe("2024-01-01");
@@ -124,14 +124,14 @@ describe("Excel-Datumswerte", () => {
   });
 
   test("weist unplausible Jahre ab", () => {
-    // Seriennummer 1 waere der 31.12.1899. In einer Spalte mit
+    // Seriennummer 1 wäre der 31.12.1899. In einer Spalte mit
     // Geburtstagen ist das ein Streuwert, kein Datum.
     expect(excelDatum(1)).toBeNull(); // waere der 31.12.1899
     expect(excelDatum(-5)).toBeNull();
     expect(excelDatum(9_000_000)).toBeNull(); // weit im Jahr 26'000
 
     // Die Grenze liegt beim Jahr 1900, nicht bei "plausibles Geburtsjahr".
-    // Sie faengt Streuwerte ab, ersetzt aber keine Fachpruefung.
+    // Sie fängt Streuwerte ab, ersetzt aber keine Fachpruefung.
     expect(excelDatum(50)).toBe("1900-02-18");
   });
 

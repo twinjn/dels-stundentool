@@ -3,14 +3,14 @@
  *
  * Die Seite zeigt zwei Gruppen getrennt, und das ist der ganze Punkt:
  *
- *   Monatslohn   Anspruch, Uebertrag, Bezug, Rest. Hier gibt es einen
+ *   Monatslohn   Anspruch, Übertrag, Bezug, Rest. Hier gibt es einen
  *                Saldo, und der ist planbar.
  *   Stundenlohn  Zuschlag auf den Stundenlohn. Hier gibt es keinen
  *                Saldo, weil die Ferien mit jedem Lohn schon bezahlt
  *                sind.
  *
- * Beides in eine Tabelle zu pressen waere kuerzer und wuerde der
- * grossen Gruppe eine Zahl hinstellen, die es fuer sie gar nicht gibt.
+ * Beides in eine Tabelle zu pressen wäre kürzer und würde der
+ * grossen Gruppe eine Zahl hinstellen, die es für sie gar nicht gibt.
  */
 import { useEffect, useMemo, useState } from "react";
 import { ApiFehler, api } from "../../api/client.js";

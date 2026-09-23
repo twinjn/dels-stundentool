@@ -1,13 +1,13 @@
 /**
- * Waechter fuer Routen.
+ * Wächter für Routen.
  *
- * Hier wird Sicherheit tatsaechlich durchgesetzt. Alles, was das Frontend
- * macht (Knoepfe ausblenden, Seiten nicht anzeigen), ist Kosmetik. Wer die
- * Adresse kennt, schickt die Anfrage von Hand. Wenn hier kein Waechter
+ * Hier wird Sicherheit tatsächlich durchgesetzt. Alles, was das Frontend
+ * macht (Knöpfe ausblenden, Seiten nicht anzeigen), ist Kosmetik. Wer die
+ * Adresse kennt, schickt die Anfrage von Hand. Wenn hier kein Wächter
  * steht, ist die Route offen. Punkt.
  *
- * Regel fuer dieses Projekt: jede Route bekommt einen Waechter, und jeder
- * Waechter bekommt einen Test.
+ * Regel für dieses Projekt: jede Route bekommt einen Wächter, und jeder
+ * Wächter bekommt einen Test.
  */
 import type { NextFunction, Request, Response } from "express";
 import { hatRecht, type Recht } from "@dels/shared";
@@ -15,9 +15,9 @@ import { keinZugriff, nichtAngemeldet } from "../fehler.js";
 import { COOKIE_NAME, sitzungPruefen } from "./sitzung.js";
 
 /**
- * Liest das Cookie und haengt den Benutzer an die Anfrage, falls die
- * Sitzung gueltig ist. Lehnt nichts ab, das machen die Waechter darunter.
- * Laeuft fuer JEDE Anfrage, auch fuer oeffentliche.
+ * Liest das Cookie und hängt den Benutzer an die Anfrage, falls die
+ * Sitzung gültig ist. Lehnt nichts ab, das machen die Wächter darunter.
+ * Läuft für JEDE Anfrage, auch für oeffentliche.
  */
 export async function sitzungLesen(
   req: Request,

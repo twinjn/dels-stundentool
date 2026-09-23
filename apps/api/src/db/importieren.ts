@@ -1,5 +1,5 @@
 /**
- * Kommandozeilen-Werkzeug fuer den Import aus dem Altsystem.
+ * Kommandozeilen-Werkzeug für den Import aus dem Altsystem.
  *
  *   npm run db:import -w @dels/api              importiert
  *   npm run db:import -w @dels/api -- --leeren  leert die Zieltabellen vorher

@@ -2,18 +2,18 @@
  * Sitzungen (Sessions).
  *
  * Ablauf einer Anmeldung:
- *  1. Wir wuerfeln ein Token aus 32 zufaelligen Bytes.
+ *  1. Wir würfeln ein Token aus 32 zufälligen Bytes.
  *  2. In die Datenbank kommt nur der SHA-256-HASH davon.
  *  3. Das Klartext-Token geht als Cookie an den Browser.
  *
- * Warum der Umweg ueber den Hash: wer irgendwie an die Datenbank kommt
+ * Warum der Umweg über den Hash: wer irgendwie an die Datenbank kommt
  * (Backup auf einem USB-Stick, geleakter Dump, neugieriger Praktikant),
- * kann sich damit trotzdem NICHT anmelden. Aus dem Hash laesst sich das
+ * kann sich damit trotzdem NICHT anmelden. Aus dem Hash lässt sich das
  * Token nicht zurueckrechnen.
  *
  * Hier reicht SHA-256, anders als bei Passwoertern. Der Unterschied: ein
  * Token hat 256 Bit echten Zufall, ein Passwort hat vielleicht 30 Bit.
- * Zufall in dieser Groessenordnung kann niemand durchprobieren, also
+ * Zufall in dieser Grössenordnung kann niemand durchprobieren, also
  * braucht es kein absichtlich langsames Verfahren.
  */
 import crypto from "node:crypto";
@@ -24,11 +24,11 @@ import { benutzer, sitzungen } from "../db/schema.js";
 
 export const COOKIE_NAME = "dels_sitzung";
 
-/** Wie lange eine Sitzung ohne Aktivitaet gueltig bleibt. */
+/** Wie lange eine Sitzung ohne Aktivität gültig bleibt. */
 const GUELTIG_TAGE = 7;
 
 /**
- * Verlaengert wird erst, wenn seit der letzten Aktivitaet mehr als eine
+ * Verlängert wird erst, wenn seit der letzten Aktivität mehr als eine
  * Stunde vergangen ist. Sonst schriebe jede einzelne Anfrage in die
  * Datenbank, nur um eine Uhrzeit um ein paar Sekunden zu aktualisieren.
  */
@@ -68,8 +68,8 @@ export async function sitzungAnlegen(
 }
 
 /**
- * Prueft ein Token und liefert den dazugehoerenden Benutzer.
- * Gibt null zurueck, wenn die Sitzung unbekannt, abgelaufen oder das
+ * Prüft ein Token und liefert den dazugehörenden Benutzer.
+ * Gibt null zurück, wenn die Sitzung unbekannt, abgelaufen oder das
  * Konto stillgelegt ist.
  */
 export async function sitzungPruefen(token: string): Promise<AngemeldeterBenutzer | null> {
@@ -98,7 +98,7 @@ export async function sitzungPruefen(token: string): Promise<AngemeldeterBenutze
     return null;
   }
 
-  // Ein stillgelegtes Konto fliegt sofort raus, auch mit gueltigem Token.
+  // Ein stillgelegtes Konto fliegt sofort raus, auch mit gültigem Token.
   // Sonst bliebe ein entlassener Mitarbeiter noch sieben Tage drin.
   if (!zeile.aktiv) {
     await db.delete(sitzungen).where(eq(sitzungen.id, id));
@@ -119,12 +119,12 @@ export async function sitzungBeenden(token: string): Promise<void> {
   await db.delete(sitzungen).where(eq(sitzungen.id, hashe(token)));
 }
 
-/** Meldet einen Benutzer auf allen Geraeten ab. */
+/** Meldet einen Benutzer auf allen Geräten ab. */
 export async function alleSitzungenBeenden(benutzerId: string): Promise<void> {
   await db.delete(sitzungen).where(eq(sitzungen.benutzerId, benutzerId));
 }
 
-/** Raeumt abgelaufene Sitzungen weg. Wird beim Anmelden nebenbei erledigt. */
+/** Räumt abgelaufene Sitzungen weg. Wird beim Anmelden nebenbei erledigt. */
 export async function abgelaufeneAufraeumen(): Promise<void> {
   await db.delete(sitzungen).where(lt(sitzungen.laeuftAbAm, new Date()));
 }

@@ -1,9 +1,9 @@
 /**
- * Gemeinsame Hilfen fuer Tests.
+ * Gemeinsame Hilfen für Tests.
  *
  * Liegt in src/test/ und ist in der tsconfig vom Bau ausgenommen: diese
  * Datei soll niemals in der ausgelieferten Anwendung landen. Sie legt
- * Benutzer an und meldet sie an, das gehoert nicht in Produktion.
+ * Benutzer an und meldet sie an, das gehört nicht in Produktion.
  */
 import type { Express } from "express";
 import request from "supertest";
@@ -16,12 +16,12 @@ import { benutzer } from "../db/schema.js";
 /**
  * Schutz davor, Tests gegen die falsche Datenbank laufen zu lassen.
  *
- * Die Tests legen Benutzer an, aendern Stammdaten und raeumen hinterher
+ * Die Tests legen Benutzer an, ändern Stammdaten und räumen hinterher
  * auf. In einer Produktivdatenbank ist das eine Katastrophe, und ein
  * vertippter oder vergessener DATABASE_URL ist schnell passiert.
  *
  * Deshalb laufen sie nur gegen eine Datenbank, deren Name sie als
- * Spielwiese ausweist. Wer es trotzdem will, muss es ausdruecklich sagen:
+ * Spielwiese ausweist. Wer es trotzdem will, muss es ausdrücklich sagen:
  *   TESTS_GEGEN_DIESE_DB=ja npm test
  */
 function pruefeDatenbank(): void {
@@ -46,7 +46,7 @@ pruefeDatenbank();
 
 export const TESTPASSWORT = "ein-langes-testpasswort";
 
-/** Eindeutiger Namensraum pro Testdatei, damit sich Laeufe nicht stoeren. */
+/** Eindeutiger Namensraum pro Testdatei, damit sich Läufe nicht stoeren. */
 export function markeErzeugen(vorsilbe: string): string {
   return `${vorsilbe}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 }

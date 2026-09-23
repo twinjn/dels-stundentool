@@ -3,14 +3,14 @@
  *
  * Ziel: jede Route wirft einfach einen Fehler, und genau eine Stelle
  * entscheidet, was der Browser davon zu sehen bekommt. Ohne das streut
- * man res.status(400).json(...) ueber hundert Stellen und jede sieht
+ * man res.status(400).json(...) über hundert Stellen und jede sieht
  * ein bisschen anders aus.
  */
 import type { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
 import { istProduktion } from "./config.js";
 
-/** Ein Fehler, den wir bewusst ausloesen und dem Benutzer zeigen wollen. */
+/** Ein Fehler, den wir bewusst auslösen und dem Benutzer zeigen wollen. */
 export class HttpFehler extends Error {
   readonly status: number;
   readonly code: string;
@@ -60,8 +60,8 @@ export function fehlerBehandlung(
     return;
   }
 
-  // Alles Uebrige ist ein Programmierfehler. Der Benutzer bekommt nur eine
-  // neutrale Meldung, die Details landen im Server-Log. Sonst verraet man
+  // Alles Übrige ist ein Programmierfehler. Der Benutzer bekommt nur eine
+  // neutrale Meldung, die Details landen im Server-Log. Sonst verrät man
   // Angreifern Tabellennamen, Pfade und Bibliotheksversionen.
   console.error("Unerwarteter Fehler:", fehler);
   res.status(500).json({

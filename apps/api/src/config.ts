@@ -9,7 +9,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 
-// import.meta.url ist der ESM-Ersatz fuer __dirname.
+// import.meta.url ist der ESM-Ersatz für __dirname.
 const hier = path.dirname(fileURLToPath(import.meta.url));
 
 // Die .env liegt in der Wurzel des Repos, nicht in apps/api.
@@ -17,10 +17,10 @@ const hier = path.dirname(fileURLToPath(import.meta.url));
 const envDatei = path.resolve(hier, "../../../.env");
 
 try {
-  // Node kann das seit v22 selbst, dafuer braucht es kein dotenv mehr.
+  // Node kann das seit v22 selbst, dafür braucht es kein dotenv mehr.
   process.loadEnvFile(envDatei);
 } catch {
-  // Keine .env vorhanden ist voellig in Ordnung: in Produktion kommen die
+  // Keine .env vorhanden ist völlig in Ordnung: in Produktion kommen die
   // Werte aus der Umgebung des Containers, nicht aus einer Datei.
 }
 
@@ -34,22 +34,22 @@ const EnvSchema = z.object({
    *
    * Die Vorgabe ist 127.0.0.1, also NUR die eigene Maschine. Das ist
    * Absicht: vor der Anwendung steht immer etwas, das TLS macht (Caddy,
-   * nginx, Tailscale). Lauschte sie auf allen Schnittstellen, waere sie
-   * im Firmennetz zusaetzlich unter http://rechner:3000 erreichbar, an
+   * nginx, Tailscale). Lauschte sie auf allen Schnittstellen, wäre sie
+   * im Firmennetz zusätzlich unter http://rechner:3000 erreichbar, an
    * diesem Schutz vorbei. Wer sich dort anmeldet, schickt sein Passwort
-   * unverschluesselt durchs Netz.
+   * unverschlüsselt durchs Netz.
    *
    * Im Docker-Container muss dagegen 0.0.0.0 stehen: dort ist 127.0.0.1
-   * das Innere des Containers, und die Portweiterleitung kaeme nie an.
+   * das Innere des Containers, und die Portweiterleitung käme nie an.
    * Deshalb setzt docker-compose.prod.yml HOST ausdruecklich.
    *
    * Sichere Vorgabe, unsichere Einstellung nur dort, wo sie gebraucht
-   * wird und begruendet ist.
+   * wird und begründet ist.
    */
   HOST: z.string().min(1).default("127.0.0.1"),
 
   // Das "error" greift auch, wenn die Variable komplett fehlt. Ohne das
-  // kaeme an dieser Stelle Zods englische Standardmeldung durch.
+  // käme an dieser Stelle Zods englische Standardmeldung durch.
   DATABASE_URL: z
     .string({ error: "DATABASE_URL fehlt. Vorlage steht in .env.example." })
     .min(1, "DATABASE_URL ist leer.")
@@ -69,7 +69,7 @@ const EnvSchema = z.object({
   /**
    * Wie viele Zwischenstationen (nginx, Caddy, Load Balancer) vor der API
    * stehen. Ohne diesen Wert sieht Express als Absender-IP immer die des
-   * Proxys, also bei ALLEN Benutzern dieselbe. Die Anmeldesperre wuerde
+   * Proxys, also bei ALLEN Benutzern dieselbe. Die Anmeldesperre würde
    * dann entweder alle gemeinsam aussperren oder gar nicht greifen.
    * 0 = kein Proxy davor (lokale Entwicklung).
    */

@@ -1,6 +1,6 @@
 /**
- * Tests fuer die Stundenerfassung.
- * Schwerpunkt: dass eine Zelle genau einen Wert haelt und dass Ferien
+ * Tests für die Stundenerfassung.
+ * Schwerpunkt: dass eine Zelle genau einen Wert hält und dass Ferien
  * nicht versehentlich an einem Objekt landen.
  */
 import { and, eq, inArray, like } from "drizzle-orm";

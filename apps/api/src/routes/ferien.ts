@@ -4,14 +4,14 @@
  * RECHTE, und warum sie hier auseinanderfallen:
  *
  * Den Stand in Tagen darf sehen, wer Stammdaten sehen darf. Das ist
- * Alltag im Buero: wer plant, wer noch Tage offen hat, wer im Dezember
+ * Alltag im Büro: wer plant, wer noch Tage offen hat, wer im Dezember
  * gemahnt werden muss.
  *
- * Die Ferienentschaedigung der Stundenloehner ist dagegen ein
+ * Die Ferienentschädigung der Stundenlöhner ist dagegen ein
  * Frankenbetrag aus Stundenlohn mal Stunden. Das IST eine Lohnzahl,
  * auch wenn sie unter "Ferien" steht, und sie wird nur mitgeschickt,
- * wenn die Rolle Loehne sehen darf. Ein Recht danach zu vergeben, wo
- * eine Zahl in der Oberflaeche steht, statt danach, was sie verraet,
+ * wenn die Rolle Löhne sehen darf. Ein Recht danach zu vergeben, wo
+ * eine Zahl in der Oberfläche steht, statt danach, was sie verrät,
  * ist ein Klassiker unter den Datenlecks.
  */
 import { Router } from "express";
@@ -48,7 +48,7 @@ const UebertragSchema = z.object({
 });
 
 /**
- * Entfernt die Frankenbetraege, wenn die Rolle keine Loehne sehen darf.
+ * Entfernt die Frankenbeträge, wenn die Rolle keine Löhne sehen darf.
  * Die Tage bleiben, die sind kein Geheimnis.
  */
 function ohneLohnzahlen(zeile: FerienZeile): FerienZeile {
@@ -70,7 +70,7 @@ ferienRouter.get("/", brauchtRecht("stammdaten:lesen"), async (req, res) => {
 });
 
 /**
- * Uebertrag von Hand setzen, also die gerechnete Zahl uebersteuern.
+ * Übertrag von Hand setzen, also die gerechnete Zahl uebersteuern.
  *
  * Braucht stammdaten:schreiben, nicht loehne:schreiben: es geht um Tage.
  * Und es wird protokolliert, weil hier jemandem Ferien weggenommen oder
@@ -91,9 +91,9 @@ ferienRouter.put(
 
     if (!person) throw nichtGefunden("Diesen Mitarbeiter gibt es nicht.");
 
-    // Ein Uebertrag in Tagen fuer jemanden im Stundenlohn ergibt keinen
+    // Ein Übertrag in Tagen für jemanden im Stundenlohn ergibt keinen
     // Sinn: dort sind die Ferien mit jedem Lohn bezahlt. Lieber hier
-    // ablehnen als eine Zahl fuehren, die nie jemand anschaut.
+    // ablehnen als eine Zahl führen, die nie jemand anschaut.
     if (person.lohnart !== "monat") {
       throw new HttpFehler(
         422,
@@ -138,7 +138,7 @@ ferienRouter.put(
   },
 );
 
-/** Gesetzten Uebertrag wieder entfernen, damit wieder gerechnet wird. */
+/** Gesetzten Übertrag wieder entfernen, damit wieder gerechnet wird. */
 ferienRouter.delete(
   "/:mitarbeiterId/:jahr",
   brauchtRecht("stammdaten:schreiben"),

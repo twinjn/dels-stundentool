@@ -7,13 +7,13 @@ import { config, istProduktion } from "./config.js";
 import { datenbankErreichbar } from "./db/index.js";
 
 /**
- * Das Sitzungs-Cookie ist in Produktion "secure", wird also nur ueber
- * HTTPS geschickt. Laeuft die Anwendung dort ueber reines http, nimmt der
- * Browser das Cookie zwar entgegen, schickt es aber nie zurueck: die
+ * Das Sitzungs-Cookie ist in Produktion "secure", wird also nur über
+ * HTTPS geschickt. Läuft die Anwendung dort über reines http, nimmt der
+ * Browser das Cookie zwar entgegen, schickt es aber nie zurück: die
  * Anmeldung scheint zu klappen und man ist sofort wieder abgemeldet.
  *
  * Das ist einer der Fehler, die man stundenlang sucht. Deshalb hier eine
- * unuebersehbare Warnung statt eines stillen Raetsels.
+ * unübersehbare Warnung statt eines stillen Raetsels.
  */
 if (istProduktion && config.WEB_ORIGIN.startsWith("http://")) {
   console.warn(

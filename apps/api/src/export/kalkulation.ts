@@ -2,13 +2,13 @@
  * Die Kalkulation als Excel-Arbeitsmappe.
  *
  * Gerechnet wird mit rechne() aus @dels/shared, derselben Funktion, die
- * auch der Browser benutzt. Das ist der ganze Punkt der Uebung: wer den
+ * auch der Browser benutzt. Das ist der ganze Punkt der Übung: wer den
  * Export mit dem Bildschirm vergleicht, findet dieselben Zahlen, weil es
  * dieselbe Rechnung ist und nicht eine zweite Fassung davon.
  *
- * Vier Blaetter: Zusammenfassung, Objekte, Personal, Adminkosten. Die
- * Ansaetze stehen mit im Blatt "Zusammenfassung", damit ein exportierter
- * Monat auch in einem Jahr noch erklaert, womit er gerechnet wurde.
+ * Vier Blätter: Zusammenfassung, Objekte, Personal, Adminkosten. Die
+ * Ansätze stehen mit im Blatt "Zusammenfassung", damit ein exportierter
+ * Monat auch in einem Jahr noch erklärt, womit er gerechnet wurde.
  */
 import { rechne } from "@dels/shared";
 import { kalkulationsdaten } from "../kalkulation/daten.js";
@@ -26,7 +26,7 @@ import { jetztInZuerich, monatTitel } from "./stunden.js";
 
 type Daten = Awaited<ReturnType<typeof kalkulationsdaten>>;
 
-/** Die Ansaetze als lesbare Paare, mit passendem Format je Zeile. */
+/** Die Ansätze als lesbare Paare, mit passendem Format je Zeile. */
 function ansatzzeilen(s: Daten["ansaetze"]): { zeilen: Zellwert[][]; prozent: Set<number> } {
   const paare: [string, number | string | null, boolean][] = [
     ["AHV", alsZahl(s.ahv), true],
@@ -131,7 +131,7 @@ export function kalkulationsmappe(daten: Daten, erstelltAm = jetztInZuerich()): 
   for (const zeile of ansatz) zusammen.push(zeile);
 
   // Prozentzeilen bekommen das Prozentformat, alles andere Franken. Der
-  // Umweg ueber zwei Blaetter waere sauberer, aber hier sind es 22 Zeilen.
+  // Umweg über zwei Blätter wäre sauberer, aber hier sind es 22 Zeilen.
   const zusammenBlatt = blatt({
     zeilen: zusammen,
     breiten: [38, 16],

@@ -2,9 +2,9 @@
  * Was die API unter /api/ferien liefert.
  *
  * Zwei Formen in einer Liste, unterschieden durch "art". TypeScript
- * zwingt einen damit, vor jedem Zugriff zu klaeren, um welche Gruppe es
+ * zwingt einen damit, vor jedem Zugriff zu klären, um welche Gruppe es
  * geht. Genau das ist gewollt: "rest" gibt es im Stundenlohn nicht, und
- * eine Oberflaeche, die dort trotzdem eine Null hinschreibt, erfindet
+ * eine Oberfläche, die dort trotzdem eine Null hinschreibt, erfindet
  * eine Aussage.
  */
 
@@ -33,7 +33,7 @@ export type FerienStundenlohn = {
   wochen: number;
   zuschlag: number;
   stunden: number;
-  /** null heisst: die Rolle darf keine Loehne sehen, oder es ist keiner hinterlegt. */
+  /** null heisst: die Rolle darf keine Löhne sehen, oder es ist keiner hinterlegt. */
   basis: number | null;
   entschaedigung: number | null;
   bezogen: number;

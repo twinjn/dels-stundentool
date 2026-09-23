@@ -1,9 +1,9 @@
 /**
- * Tests fuer den Export.
+ * Tests für den Export.
  *
  * Der Punkt dieser Tests ist NICHT, dass die Route 200 liefert. Eine
  * kaputte Arbeitsmappe liefert auch 200. Deshalb wird jede erzeugte
- * Datei hier wieder eingelesen und Zelle fuer Zelle mit dem verglichen,
+ * Datei hier wieder eingelesen und Zelle für Zelle mit dem verglichen,
  * was in der Datenbank steht.
  */
 import { rechne } from "@dels/shared";
@@ -163,7 +163,7 @@ describe("Stundenblatt", () => {
     expect(antwort.headers["content-disposition"]).toBe(
       `attachment; filename="Stunden_${MONAT}.xlsx"`,
     );
-    // Personendaten gehoeren in keinen Zwischenspeicher.
+    // Personendaten gehören in keinen Zwischenspeicher.
     expect(antwort.headers["cache-control"]).toBe("no-store");
   });
 
@@ -207,7 +207,7 @@ describe("Stundenblatt", () => {
 
     // Bewusst nicht "der erste Export-Eintrag": derselbe Admin exportiert
     // in anderen Tests dieser Datei auch die Stammdaten, und in welcher
-    // Reihenfolge Vitest die Tests fahren laesst, ist nicht unsere Sache.
+    // Reihenfolge Vitest die Tests fahren lässt, ist nicht unsere Sache.
     const alle = await db.select().from(protokoll).where(eq(protokoll.benutzerId, adminId));
     const eintrag = alle.find((z) => z.aktion === "exportieren" && z.tabelle === "eintraege");
 
@@ -274,7 +274,7 @@ describe("Kalkulation", () => {
     expect(formatVon("Marge")).toBe("0.00%");
     expect(formatVon("Objekte ohne Stunden")).toBe("#,##0");
     expect(formatVon("Abonnemente (Umsatz)")).toBe("#,##0.00");
-    // Ein Satz aus dem Ansaetze-Block, der weiter unten steht.
+    // Ein Satz aus dem Ansätze-Block, der weiter unten steht.
     expect(formatVon("AHV")).toBe("#,##0.00");
   });
 

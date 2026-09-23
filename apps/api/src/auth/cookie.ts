@@ -14,16 +14,16 @@ export function cookieOptionen(): CookieOptions {
 
     // sameSite "lax": das Cookie wird nicht mitgeschickt, wenn eine fremde
     // Website eine Anfrage an uns ausloest. Das ist unser Hauptschutz gegen
-    // Cross-Site-Request-Forgery, also dagegen, dass eine praeparierte Seite
+    // Cross-Site-Request-Forgery, also dagegen, dass eine präparierte Seite
     // im Namen eines angemeldeten Benutzers Daten aendert.
     sameSite: "lax",
 
-    // secure: nur ueber HTTPS. Lokal laeuft die Entwicklung ueber http,
-    // deshalb nur in Produktion. Ohne diese Ausnahme koenntest du dich
+    // secure: nur über HTTPS. Lokal läuft die Entwicklung über http,
+    // deshalb nur in Produktion. Ohne diese Ausnahme könntest du dich
     // auf deinem eigenen Rechner nicht anmelden.
     secure: istProduktion,
 
-    // Gilt fuer die ganze Anwendung.
+    // Gilt für die ganze Anwendung.
     path: "/",
 
     maxAge: SITZUNG_TAGE * 24 * 60 * 60 * 1000,

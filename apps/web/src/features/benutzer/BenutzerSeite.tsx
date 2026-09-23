@@ -1,8 +1,8 @@
 /**
- * Benutzerverwaltung. Nur fuer Admins sichtbar und nur fuer Admins nutzbar.
+ * Benutzerverwaltung. Nur für Admins sichtbar und nur für Admins nutzbar.
  *
  * Zur Erinnerung: dass diese Seite in der Navigation fehlt, hindert
- * niemanden daran, /benutzer einzutippen. Geschuetzt ist sie dadurch,
+ * niemanden daran, /benutzer einzutippen. Geschützt ist sie dadurch,
  * dass die API jede Anfrage prueft.
  */
 import { useState } from "react";
@@ -37,17 +37,17 @@ export function BenutzerSeite() {
       await api.patch(`/benutzer/${zeile.id}`, { aktiv: !zeile.aktiv });
       neuLaden();
     } catch (e: unknown) {
-      // Haeufigster Fall: es ist der letzte aktive Admin.
+      // Häufigster Fall: es ist der letzte aktive Admin.
       setAktionsfehler(e instanceof ApiFehler ? e.message : "Änderung fehlgeschlagen.");
     }
   }
 
   /**
-   * Passwort fuer jemand anderen setzen.
+   * Passwort für jemand anderen setzen.
    *
-   * Das ist der Weg fuer ein vergessenes Passwort. Es gibt bewusst kein
-   * Zuruecksetzen per Mail: dafuer braeuchte es einen Mailversand, und
-   * fuer ein Buero mit einer Handvoll Leute ist der kurze Weg ueber den
+   * Das ist der Weg für ein vergessenes Passwort. Es gibt bewusst kein
+   * Zuruecksetzen per Mail: dafür bräuchte es einen Mailversand, und
+   * für ein Büro mit einer Handvoll Leute ist der kurze Weg über den
    * Admin einfacher und weniger angreifbar.
    *
    * Der Server beendet dabei alle Sitzungen der betroffenen Person.

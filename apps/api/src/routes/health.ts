@@ -1,11 +1,11 @@
 /**
  * Lebenszeichen der API.
- * Wird spaeter vom Deployment und vom Backup-Skript abgefragt, um zu
- * pruefen, ob der Dienst wirklich laeuft. Braucht bewusst KEINEN Login.
+ * Wird später vom Deployment und vom Backup-Skript abgefragt, um zu
+ * prüfen, ob der Dienst wirklich laeuft. Braucht bewusst KEINEN Login.
  *
- * Die Datenbank wird mitgeprueft: eine API, die zwar antwortet, aber
- * keine Datenbank hat, ist fuer den Benutzer genauso kaputt wie eine,
- * die gar nicht laeuft. "Gruen" soll heissen "funktioniert wirklich".
+ * Die Datenbank wird mitgeprüft: eine API, die zwar antwortet, aber
+ * keine Datenbank hat, ist für den Benutzer genauso kaputt wie eine,
+ * die gar nicht laeuft. "Grün" soll heissen "funktioniert wirklich".
  */
 import { Router } from "express";
 import { config } from "../config.js";

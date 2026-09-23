@@ -3,7 +3,7 @@
  *
  * Henne-Ei-Problem: Benutzer anlegen darf nur ein Admin, aber am Anfang
  * gibt es keinen. Deshalb dieses Werkzeug, das direkt an der Datenbank
- * arbeitet und nicht ueber die API geht.
+ * arbeitet und nicht über die API geht.
  *
  *   npm run db:admin -w @dels/api
  *
@@ -22,7 +22,7 @@ import { datenbankSchliessen } from "./index.js";
 
 /**
  * Liest ein benanntes Argument: --name "Anna Muster"
- * Damit laesst sich das Skript auch automatisiert aufrufen, etwa beim
+ * Damit lässt sich das Skript auch automatisiert aufrufen, etwa beim
  * Einrichten eines neuen Servers.
  */
 function argument(name: string): string | undefined {
@@ -33,7 +33,7 @@ function argument(name: string): string | undefined {
 }
 
 /**
- * EINE Leseschleife fuer das ganze Skript.
+ * EINE Leseschleife für das ganze Skript.
  *
  * Wichtig: pro Frage eine neue anzulegen funktioniert nur am Terminal.
  * Sobald die Eingabe aus einer Datei oder einer Weiterleitung kommt,
@@ -50,14 +50,14 @@ let stumm = false;
  * readline meldet jede fertige Zeile sofort, egal ob gerade jemand auf
  * eine Antwort wartet. Kommt die Eingabe aus einer Weiterleitung, sind
  * alle Zeilen auf einen Schlag da. Die erste Frage bekommt ihre Zeile,
- * und waehrend ihre Zusage noch aufgeloest wird, meldet readline schon
+ * und während ihre Zusage noch aufgelöst wird, meldet readline schon
  * die zweite Zeile, auf die in diesem Moment niemand hoert. Sie ist
  * damit weg. Die zweite Frage wartet dann ewig auf etwas, das bereits
  * durchgelaufen ist.
  *
- * Mit rl.question() laesst sich das nicht beheben, weil die Luecke
- * zwischen zwei question()-Aufrufen genau dort liegt. Deshalb hoert hier
- * dauerhaft ein Zuhoerer mit und legt ab, was niemand abholt.
+ * Mit rl.question() lässt sich das nicht beheben, weil die Lücke
+ * zwischen zwei question()-Aufrufen genau dort liegt. Deshalb hört hier
+ * dauerhaft ein Zuhörer mit und legt ab, was niemand abholt.
  */
 const puffer: string[] = [];
 let wartet: ((zeile: string) => void) | undefined;
@@ -157,7 +157,7 @@ try {
     process.exit(1);
   }
 
-  // Dieselbe Pruefung wie in der API. Keine zweite Regel, die abweichen kann.
+  // Dieselbe Prüfung wie in der API. Keine zweite Regel, die abweichen kann.
   const geprueft = BenutzerAnlegenSchema.parse({ name, email, passwort, rolle: "admin" });
 
   const [angelegt] = await db

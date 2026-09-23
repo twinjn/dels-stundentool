@@ -10,7 +10,7 @@ export type Jahreszeile = {
   ferienanspruch: number;
   ferienSaldo: number | null;
   ferienSaldoStand: string | null;
-  /** Zwoelf Eintraege, Index 0 ist Januar. */
+  /** Zwölf Einträge, Index 0 ist Januar. */
   monate: Summen[];
   jahr: Summen;
 };

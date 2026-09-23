@@ -1,6 +1,6 @@
 /**
- * Eine duenne Schicht ueber SheetJS, damit die Export-Module sich um
- * Inhalte kuemmern und nicht um Zellkoordinaten.
+ * Eine dünne Schicht über SheetJS, damit die Export-Module sich um
+ * Inhalte kümmern und nicht um Zellkoordinaten.
  *
  * Zwei Dinge, die hier bewusst so sind:
  *
@@ -17,7 +17,7 @@
  *
  * Was SheetJS in der freien Fassung NICHT kann und wir deshalb auch
  * nicht anbieten: eingefrorene Kopfzeilen, Rahmen, Farben, Fettdruck.
- * Geprueft, nicht vermutet: ein gesetztes ws["!freeze"] taucht in der
+ * Geprüft, nicht vermutet: ein gesetztes ws["!freeze"] taucht in der
  * erzeugten Datei nicht auf.
  */
 import * as XLSX from "xlsx";
@@ -34,7 +34,7 @@ export const F_PROZENT = "0.00%";
 const EXCEL_EPOCHE = Date.UTC(1899, 11, 30);
 const MS_PRO_TAG = 86_400_000;
 
-/** "JJJJ-MM-TT" in eine Excel-Seriennummer. Gegenstueck zu excelDatum(). */
+/** "JJJJ-MM-TT" in eine Excel-Seriennummer. Gegenstück zu excelDatum(). */
 export function alsExcelDatum(iso: string | null | undefined): number | null {
   if (!iso) return null;
   const treffer = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
@@ -55,9 +55,9 @@ export type Blattbau = {
   zeilen: Zellwert[][];
   /** Spaltenbreiten in Zeichen. */
   breiten?: number[];
-  /** Spaltenindex -> Zahlenformat. Gilt nur fuer Zellen, die Zahlen sind. */
+  /** Spaltenindex -> Zahlenformat. Gilt nur für Zellen, die Zahlen sind. */
   formate?: Record<number, string>;
-  /** Ab welcher Zeile (0-basiert) die Formate gelten. Darueber stehen Titel. */
+  /** Ab welcher Zeile (0-basiert) die Formate gelten. Darüber stehen Titel. */
   datenAb?: number;
 };
 
@@ -98,7 +98,7 @@ export function mappe(blaetter: { name: string; blatt: XLSX.WorkSheet }[]): Buff
 
   for (const b of blaetter) {
     let name = blattname(b.name);
-    // Zwei Blaetter mit demselben Namen lehnt Excel ab.
+    // Zwei Blätter mit demselben Namen lehnt Excel ab.
     let zaehler = 2;
     while (vergeben.has(name)) name = blattname(`${b.name} ${zaehler++}`);
     vergeben.add(name);

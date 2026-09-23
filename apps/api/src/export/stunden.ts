@@ -7,7 +7,7 @@
  *
  * Die Stunden stehen als echte Zahlen in den Zellen, nicht als Text.
  * Sonst kann im Export niemand eine Spalte markieren und unten die Summe
- * ablesen, und genau dafuer exportiert man eine Tabelle.
+ * ablesen, und genau dafür exportiert man eine Tabelle.
  */
 import { KUERZEL, type Eintragsart } from "@dels/shared";
 import { monatsraster, type Monatsraster } from "../stunden/raster.js";

@@ -1,11 +1,11 @@
 /**
- * Tests fuer den Ferienstand.
+ * Tests für den Ferienstand.
  *
  * Schwerpunkt liegt auf den Stellen, an denen eine falsche Zahl nicht
- * auffallen wuerde: der Uebertrag ueber den Jahreswechsel, der
- * uebernommene Saldo aus dem Excel, und die Trennung zwischen Monats-
+ * auffallen würde: der Übertrag über den Jahreswechsel, der
+ * übernommene Saldo aus dem Excel, und die Trennung zwischen Monats-
  * und Stundenlohn. Ein Saldo, der um ein paar Tage danebenliegt, sieht
- * voellig plausibel aus und faellt erst auf, wenn ein Mitarbeiter
+ * völlig plausibel aus und fällt erst auf, wenn ein Mitarbeiter
  * reklamiert.
  */
 import { eq, inArray, like } from "drizzle-orm";
@@ -35,7 +35,7 @@ let objektId: string;
 
 /** Monatslohn, ganzes Jahr da, 25 Tage Anspruch. */
 let monatId: string;
-/** Monatslohn mit uebernommenem Saldo aus dem "Excel". */
+/** Monatslohn mit übernommenem Saldo aus dem "Excel". */
 let saldoId: string;
 /** Monatslohn, Eintritt zur Jahresmitte. */
 let neuId: string;
@@ -136,7 +136,7 @@ describe("Ferienstand im Monatslohn", () => {
     const p = person("Monat");
 
     // Vorjahr: 25 Anspruch minus 4 bezogen = 21 uebrig.
-    // Zieljahr: 21 Uebertrag plus 25 Anspruch minus 5 bezogen = 41.
+    // Zieljahr: 21 Übertrag plus 25 Anspruch minus 5 bezogen = 41.
     expect(p).toMatchObject({
       art: "monat",
       anspruch: 25,
@@ -145,7 +145,7 @@ describe("Ferienstand im Monatslohn", () => {
       rest: 41,
       uebertragGesetzt: false,
       // Kein Stichtag hinterlegt, also wird gewarnt, obwohl hier nur ein
-      // einziges Vorjahr dranhaengt und die Zahl stimmt. Das Schild sagt
+      // einziges Vorjahr dranhängt und die Zahl stimmt. Das Schild sagt
       // "ungesicherte Herkunft", nicht "falsch".
       verlaufUnvollstaendig: true,
     });
@@ -155,28 +155,28 @@ describe("Ferienstand im Monatslohn", () => {
     const { person } = await holeStand();
 
     /*
-     * Eintritt fuenf Jahre vor dem Zieljahr, kein einziger erfasster
-     * Ferientag, kein Stichtag. Gerechnet werden sechs Jahresanspruechte
-     * (das Eintrittsjahr und das Zieljahr zaehlen beide mit), macht 150
+     * Eintritt fünf Jahre vor dem Zieljahr, kein einziger erfasster
+     * Ferientag, kein Stichtag. Gerechnet werden sechs Jahresansprüche
+     * (das Eintrittsjahr und das Zieljahr zählen beide mit), macht 150
      * Tage. Die sind
-     * natuerlich nicht echt: da fehlt Erfassung, nicht Urlaub.
+     * natürlich nicht echt: da fehlt Erfassung, nicht Urlaub.
      *
      * Die Zahl wird trotzdem ausgeliefert, aber mit dem Warnschild
-     * daran. Sie stillschweigend zu beschoenigen waere schlimmer: dann
-     * sieht niemand mehr, dass fuer diese Person ein Stichtag fehlt.
+     * daran. Sie stillschweigend zu beschönigen wäre schlimmer: dann
+     * sieht niemand mehr, dass für diese Person ein Stichtag fehlt.
      */
     expect(person("Lang")).toMatchObject({ rest: 150, verlaufUnvollstaendig: true });
   });
 
-  test("zählt beim uebernommenen Saldo nur, was nach dem Stichtag bezogen wurde", async () => {
+  test("zählt beim übernommenen Saldo nur, was nach dem Stichtag bezogen wurde", async () => {
     const { person } = await holeStand();
     const p = person("Saldo");
 
     /*
      * Der Stichtag ist der 29.12. des Vorjahres, der Saldo 7 Tage.
-     * Die 9 Tage vom Juni stecken da schon drin und duerfen NICHT
+     * Die 9 Tage vom Juni stecken da schon drin und dürfen NICHT
      * nochmal abgezogen werden. Der eine Tag vom 30.12. liegt danach.
-     * Uebertrag ins Zieljahr also 7 - 1 = 6.
+     * Übertrag ins Zieljahr also 7 - 1 = 6.
      * Zieljahr: 6 + 25 - 2 = 29.
      */
     expect(p).toMatchObject({ uebertrag: 6, bezogen: 2, rest: 29, verlaufUnvollstaendig: false });
@@ -206,12 +206,12 @@ describe("Ferien im Stundenlohn", () => {
     expect(p.stunden).toBe(100);
     expect(p.basis).toBe(3000);
     expect(p.entschaedigung).toBe(319.15);
-    // Kein Tagessaldo: der waere fuer diese Gruppe schlicht erfunden.
+    // Kein Tagessaldo: der wäre für diese Gruppe schlicht erfunden.
     expect(p.rest).toBeUndefined();
   });
 
   test("nimmt nur die Stunden des angefragten Jahres als Basis", async () => {
-    // Im Vorjahr stehen 500 Stunden. Kaemen die mit, waere die Basis
+    // Im Vorjahr stehen 500 Stunden. Kämen die mit, wäre die Basis
     // das Sechsfache.
     const { person } = await holeStand(MAIL_ADMIN, JAHR);
     expect((person("Stunde") as Record<string, number>).basis).toBe(3000);
@@ -226,7 +226,7 @@ describe("Rechte", () => {
     const stunde = person("Stunde") as Record<string, unknown>;
     expect(stunde.basis).toBeNull();
     expect(stunde.entschaedigung).toBeNull();
-    // Die Tage bleiben: das ist kein Geheimnis und Buero braucht es.
+    // Die Tage bleiben: das ist kein Geheimnis und Büro braucht es.
     expect(stunde.wochen).toBe(5);
     expect((person("Monat") as Record<string, number>).rest).toBe(41);
   });
@@ -269,7 +269,7 @@ describe("Übertrag von Hand", () => {
     expect(spuren.at(-1)?.benutzerName).toContain(marke);
   });
 
-  test("laesst sich aendern und wieder entfernen", async () => {
+  test("lässt sich ändern und wieder entfernen", async () => {
     const klient = await anmelden(app, MAIL_ADMIN);
 
     await klient
@@ -301,7 +301,7 @@ describe("Übertrag von Hand", () => {
     expect(antwort.status).toBe(400);
   });
 
-  test("lehnt einen Übertrag für Stundenloehner ab", async () => {
+  test("lehnt einen Übertrag für Stundenlöhner ab", async () => {
     const klient = await anmelden(app, MAIL_ADMIN);
     const antwort = await klient
       .put(`/api/ferien/${stundeId}/${JAHR}`)

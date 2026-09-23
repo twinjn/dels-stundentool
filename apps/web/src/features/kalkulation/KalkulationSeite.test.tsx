@@ -1,20 +1,20 @@
 /**
- * Tests fuer den Kopf der Kalkulationsseite.
+ * Tests für den Kopf der Kalkulationsseite.
  *
  * Hier geht es NICHT um die Rechnung, die steckt in rechne() im Paket
  * shared und ist dort getestet. Hier geht es um etwas anderes, das genau
  * so schiefgehen kann: eine richtig gerechnete Zahl, die falsch
- * praesentiert wird.
+ * präsentiert wird.
  *
  * Im laufenden Monat haben die meisten Objekte noch keine Stunden. Ihr
  * Abo steht dann im Umsatz, ohne dass Lohnkosten dagegenstehen, und die
- * Marge sieht glaenzend aus. Mit echten Daten gesehen: Ergebnis 35'150,
+ * Marge sieht glänzend aus. Mit echten Daten gesehen: Ergebnis 35'150,
  * Marge 56.4 Prozent, dabei hatten 34 von 35 Objekten null Stunden.
  *
- * Die Regel, die diese Tests festhalten: solange die Basis unvollstaendig
- * ist, bekommt das Ergebnis keine Farbe und die Warnung steht darueber,
- * nicht darunter. Gruen heisst "gut gelaufen", und das waere eine
- * Aussage ueber einen Monat, von dem die Haelfte fehlt.
+ * Die Regel, die diese Tests festhalten: solange die Basis unvollständig
+ * ist, bekommt das Ergebnis keine Farbe und die Warnung steht darüber,
+ * nicht darunter. Grün heisst "gut gelaufen", und das wäre eine
+ * Aussage über einen Monat, von dem die Hälfte fehlt.
  */
 import { screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
@@ -103,7 +103,7 @@ beforeEach(() => {
 
 describe("Objekt ohne erfasste Stunden", () => {
   beforeEach(() => {
-    // Keine Eintraege: das eine Objekt hat kein einziges Stundenkonto.
+    // Keine Einträge: das eine Objekt hat kein einziges Stundenkonto.
     antworten(monatsdaten());
   });
 
@@ -114,7 +114,7 @@ describe("Objekt ohne erfasste Stunden", () => {
     expect(warnung).toBeInTheDocument();
 
     /*
-     * Reihenfolge im Dokument pruefen, nicht nur Vorhandensein. Vorher
+     * Reihenfolge im Dokument prüfen, nicht nur Vorhandensein. Vorher
      * stand die Warnung UNTER den Kacheln, und wer von oben nach unten
      * liest, hatte die grosse Zahl dann schon geglaubt.
      */
@@ -128,7 +128,7 @@ describe("Objekt ohne erfasste Stunden", () => {
     const kachel = await ergebniskachel();
 
     expect(kachel).toHaveClass("kachel-unsicher");
-    // gruen und rot sind Bewertungen. Bewerten kann man erst, wenn die
+    // grün und rot sind Bewertungen. Bewerten kann man erst, wenn die
     // Erfassung steht.
     expect(kachel).not.toHaveClass("gruen");
     expect(kachel).not.toHaveClass("rot");
@@ -177,7 +177,7 @@ describe("Person mit Stunden, aber ohne Stundenlohn", () => {
   test("zählt als unvollstaendige Basis", async () => {
     /*
      * Der zweite Weg, auf dem das Ergebnis zu gut wird: wer Stunden
-     * erfasst hat, aber keinen hinterlegten Lohn, faellt mit null Franken
+     * erfasst hat, aber keinen hinterlegten Lohn, fällt mit null Franken
      * Lohnaufwand in die Rechnung.
      */
     antworten(

@@ -1,18 +1,18 @@
 /**
  * Bremse gegen das Durchprobieren von Passwoertern.
  *
- * Ohne so etwas kann jemand in einer Nacht Millionen Passwoerter testen.
- * Mit dieser Bremse sind es fuenf pro Viertelstunde.
+ * Ohne so etwas kann jemand in einer Nacht Millionen Passwörter testen.
+ * Mit dieser Bremse sind es fünf pro Viertelstunde.
  *
- * Bewusst selbst geschrieben und bewusst einfach: das ist ein Zaehler,
+ * Bewusst selbst geschrieben und bewusst einfach: das ist ein Zähler,
  * keine Kryptographie. Der Zustand liegt im Arbeitsspeicher, nach einem
- * Neustart ist er weg. Fuer eine Anwendung mit einer Handvoll Benutzern
+ * Neustart ist er weg. Für eine Anwendung mit einer Handvoll Benutzern
  * auf einem Server ist das ausreichend. Sobald mehrere Server parallel
- * laufen, gehoert der Zaehler in die Datenbank oder nach Redis.
+ * laufen, gehört der Zähler in die Datenbank oder nach Redis.
  *
- * Gezaehlt wird pro Kombination aus IP und E-Mail. Nur nach IP zu zaehlen
- * wuerde ein ganzes Buero aussperren, sobald einer sich vertippt. Nur nach
- * E-Mail zu zaehlen erlaubt es, von vielen Adressen aus dasselbe Konto
+ * Gezählt wird pro Kombination aus IP und E-Mail. Nur nach IP zu zählen
+ * würde ein ganzes Büro aussperren, sobald einer sich vertippt. Nur nach
+ * E-Mail zu zählen erlaubt es, von vielen Adressen aus dasselbe Konto
  * anzugreifen.
  */
 
@@ -55,7 +55,7 @@ export function darfVersuchen(schluessel: string): Pruefung {
     return { erlaubt: false, sekunden: Math.ceil((eintrag.gesperrtBis - jetzt) / 1000) };
   }
 
-  // Das Zeitfenster ist vorbei, wir fangen fuer diesen Schluessel neu an.
+  // Das Zeitfenster ist vorbei, wir fangen für diesen Schlüssel neu an.
   if (jetzt - eintrag.ersterVersuch > FENSTER_MS) {
     speicher.delete(schluessel);
   }
@@ -88,7 +88,7 @@ export function versuchGelungen(schluessel: string): void {
   speicher.delete(schluessel);
 }
 
-/** Nur fuer Tests: setzt alle Zaehler zurueck. */
+/** Nur für Tests: setzt alle Zähler zurueck. */
 export function schutzZuruecksetzen(): void {
   speicher.clear();
 }

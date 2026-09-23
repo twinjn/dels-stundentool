@@ -51,7 +51,7 @@ stundenRouter.put("/zelle", brauchtRecht("stunden:schreiben"), async (req, res) 
     .where(eq(mitarbeiter.id, daten.mitarbeiterId));
   if (!person) throw nichtGefunden("Diesen Mitarbeiter gibt es nicht.");
 
-  // Was in dieser Zelle bisher stand, kommt weg. Eine Zelle haelt genau
+  // Was in dieser Zelle bisher stand, kommt weg. Eine Zelle hält genau
   // einen Wert, genau wie in Excel.
   const trifftZelle = and(
     eq(eintraege.mitarbeiterId, daten.mitarbeiterId),
@@ -83,10 +83,10 @@ stundenRouter.put("/zelle", brauchtRecht("stunden:schreiben"), async (req, res) 
 });
 
 /**
- * Fuegt einer Person eine leere Objektzeile hinzu.
+ * Fügt einer Person eine leere Objektzeile hinzu.
  *
  * Es wird bewusst kein Eintrag angelegt: die Zeile entsteht erst durch
- * den ersten Wert. Der Browser haelt sie solange als leere Zeile, damit
+ * den ersten Wert. Der Browser hält sie solange als leere Zeile, damit
  * man hineinschreiben kann.
  */
 stundenRouter.get("/objekte", brauchtRecht("stunden:lesen"), async (_req, res) => {

@@ -2,8 +2,8 @@
  * Baut die Express-Anwendung zusammen.
  *
  * Bewusst getrennt von server.ts: diese Funktion belegt keinen Port.
- * Dadurch koennen Tests die komplette App starten, Anfragen dagegen
- * schicken und wieder wegwerfen, ohne dass irgendwo ein Server haengen
+ * Dadurch können Tests die komplette App starten, Anfragen dagegen
+ * schicken und wieder wegwerfen, ohne dass irgendwo ein Server hängen
  * bleibt.
  *
  * Die Reihenfolge der app.use(...) Aufrufe ist keine Geschmacksfrage.
@@ -34,20 +34,20 @@ import { uebersichtRouter } from "./routes/uebersicht.js";
 export function baueApp() {
   const app = express();
 
-  // Verraet sonst in jedem Antwort-Header, dass hier Express laeuft.
+  // Verrät sonst in jedem Antwort-Header, dass hier Express laeuft.
   app.disable("x-powered-by");
 
   // Sagt Express, wie vielen Zwischenstationen es die Absender-IP glauben
-  // darf. Wichtig fuer die Anmeldesperre, siehe config.ts.
+  // darf. Wichtig für die Anmeldesperre, siehe config.ts.
   app.set("trust proxy", config.TRUST_PROXY);
 
   // Setzt eine Reihe von Sicherheits-Headern.
   app.use(helmet());
 
-  // Der Browser laedt die Oberflaeche von Port 5173, die API liegt auf 3000.
-  // Fuer den Browser sind das zwei verschiedene Herkuenfte, deshalb muss die
-  // API ausdruecklich erlauben, dass von dort aus zugegriffen wird.
-  // credentials: true ist noetig, damit das Session-Cookie mitgeschickt wird.
+  // Der Browser lädt die Oberfläche von Port 5173, die API liegt auf 3000.
+  // Für den Browser sind das zwei verschiedene Herkünfte, deshalb muss die
+  // API ausdrücklich erlauben, dass von dort aus zugegriffen wird.
+  // credentials: true ist nötig, damit das Session-Cookie mitgeschickt wird.
   app.use(cors({ origin: config.WEB_ORIGIN, credentials: true }));
 
   // Wandelt einen JSON-Body in req.body um. Die Grenze verhindert, dass
@@ -58,8 +58,8 @@ export function baueApp() {
   // niemand den Inhalt im Browser von Hand umschreibt.
   app.use(cookieParser(config.SESSION_SECRET));
 
-  // Haengt den angemeldeten Benutzer an die Anfrage, falls das Cookie
-  // gueltig ist. Lehnt selbst nichts ab, das machen die Waechter an den
+  // Hängt den angemeldeten Benutzer an die Anfrage, falls das Cookie
+  // gültig ist. Lehnt selbst nichts ab, das machen die Wächter an den
   // einzelnen Routen.
   app.use(sitzungLesen);
 
@@ -77,13 +77,13 @@ export function baueApp() {
   app.use("/api/uebersicht", uebersichtRouter);
   app.use("/api/ferien", ferienRouter);
 
-  // --- Oberflaeche ----------------------------------------------------
+  // --- Oberfläche ----------------------------------------------------
   /**
-   * In Produktion liefert Express die gebaute Oberflaeche gleich mit aus.
+   * In Produktion liefert Express die gebaute Oberfläche gleich mit aus.
    *
-   * Dadurch kommen Oberflaeche und API von derselben Adresse. Das spart
+   * Dadurch kommen Oberfläche und API von derselben Adresse. Das spart
    * nicht nur einen zweiten Webserver, es erspart auch die ganze Klasse
-   * von Cookie-Problemen, die entsteht, wenn der Browser die beiden fuer
+   * von Cookie-Problemen, die entsteht, wenn der Browser die beiden für
    * verschiedene Websites haelt.
    *
    * Beim Entwickeln macht der Vite-Server dasselbe mit seinem Proxy.
@@ -92,8 +92,8 @@ export function baueApp() {
     const hier = path.dirname(fileURLToPath(import.meta.url));
     const oberflaeche = path.resolve(hier, "../../web/dist");
 
-    // Die gebauten Dateien tragen einen Hash im Namen. Aendert sich der
-    // Inhalt, aendert sich der Name, also darf der Browser sie ewig
+    // Die gebauten Dateien tragen einen Hash im Namen. Ändert sich der
+    // Inhalt, ändert sich der Name, also darf der Browser sie ewig
     // behalten.
     app.use(
       express.static(oberflaeche, {
@@ -105,7 +105,7 @@ export function baueApp() {
 
     // Alles, was keine API-Anfrage ist, bekommt die Startseite. Das
     // braucht eine Anwendung mit eigenen Adressen: wer /kalkulation neu
-    // laedt, soll nicht auf einen 404 laufen.
+    // lädt, soll nicht auf einen 404 laufen.
     // index.html darf NICHT zwischengespeichert werden, sonst bekommt der
     // Browser nach einer neuen Fassung weiter die alten Dateinamen.
     app.get(/^\/(?!api\/).*/, (_req, res) => {
