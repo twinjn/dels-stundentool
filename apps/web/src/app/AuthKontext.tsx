@@ -38,7 +38,15 @@ type AuthZustand = {
   abgemeldet: () => void;
 };
 
-const AuthKontext = createContext<AuthZustand | null>(null);
+/**
+ * Exportiert, damit Tests ihn direkt fuellen koennen.
+ *
+ * Im Anwendungscode benutzt man useAuth() und nie diesen Kontext.
+ * Tests brauchen ihn trotzdem: wuerden sie den echten AuthAnbieter
+ * verwenden, fragte der beim Start /auth/ich ab, und jeder Test haette
+ * eine Ladephase, die mit seiner eigentlichen Frage nichts zu tun hat.
+ */
+export const AuthKontext = createContext<AuthZustand | null>(null);
 
 export function AuthAnbieter({ children }: { children: ReactNode }) {
   const [benutzer, setBenutzer] = useState<Benutzer | null>(null);

@@ -1,5 +1,5 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
@@ -27,5 +27,35 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: true,
+  },
+
+  /**
+   * Tests der Oberflaeche.
+   *
+   * WARUM ES DIE HIER BRAUCHT, obwohl die API 243 Tests hat: Die API
+   * kann korrekt antworten und die Seite trotzdem das Falsche zeigen.
+   * Zwei Faelle sind in diesem Projekt genau so passiert.
+   *
+   * Beim Passwortaendern war die Erfolgsmeldung nie zu sehen, weil die
+   * Anwendung im selben Moment auf "nicht angemeldet" sprang und die
+   * ganze Oberflaeche gegen die Anmeldemaske tauschte. Tests gruen,
+   * Typecheck gruen, Funktion kaputt.
+   *
+   * Auf der Ferienseite stand ein hochgerechneter Saldo von 96 Tagen
+   * fett und unkommentiert da. Die Zahl war richtig gerechnet und die
+   * Anzeige trotzdem irrefuehrend.
+   *
+   * Beides faellt nur auf, wenn jemand hinschaut. Genau das machen
+   * diese Tests, nur automatisch.
+   *
+   * jsdom baut einen Browser ohne Fenster nach: Dokument, Ereignisse,
+   * Formulare. Kein echter Browser, aber genug, um zu pruefen, was
+   * gerendert wird und was auf einen Klick passiert.
+   */
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/aufbau.ts"],
+    css: false,
   },
 });
