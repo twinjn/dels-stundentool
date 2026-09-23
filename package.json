@@ -24,6 +24,8 @@
     "format:check": "prettier --check .",
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
+    "db:migrate": "npm run build -w @dels/shared && npm run db:migrate -w @dels/api",
+    "db:admin": "npm run build -w @dels/shared && npm run db:admin -w @dels/api",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test"
   },
   "devDependencies": {
