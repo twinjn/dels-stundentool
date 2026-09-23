@@ -63,10 +63,27 @@ export type Unterschied =
     }
   | { art: "objekt_stillgelegt"; objektId: string; objektNr: string | null; name: string }
   | {
-      art: "person_fehlt";
+      art: "monatslohn_fehlt";
       mitarbeiterId: string;
       personalnummer: string | null;
       name: string;
+      lautStammdaten: string | null;
+    }
+  | {
+      art: "lohn_weicht_ab";
+      mitarbeiterId: string;
+      personalnummer: string | null;
+      name: string;
+      imMonat: string | null;
+      lautStammdaten: string | null;
+    }
+  | {
+      art: "person_doppelt";
+      mitarbeiterId: string;
+      personalnummer: string | null;
+      name: string;
+      lohnart: "monat" | "stunde";
+      imMonat: string | null;
       stunden: number;
     };
 

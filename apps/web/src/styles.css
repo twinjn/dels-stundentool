@@ -1064,6 +1064,20 @@ button:focus-visible {
   background: var(--farbe-flaeche);
 }
 
+/* Ein Punkt, den die Software nicht selbst entscheiden kann. Er steht
+   in derselben Liste, aber ohne Kaestchen und leicht abgesetzt, damit
+   niemand vergeblich nach dem Haken sucht. */
+.abgleich tr.nurhinweis {
+  background: #fff3d6;
+}
+
+.abgleich tr.nurhinweis .schild {
+  font-weight: 700;
+  color: #9a6200;
+  background: #ffe9b8;
+  border-color: #e8c986;
+}
+
 .abgleich .hinweis {
   margin: var(--abstand-2) 0 0;
 }

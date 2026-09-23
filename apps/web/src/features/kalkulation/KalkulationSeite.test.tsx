@@ -297,6 +297,45 @@ describe("Abgleich", () => {
     expect(screen.getByRole("button", { name: /1 Punkt\(e\) übernehmen/i })).toBeInTheDocument();
   });
 
+  /*
+   * Ein doppelt gezählter Mensch ist kein Punkt zum Abhaken. Ob die
+   * Personalzeile falsch ist oder die Erfassung, steht nicht in den
+   * Daten, das muss jemand entscheiden. Also kein Kästchen, und der
+   * Punkt zählt nicht in die Zahl auf dem Knopf.
+   */
+  test("ein Hinweis ohne Lösung bekommt kein Kästchen", async () => {
+    antworten(monatsdaten(), [
+      {
+        art: "person_doppelt",
+        mitarbeiterId: "m1",
+        personalnummer: "1001",
+        name: "Anna Muster",
+        lohnart: "stunde",
+        imMonat: "1000.00",
+        stunden: 180,
+      },
+      {
+        art: "monatslohn_fehlt",
+        mitarbeiterId: "m9",
+        personalnummer: "M-001",
+        name: "Bea Beispiel",
+        lautStammdaten: "5400.00",
+      },
+    ]);
+
+    rendereAngemeldet(<KalkulationSeite />);
+    await screen.findByText(/2 Unterschied\(e\)/);
+
+    expect(screen.queryByLabelText(/Anna Muster übernehmen/i)).toBeNull();
+    expect(screen.getByText(/steht aber auch in der Personalliste/i)).toBeInTheDocument();
+
+    const machbar = screen.getByLabelText(/Bea Beispiel übernehmen/i) as HTMLInputElement;
+    expect(machbar.checked).toBe(true);
+
+    // Nur der behebbare Punkt zählt.
+    expect(screen.getByRole("button", { name: /1 Punkt\(e\) übernehmen/i })).toBeInTheDocument();
+  });
+
   test("bei abgeschlossenem Monat ist der Kasten nur noch Information", async () => {
     antworten(
       monatsdaten({

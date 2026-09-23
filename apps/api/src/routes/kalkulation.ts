@@ -21,10 +21,12 @@ import {
   kalkMonat,
   kalkObjektMonat,
   kalkPersonMonat,
+  mitarbeiter,
   objekte,
 } from "../db/schema.js";
 import { HttpFehler, nichtGefunden } from "../fehler.js";
 import {
+  behebbar,
   preiseAm,
   schluesselVon,
   uebernehmen,
@@ -164,14 +166,29 @@ kalkulationRouter.post("/:monat", brauchtRecht("kalkulation:schreiben"), async (
         await tx.insert(kalkObjektMonat).values(objektzeilen.map((z) => ({ monat, ...z })));
       }
 
-      const personzeilen = await tx
+      // Gleiche Regel wie bei den Objekten: wer drinsteht, entscheiden
+      // die Stammdaten, wie es eingestellt ist, kommt aus dem Vormonat.
+      //
+      // Drin sind ausschliesslich Monatslöhner. Stundenlöhner haben
+      // hier nichts verloren, ihre Kosten laufen über die Objektzeilen.
+      // Stünden sie zusätzlich hier, zählte ihr Lohn doppelt.
+      const vormonatspersonen = await tx
         .select()
         .from(kalkPersonMonat)
         .where(eq(kalkPersonMonat.monat, vorlage.monat));
+      const jePerson = new Map(vormonatspersonen.map((z) => [z.mitarbeiterId, z]));
+
+      const monatsloehner = await tx
+        .select({ id: mitarbeiter.id, monatslohn: mitarbeiter.monatslohn })
+        .from(mitarbeiter)
+        .where(and(eq(mitarbeiter.lohnart, "monat"), eq(mitarbeiter.aktiv, true)));
+
+      const personzeilen = monatsloehner.map((m) => {
+        const alt = jePerson.get(m.id);
+        return alt ? { ...alt, monat } : { monat, mitarbeiterId: m.id, lohn: m.monatslohn ?? "0" };
+      });
       if (personzeilen.length > 0) {
-        await tx
-          .insert(kalkPersonMonat)
-          .values(personzeilen.map(({ monat: _m, ...rest }) => ({ monat, ...rest })));
+        await tx.insert(kalkPersonMonat).values(personzeilen);
       }
 
       const posten = await tx
@@ -211,7 +228,23 @@ kalkulationRouter.post("/:monat", brauchtRecht("kalkulation:schreiben"), async (
       );
     }
 
-    return { vorlage: null, objekte: aktive.length, personen: 0 };
+    // Auch ohne Vormonat gehören die Monatslöhner hinein. Genau das
+    // fehlte bisher, und dadurch stand in jedem so angelegten Monat
+    // ein Ergebnis, dem die gesamte Festanstellung fehlte.
+    const monatsloehner = await tx
+      .select({ id: mitarbeiter.id, monatslohn: mitarbeiter.monatslohn })
+      .from(mitarbeiter)
+      .where(and(eq(mitarbeiter.lohnart, "monat"), eq(mitarbeiter.aktiv, true)));
+
+    if (monatsloehner.length > 0) {
+      await tx
+        .insert(kalkPersonMonat)
+        .values(
+          monatsloehner.map((m) => ({ monat, mitarbeiterId: m.id, lohn: m.monatslohn ?? "0" })),
+        );
+    }
+
+    return { vorlage: null, objekte: aktive.length, personen: monatsloehner.length };
   });
 
   await protokolliere({
@@ -540,7 +573,12 @@ kalkulationRouter.post(
 
     const bericht = await monatsunterschiede(monat);
     const gewaehlt = new Set(schluessel);
-    const auswahl = bericht.unterschiede.filter((u) => gewaehlt.has(schluesselVon(u)));
+    // behebbar() filtert die reinen Hinweise heraus. Ein Browser, der
+    // trotzdem einen davon mitschickt, soll nicht die ganze Anfrage
+    // scheitern lassen, sondern schlicht nichts damit auslösen.
+    const auswahl = bericht.unterschiede
+      .filter((u) => gewaehlt.has(schluesselVon(u)))
+      .filter(behebbar);
 
     if (auswahl.length === 0) {
       throw new HttpFehler(

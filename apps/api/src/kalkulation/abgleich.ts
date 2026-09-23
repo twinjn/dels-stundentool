@@ -59,12 +59,52 @@ export type Unterschied =
       name: string;
     }
   | {
-      art: "person_fehlt";
+      /**
+       * Ein Monatslöhner ohne Zeile im Monat.
+       *
+       * Das ist der teuerste Fall überhaupt: sein ganzer Lohn fehlt in
+       * der Rechnung, und zwar ohne jede Spur. Stundenlöhner stehen
+       * hier bewusst NICHT, ihre Kosten laufen über die Objektzeilen.
+       */
+      art: "monatslohn_fehlt";
       mitarbeiterId: string;
       personalnummer: string | null;
       name: string;
+      lautStammdaten: string | null;
+    }
+  | {
+      art: "lohn_weicht_ab";
+      mitarbeiterId: string;
+      personalnummer: string | null;
+      name: string;
+      imMonat: string | null;
+      lautStammdaten: string | null;
+    }
+  | {
+      /**
+       * Wird doppelt gezählt: steht in der Personalliste UND hat
+       * Stunden auf Objekten. Der Lohn läuft dann über beide Wege in
+       * die Rechnung.
+       *
+       * Ohne Knopf, weil die Antwort nicht in den Daten steht: je
+       * nachdem ist die Personalzeile falsch (Stundenlöhner, der
+       * versehentlich drinsteht) oder die Erfassung (Monatslöhner, der
+       * seine Zeit trotzdem auf Objekte bucht). Das muss ein Mensch
+       * entscheiden.
+       */
+      art: "person_doppelt";
+      mitarbeiterId: string;
+      personalnummer: string | null;
+      name: string;
+      lohnart: "monat" | "stunde";
+      imMonat: string | null;
       stunden: number;
     };
+
+/** Punkte, die sich auf Knopfdruck beheben lassen. Der Rest ist Hinweis. */
+export function behebbar(u: Unterschied): boolean {
+  return u.art !== "person_doppelt";
+}
 
 export type Abgleichsbericht = {
   monat: string;
@@ -175,21 +215,67 @@ export async function unterschiede(monat: string): Promise<Abgleichsbericht> {
     }
   }
 
-  // Personen, die in diesem Monat gearbeitet haben, aber keine Zeile
-  // haben. Ohne Zeile stehen sie in der Personalauswertung nicht drin.
-  const hatZeile = new Set(personenImMonat.map((p) => p.mitarbeiterId));
-  if (stundenPerson.length > 0) {
-    const leute = new Map((await db.select().from(mitarbeiter)).map((m) => [m.id, m]));
-    for (const s of stundenPerson) {
-      if (hatZeile.has(s.mitarbeiterId)) continue;
-      const m = leute.get(s.mitarbeiterId);
-      if (!m) continue;
+  /*
+   * Personal.
+   *
+   * ENTSCHEIDEND IST DIE LOHNART, NICHT DIE STUNDENZAHL.
+   *
+   * Die Rechnung hat zwei getrennte Kostenwege, und jeder Mensch
+   * gehört in genau einen davon:
+   *
+   *   Stundenlöhner  Stunden x Stundenlohn, über die Objektzeilen
+   *                  (lohnSzObj). Sie haben KEINE Zeile in der
+   *                  Personalliste und sollen auch keine bekommen.
+   *
+   *   Monatslöhner   fester Betrag in kalk_person_monat (lohnSzPers).
+   *                  Ohne Zeile fehlt ihr ganzer Lohn.
+   *
+   * Beide Summen werden am Ende vom Umsatz abgezogen. Wer in beiden
+   * steht, wird doppelt belastet.
+   */
+  const zeileJePerson = new Map(personenImMonat.map((p) => [p.mitarbeiterId, p]));
+  const stundenJePerson = new Map(stundenPerson.map((s) => [s.mitarbeiterId, zahl(s.summe)]));
+  const leute = await db.select().from(mitarbeiter);
+
+  for (const m of leute) {
+    const zeile = zeileJePerson.get(m.id);
+    const stunden = stundenJePerson.get(m.id) ?? 0;
+
+    if (zeile && stunden > 0) {
       gefunden.push({
-        art: "person_fehlt",
-        mitarbeiterId: s.mitarbeiterId,
+        art: "person_doppelt",
+        mitarbeiterId: m.id,
         personalnummer: m.personalnummer,
         name: m.name,
-        stunden: zahl(s.summe),
+        lohnart: m.lohnart,
+        imMonat: zeile.lohn,
+        stunden,
+      });
+    }
+
+    if (m.lohnart !== "monat") continue;
+
+    if (!zeile) {
+      // Ein stillgelegter Monatslöhner ohne Zeile fehlt zu Recht.
+      if (!m.aktiv) continue;
+      gefunden.push({
+        art: "monatslohn_fehlt",
+        mitarbeiterId: m.id,
+        personalnummer: m.personalnummer,
+        name: m.name,
+        lautStammdaten: m.monatslohn,
+      });
+      continue;
+    }
+
+    if (m.aktiv && zahl(zeile.lohn) !== zahl(m.monatslohn)) {
+      gefunden.push({
+        art: "lohn_weicht_ab",
+        mitarbeiterId: m.id,
+        personalnummer: m.personalnummer,
+        name: m.name,
+        imMonat: zeile.lohn,
+        lautStammdaten: m.monatslohn,
       });
     }
   }
@@ -201,12 +287,20 @@ export async function unterschiede(monat: string): Promise<Abgleichsbericht> {
   return { monat, abgeschlossen: kopf.abgeschlossenAm !== null, unterschiede: gefunden };
 }
 
-/** Wichtigstes zuerst: ein fehlendes Objekt fehlt ganz, ein Preis ist nur falsch. */
+/**
+ * Reihenfolge nach Schadenshöhe.
+ *
+ * Ganz fehlende Kosten stehen oben: ein Monatslohn, der in der Rechnung
+ * gar nicht vorkommt, verschiebt das Ergebnis um Tausende. Ein Abo, das
+ * um fünfzig Franken abweicht, steht weiter unten.
+ */
 const ART_REIHE: Record<Unterschied["art"], number> = {
-  objekt_fehlt: 0,
-  person_fehlt: 1,
-  abo_weicht_ab: 2,
-  objekt_stillgelegt: 3,
+  person_doppelt: 0,
+  monatslohn_fehlt: 1,
+  objekt_fehlt: 2,
+  lohn_weicht_ab: 3,
+  abo_weicht_ab: 4,
+  objekt_stillgelegt: 5,
 };
 
 /**
@@ -218,7 +312,7 @@ const ART_REIHE: Record<Unterschied["art"], number> = {
  * der, den ein altes Bild noch zeigte.
  */
 export function schluesselVon(u: Unterschied): string {
-  return u.art === "person_fehlt" ? `${u.art}:${u.mitarbeiterId}` : `${u.art}:${u.objektId}`;
+  return "mitarbeiterId" in u ? `${u.art}:${u.mitarbeiterId}` : `${u.art}:${u.objektId}`;
 }
 
 /** Letzter Tag des Monats als "JJJJ-MM-TT". */
@@ -255,12 +349,27 @@ export async function uebernehmen(
           .set({ aktiv: false })
           .where(and(eq(kalkObjektMonat.monat, monat), eq(kalkObjektMonat.objektId, u.objektId)));
         bilanz.stillgelegt += 1;
-      } else {
+      } else if (u.art === "monatslohn_fehlt") {
         await tx
           .insert(kalkPersonMonat)
-          .values({ monat, mitarbeiterId: u.mitarbeiterId })
+          .values({ monat, mitarbeiterId: u.mitarbeiterId, lohn: u.lautStammdaten ?? "0" })
           .onConflictDoNothing();
         bilanz.personen += 1;
+      } else if (u.art === "lohn_weicht_ab") {
+        await tx
+          .update(kalkPersonMonat)
+          .set({ lohn: u.lautStammdaten ?? "0" })
+          .where(
+            and(
+              eq(kalkPersonMonat.monat, monat),
+              eq(kalkPersonMonat.mitarbeiterId, u.mitarbeiterId),
+            ),
+          );
+        bilanz.angepasst += 1;
+      } else {
+        // person_doppelt: braucht eine menschliche Entscheidung, siehe
+        // den Kommentar am Typ. Kommt über behebbar() gar nicht hierher.
+        throw new Error(`${u.art} laesst sich nicht automatisch beheben.`);
       }
     }
   });

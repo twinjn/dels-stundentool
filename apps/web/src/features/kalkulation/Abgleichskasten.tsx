@@ -18,7 +18,18 @@ import { ApiFehler, api } from "../../api/client.js";
 import type { Abgleichsbericht, Unterschied } from "./typen.js";
 
 export function schluesselVon(u: Unterschied): string {
-  return u.art === "person_fehlt" ? `${u.art}:${u.mitarbeiterId}` : `${u.art}:${u.objektId}`;
+  return "mitarbeiterId" in u ? `${u.art}:${u.mitarbeiterId}` : `${u.art}:${u.objektId}`;
+}
+
+/**
+ * Punkte, die sich auf Knopfdruck beheben lassen.
+ *
+ * Gleiche Regel wie auf dem Server. Ein doppelt gezählter Mensch braucht
+ * eine Entscheidung, die nicht in den Daten steht, deshalb bekommt er
+ * kein Kästchen, sondern nur eine Zeile, die sagt, was los ist.
+ */
+export function behebbar(u: Unterschied): boolean {
+  return u.art !== "person_doppelt";
 }
 
 function beschreibe(u: Unterschied): string {
@@ -33,8 +44,16 @@ function beschreibe(u: Unterschied): string {
       )} laut Stammblatt`;
     case "objekt_stillgelegt":
       return "ist im Stammblatt stillgelegt, zählt in diesem Monat aber noch mit";
-    case "person_fehlt":
-      return `hat ${u.stunden} Std. erfasst, steht aber nicht in der Personalliste des Monats`;
+    case "monatslohn_fehlt":
+      return "ist Monatslöhner und fehlt in der Personalliste, sein Lohn ist gar nicht gerechnet";
+    case "lohn_weicht_ab":
+      return `Lohn ${chf(Number(u.imMonat ?? 0))} im Monat, ${chf(
+        Number(u.lautStammdaten ?? 0),
+      )} laut Stammblatt`;
+    case "person_doppelt":
+      return u.lohnart === "stunde"
+        ? `ist Stundenlöhner mit ${u.stunden} Std. auf Objekten, steht aber auch in der Personalliste`
+        : `ist Monatslöhner und hat zusätzlich ${u.stunden} Std. auf Objekte gebucht`;
   }
 }
 
@@ -46,8 +65,14 @@ function wasPassiert(u: Unterschied): string {
       return `wird auf ${chf(Number(u.lautStammdaten ?? 0))} gesetzt`;
     case "objekt_stillgelegt":
       return "wird im Monat auf inaktiv gesetzt";
-    case "person_fehlt":
-      return "wird in die Personalliste aufgenommen";
+    case "monatslohn_fehlt":
+      return `wird mit ${chf(Number(u.lautStammdaten ?? 0))} aufgenommen`;
+    case "lohn_weicht_ab":
+      return `wird auf ${chf(Number(u.lautStammdaten ?? 0))} gesetzt`;
+    case "person_doppelt":
+      return u.lohnart === "stunde"
+        ? "Personalzeile prüfen: der Lohn zählt sonst zweimal"
+        : "Erfassung prüfen: der Lohn zählt sonst zweimal";
   }
 }
 
@@ -61,7 +86,7 @@ export function Abgleichskasten({
   onFertig: () => void;
 }) {
   const [gewaehlt, setGewaehlt] = useState<Set<string>>(
-    () => new Set(bericht.unterschiede.map(schluesselVon)),
+    () => new Set(bericht.unterschiede.filter(behebbar).map(schluesselVon)),
   );
   const [laeuft, setLaeuft] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
@@ -127,20 +152,27 @@ export function Abgleichskasten({
           <tbody>
             {bericht.unterschiede.map((u) => {
               const schluessel = schluesselVon(u);
+              const machbar = behebbar(u);
               return (
-                <tr key={schluessel}>
+                <tr key={schluessel} className={machbar ? "" : "nurhinweis"}>
                   <td>
-                    <input
-                      type="checkbox"
-                      checked={gewaehlt.has(schluessel)}
-                      disabled={gesperrt}
-                      onChange={() => umschalten(schluessel)}
-                      aria-label={`${u.name} übernehmen`}
-                    />
+                    {machbar ? (
+                      <input
+                        type="checkbox"
+                        checked={gewaehlt.has(schluessel)}
+                        disabled={gesperrt}
+                        onChange={() => umschalten(schluessel)}
+                        aria-label={`${u.name} übernehmen`}
+                      />
+                    ) : (
+                      <span className="schild" title="Braucht eine Entscheidung">
+                        !
+                      </span>
+                    )}
                   </td>
                   <td>
                     <span className="objektnr">
-                      {u.art === "person_fehlt" ? (u.personalnummer ?? "") : (u.objektNr ?? "")}
+                      {("mitarbeiterId" in u ? u.personalnummer : u.objektNr) ?? ""}
                     </span>{" "}
                     {u.name}
                   </td>

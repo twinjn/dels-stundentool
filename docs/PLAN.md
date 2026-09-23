@@ -148,12 +148,28 @@ Erhöhung per 1. Juli verändert den Juni damit nicht mehr, und der Juli
 bekommt sie automatisch, auch wenn ihn jemand erst im Herbst anlegt.
 
 **Abgleich** (`kalkulation/abgleich.ts`). Zeigt beim Öffnen eines Monats,
-was zwischen Stammdaten und Monat auseinanderläuft: fehlende Objekte,
-abweichende Abos, im Stammblatt stillgelegte Objekte, die im Monat noch
-mitzählen, und Personen mit erfassten Stunden ohne Zeile in der
-Personalliste. Übernommen wird auf Knopfdruck und nur, was angehakt ist.
-Der Server rechnet den Bericht beim Übernehmen neu und nimmt vom Browser
-nur die Auswahl entgegen, nie einen Betrag.
+was zwischen Stammdaten und Monat auseinanderläuft, und schliesst es auf
+Knopfdruck. Der Server rechnet den Bericht beim Übernehmen neu und nimmt
+vom Browser nur die Auswahl entgegen, nie einen Betrag.
+
+Beim Personal ist die **Lohnart** entscheidend, nicht die Stundenzahl.
+Die Rechnung hat zwei getrennte Kostenwege, und jeder Mensch gehört in
+genau einen davon:
+
+| | Kostenweg | Zeile in `kalk_person_monat`? |
+|---|---|---|
+| Stundenlöhner | Stunden x Stundenlohn über die Objektzeilen (`lohnSzObj`) | nein, nie |
+| Monatslöhner | fester Betrag in der Personalliste (`lohnSzPers`) | ja, immer |
+
+Beide Summen werden am Ende vom Umsatz abgezogen. Ein Monatslöhner ohne
+Zeile kostet in der Rechnung gar nichts, ein Stundenlöhner mit Zeile
+kostet zweimal. Der Abgleich prüft genau das.
+
+Gefunden werden: fehlende Objekte, abweichende Abos, im Stammblatt
+stillgelegte Objekte, die im Monat noch mitzählen, Monatslöhner ohne
+Zeile, Löhne, die vom Stammblatt abweichen, und Menschen, die in beiden
+Töpfen stehen. Der letzte Fall bekommt keinen Knopf: ob die
+Personalzeile falsch ist oder die Erfassung, steht nicht in den Daten.
 
 **Monatsabschluss** (`kalk_monat.abgeschlossen_am`). Ein abgeschlossener
 Monat nimmt keine Änderungen mehr an, durchgesetzt von einer Middleware

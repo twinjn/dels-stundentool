@@ -220,7 +220,17 @@ describe("Abgleich", () => {
     expect(zeile.aboBetrag).toBe("1200.00");
   });
 
-  test("eine Person mit Stunden ohne Personalzeile wird gemeldet", async () => {
+  /*
+   * Die wichtigste Regel dieses Abgleichs, und die, die ich beim ersten
+   * Anlauf falsch hatte: entscheidend ist die LOHNART, nicht die
+   * Stundenzahl.
+   *
+   * Ein Stundenlöhner verursacht seine Kosten über die Objektzeilen.
+   * Steht er zusätzlich in der Personalliste, zählt sein Lohn zweimal.
+   * Ein Monatslöhner ohne Zeile dagegen kostet in der Rechnung gar
+   * nichts, und das ist der teurere Fehler von beiden.
+   */
+  test("ein Stundenlöhner mit Stunden wird NICHT als fehlend gemeldet", async () => {
     const klient = await anmelden(app, ADMIN);
 
     await db.insert(eintraege).values({
@@ -232,22 +242,114 @@ describe("Abgleich", () => {
     });
 
     const bericht = await klient.get(`/api/kalkulation/${MONAT}/abgleich`);
+    expect(bericht.status).toBe(200);
+    expect(
+      bericht.body.unterschiede.some(
+        (u: { mitarbeiterId?: string }) => u.mitarbeiterId === personId,
+      ),
+    ).toBe(false);
+  });
+
+  test("ein Monatslöhner ohne Personalzeile wird gemeldet und mit Lohn aufgenommen", async () => {
+    const klient = await anmelden(app, ADMIN);
+
+    const [chef] = await db
+      .insert(mitarbeiter)
+      .values({
+        name: `${marke} Monatsmensch`,
+        personalnummer: `${marke}-m`,
+        lohnart: "monat",
+        monatslohn: "5400.00",
+      })
+      .returning({ id: mitarbeiter.id });
+    const chefId = chef!.id;
+
+    const bericht = await klient.get(`/api/kalkulation/${MONAT}/abgleich`);
     const fehlt = bericht.body.unterschiede.find(
       (u: { art: string; mitarbeiterId?: string }) =>
-        u.art === "person_fehlt" && u.mitarbeiterId === personId,
+        u.art === "monatslohn_fehlt" && u.mitarbeiterId === chefId,
     );
     expect(fehlt).toBeDefined();
-    expect(fehlt.stunden).toBe(7.5);
+    expect(fehlt.lautStammdaten).toBe("5400.00");
 
     const uebernommen = await klient
       .post(`/api/kalkulation/${MONAT}/abgleich`)
-      .send({ schluessel: [`person_fehlt:${personId}`] });
+      .send({ schluessel: [`monatslohn_fehlt:${chefId}`] });
     expect(uebernommen.body.bilanz.personen).toBe(1);
 
+    // Der Lohn muss mitkommen. Eine Zeile mit 0 waere genauso falsch
+    // wie gar keine Zeile, nur schwerer zu bemerken.
+    const daten = await klient.get(`/api/kalkulation/${MONAT}`);
+    const zeile = daten.body.personMonat.find(
+      (p: { mitarbeiterId: string }) => p.mitarbeiterId === chefId,
+    );
+    expect(zeile.lohn).toBe("5400.00");
+
+    // Jetzt weicht nichts mehr ab.
+    const zweiter = await klient.get(`/api/kalkulation/${MONAT}/abgleich`);
+    expect(
+      zweiter.body.unterschiede.some((u: { mitarbeiterId?: string }) => u.mitarbeiterId === chefId),
+    ).toBe(false);
+
+    // Lohnerhöhung im Stammblatt: wird gemeldet, nicht still übernommen.
+    await db.update(mitarbeiter).set({ monatslohn: "5800.00" }).where(eq(mitarbeiter.id, chefId));
+
+    const dritter = await klient.get(`/api/kalkulation/${MONAT}/abgleich`);
+    const abweichung = dritter.body.unterschiede.find(
+      (u: { art: string; mitarbeiterId?: string }) =>
+        u.art === "lohn_weicht_ab" && u.mitarbeiterId === chefId,
+    );
+    expect(abweichung.imMonat).toBe("5400.00");
+    expect(abweichung.lautStammdaten).toBe("5800.00");
+
+    await klient
+      .post(`/api/kalkulation/${MONAT}/abgleich`)
+      .send({ schluessel: [`lohn_weicht_ab:${chefId}`] });
+
+    const danach = await klient.get(`/api/kalkulation/${MONAT}`);
+    expect(
+      danach.body.personMonat.find((p: { mitarbeiterId: string }) => p.mitarbeiterId === chefId)
+        .lohn,
+    ).toBe("5800.00");
+
+    await db.delete(kalkPersonMonat).where(eq(kalkPersonMonat.mitarbeiterId, chefId));
+    await db.delete(mitarbeiter).where(eq(mitarbeiter.id, chefId));
+  });
+
+  test("wer in beiden Töpfen steht, wird gemeldet, aber nicht automatisch geändert", async () => {
+    const klient = await anmelden(app, ADMIN);
+
+    // personId ist Stundenlöhner und hat oben Stunden bekommen.
+    await db
+      .insert(kalkPersonMonat)
+      .values({ monat: MONAT, mitarbeiterId: personId, lohn: "1000.00" })
+      .onConflictDoNothing();
+
+    const bericht = await klient.get(`/api/kalkulation/${MONAT}/abgleich`);
+    const doppelt = bericht.body.unterschiede.find(
+      (u: { art: string; mitarbeiterId?: string }) =>
+        u.art === "person_doppelt" && u.mitarbeiterId === personId,
+    );
+    expect(doppelt).toBeDefined();
+    expect(doppelt.lohnart).toBe("stunde");
+    expect(doppelt.stunden).toBe(7.5);
+
+    // Kein Knopf: der Server nimmt den Schlüssel entgegen, tut aber
+    // nichts damit, statt zu raten.
+    const versuch = await klient
+      .post(`/api/kalkulation/${MONAT}/abgleich`)
+      .send({ schluessel: [`person_doppelt:${personId}`] });
+    expect(versuch.status).toBe(409);
+    expect(versuch.body.code).toBe("nichts_zu_tun");
+
+    // Die Zeile steht unverändert da.
     const daten = await klient.get(`/api/kalkulation/${MONAT}`);
     expect(
-      daten.body.personMonat.some((p: { mitarbeiterId: string }) => p.mitarbeiterId === personId),
-    ).toBe(true);
+      daten.body.personMonat.find((p: { mitarbeiterId: string }) => p.mitarbeiterId === personId)
+        .lohn,
+    ).toBe("1000.00");
+
+    await db.delete(kalkPersonMonat).where(eq(kalkPersonMonat.mitarbeiterId, personId));
   });
 
   test("ein stillgelegtes Objekt wird gemeldet", async () => {
