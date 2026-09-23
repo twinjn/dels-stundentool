@@ -158,8 +158,8 @@ export function ProtokollSeite() {
         >
           <option value="">alle Aktionen</option>
           <option value="anlegen">angelegt</option>
-          <option value="aendern">geaendert</option>
-          <option value="loeschen">geloescht</option>
+          <option value="aendern">geändert</option>
+          <option value="loeschen">gelöscht</option>
           <option value="exportieren">exportiert</option>
         </select>
         <select
@@ -200,7 +200,7 @@ export function ProtokollSeite() {
                   <th>Zeitpunkt</th>
                   <th>Wer</th>
                   <th>Was</th>
-                  <th>Aenderung</th>
+                  <th>Änderung</th>
                 </tr>
               </thead>
               <tbody>

@@ -21,7 +21,7 @@ describe("Stunden eintippen", () => {
     expect(objekt("7:30")).toEqual({ leeren: false, art: "arbeit", wert: "7.50" });
   });
 
-  test("leere Eingabe und Null loeschen den Eintrag", () => {
+  test("leere Eingabe und Null löschen den Eintrag", () => {
     expect(objekt("")).toEqual({ leeren: true });
     expect(objekt("   ")).toEqual({ leeren: true });
     expect(objekt("0")).toEqual({ leeren: true });
@@ -32,7 +32,7 @@ describe("Stunden eintippen", () => {
     expect(istFehler(ergebnis)).toBe(true);
   });
 
-  test("Unsinn wird abgelehnt, mit einer Erklaerung", () => {
+  test("Unsinn wird abgelehnt, mit einer Erklärung", () => {
     const ergebnis = objekt("acht");
     expect(istFehler(ergebnis)).toBe(true);
     if (istFehler(ergebnis)) expect(ergebnis.fehler).toMatch(/Erlaubt sind/);
@@ -40,7 +40,7 @@ describe("Stunden eintippen", () => {
 });
 
 describe("Kuerzel", () => {
-  test("F, K, U, S und FT gehoeren zur Person", () => {
+  test("F, K, U, S und FT gehören zur Person", () => {
     expect(person("F")).toEqual({ leeren: false, art: "ferien", wert: "1.00" });
     expect(person("k")).toEqual({ leeren: false, art: "krankheit", wert: "1.00" });
     expect(person("U")).toEqual({ leeren: false, art: "unfall", wert: "1.00" });
@@ -48,7 +48,7 @@ describe("Kuerzel", () => {
     expect(person("ft")).toEqual({ leeren: false, art: "feiertag", wert: "1.00" });
   });
 
-  test("Fr und FF gehoeren zum Objekt", () => {
+  test("Fr und FF gehören zum Objekt", () => {
     expect(objekt("Fr")).toEqual({ leeren: false, art: "frei", wert: "1.00" });
     expect(objekt("FF")).toEqual({ leeren: false, art: "frei", wert: "1.00" });
   });

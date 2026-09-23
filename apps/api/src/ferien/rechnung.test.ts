@@ -37,7 +37,7 @@ describe("jahresanspruch", () => {
     });
   });
 
-  it("zaehlt den Eintrittstag mit", () => {
+  it("zählt den Eintrittstag mit", () => {
     // Eintritt am 31.12. ist genau ein Tag: 25 / 365 = 0.068 -> 0.
     // Aufgeschrieben, damit klar ist, dass hier nicht abgeschnitten,
     // sondern auf halbe Tage gerundet wird.
@@ -80,7 +80,7 @@ describe("ferienzuschlag", () => {
     expect(anteil).toBeCloseTo(0.08333, 5);
   });
 
-  it("ergibt 10.638 % bei fuenf Wochen", () => {
+  it("ergibt 10.638 % bei fünf Wochen", () => {
     const { wochen, anteil } = ferienzuschlag(25);
     expect(wochen).toBe(5);
     expect(anteil).toBeCloseTo(0.10638, 5);
@@ -96,7 +96,7 @@ describe("ferienzuschlag", () => {
     expect(ferienzuschlag(25).anteil).not.toBeCloseTo(5 / 52, 4);
   });
 
-  it("gibt null zurueck, wenn kein oder ein unsinniger Anspruch hinterlegt ist", () => {
+  it("gibt null zurück, wenn kein oder ein unsinniger Anspruch hinterlegt ist", () => {
     expect(ferienzuschlag(0).anteil).toBe(0);
     expect(ferienzuschlag(-5).anteil).toBe(0);
     expect(ferienzuschlag(400).anteil).toBe(0);
@@ -129,7 +129,7 @@ describe("ferienentschaedigung", () => {
     expect(ferienentschaedigung(100, 0, 25).betragRappen).toBe(0);
   });
 
-  it("bleibt ueber viele Stunden hinweg exakt", () => {
+  it("bleibt über viele Stunden hinweg exakt", () => {
     /*
      * Der Test, der in Gleitkomma schiefgeht. Zwoelf Monate zu 173.25
      * Stunden, Lohn 27.35: einzeln gerechnet und aufsummiert muss

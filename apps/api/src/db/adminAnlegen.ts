@@ -153,7 +153,7 @@ try {
   const wiederholung = ausUmgebung ?? (await frage("Passwort wiederholen: ", true));
 
   if (passwort !== wiederholung) {
-    console.error("\nDie beiden Passwoerter stimmen nicht ueberein.\n");
+    console.error("\nDie beiden Passwörter stimmen nicht überein.\n");
     process.exit(1);
   }
 
@@ -173,7 +173,7 @@ try {
   console.log(`\nAngelegt: ${angelegt?.email}\nDu kannst dich jetzt anmelden.\n`);
 } catch (fehler) {
   if (fehler && typeof fehler === "object" && "issues" in fehler) {
-    console.error("\nEingabe ist ungueltig:");
+    console.error("\nEingabe ist ungültig:");
     for (const problem of (fehler as { issues: { path: unknown[]; message: string }[] }).issues) {
       console.error(`  ${problem.path.join(".")}: ${problem.message}`);
     }

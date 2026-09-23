@@ -79,7 +79,7 @@ describe("Personalstamm lesen", () => {
     expect(person?.ferienSaldo).toBe("0.00");
   });
 
-  test("Zeilen ohne Namen werden uebersprungen und gemeldet", () => {
+  test("Zeilen ohne Namen werden übersprungen und gemeldet", () => {
     const mappe = baueMappe([zeile({ 0: "1099", 2: "Inaktiv" })]);
     const { zeilen, warnungen } = lesePersonalblatt(mappe);
     expect(zeilen).toHaveLength(0);

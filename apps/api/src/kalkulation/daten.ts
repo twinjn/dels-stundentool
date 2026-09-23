@@ -35,7 +35,7 @@ export function monatsgrenzen(monat: string): { von: string; bis: string } {
 export async function kalkulationsdaten(monat: string) {
   const [ansaetze] = await db.select().from(kalkMonat).where(eq(kalkMonat.monat, monat));
   if (!ansaetze) {
-    throw nichtGefunden(`Fuer ${monat} ist noch kein Monat angelegt.`);
+    throw nichtGefunden(`Für ${monat} ist noch kein Monat angelegt.`);
   }
 
   const { von, bis } = monatsgrenzen(monat);

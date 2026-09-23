@@ -89,7 +89,7 @@ async function anfrage<T>(pfad: string, optionen: RequestInit = {}): Promise<T> 
  *
  * Warum nicht einfach ein <a href="/api/export/...">? Weil ein Link bei
  * einem Fehler die rohe JSON-Antwort des Servers im Browserfenster
- * anzeigt ("keinZugriff: Fuer kalkulation:lesen fehlt..."). So bekommt
+ * anzeigt ("keinZugriff: Für kalkulation:lesen fehlt..."). So bekommt
  * der Benutzer dieselbe Fehlermeldung wie ueberall sonst.
  *
  * Der Dateiname kommt aus dem Content-Disposition-Kopf, damit ihn der

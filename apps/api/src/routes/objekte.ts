@@ -16,7 +16,7 @@ import { protokolliere, unterschiede } from "../protokoll.js";
 
 export const objekteRouter = Router();
 
-const IdSchema = z.uuid("Ungueltige Objekt-ID.");
+const IdSchema = z.uuid("Ungültige Objekt-ID.");
 
 objekteRouter.get("/", brauchtRecht("stammdaten:lesen"), async (req, res) => {
   const nurAktive = req.query.nurAktive === "true";

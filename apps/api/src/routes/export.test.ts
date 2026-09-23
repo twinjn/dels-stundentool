@@ -217,7 +217,7 @@ describe("Stundenblatt", () => {
 });
 
 describe("Kalkulation", () => {
-  test("enthaelt dieselben Zahlen, die rechne() liefert", async () => {
+  test("enthält dieselben Zahlen, die rechne() liefert", async () => {
     const klient = await anmelden(app, ADMIN);
     const mappe = mappeAus((await hole(klient, `/api/export/kalkulation?monat=${KALKMONAT}`)).body);
 
@@ -285,7 +285,7 @@ describe("Kalkulation", () => {
 });
 
 describe("Datumswerte", () => {
-  test("gehen durch Excel und wieder zurueck, ohne einen Tag zu verlieren", () => {
+  test("gehen durch Excel und wieder zurück, ohne einen Tag zu verlieren", () => {
     for (const iso of ["1900-01-01", "1999-12-31", "2020-03-01", "2026-02-28", "2099-06-15"]) {
       const serie = alsExcelDatum(iso)!;
       expect(excelDatum(serie)).toBe(iso);

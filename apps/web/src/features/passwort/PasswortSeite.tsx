@@ -28,7 +28,7 @@ export function PasswortSeite() {
     setFehler(null);
 
     if (neuesPasswort !== wiederholung) {
-      setFehler("Die beiden neuen Passwoerter stimmen nicht ueberein.");
+      setFehler("Die beiden neuen Passwörter stimmen nicht überein.");
       return;
     }
 
@@ -36,7 +36,7 @@ export function PasswortSeite() {
     // schnelle Rueckmeldung, die Sicherheit kommt vom Server.
     const geprueft = PasswortAendernSchema.safeParse({ altesPasswort, neuesPasswort });
     if (!geprueft.success) {
-      setFehler(geprueft.error.issues[0]?.message ?? "Eingabe unvollstaendig.");
+      setFehler(geprueft.error.issues[0]?.message ?? "Eingabe unvollständig.");
       return;
     }
 
@@ -57,7 +57,7 @@ export function PasswortSeite() {
       // deshalb erst mit dem Knopf auf der Erfolgsseite. Solange die
       // steht, wird ohnehin nichts vom Server geholt.
     } catch (e: unknown) {
-      setFehler(e instanceof ApiFehler ? e.message : "Aendern fehlgeschlagen.");
+      setFehler(e instanceof ApiFehler ? e.message : "Ändern fehlgeschlagen.");
     } finally {
       setLaeuft(false);
     }

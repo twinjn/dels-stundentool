@@ -229,7 +229,7 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, 325)
   where objekt_nr = '10021';
 update objekte set
-    name        = case when name = 'Objekt 10023' then 'Apartment + Aufenthaltsraum Chaesernweg' else name end,
+    name        = case when name = 'Objekt 10023' then 'Apartment + Aufenthaltsraum Chäsernweg' else name end,
     strasse     = coalesce(strasse, 'Chäsernweg 22, 24'),
     plz         = coalesce(plz,     '8302'),
     ort         = coalesce(ort,     'Kloten'),
@@ -237,7 +237,7 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, null)
   where objekt_nr = '10023';
 update objekte set
-    name        = case when name = 'Objekt 10002' then 'Burgring ZueriOberland Geschaeftshaus' else name end,
+    name        = case when name = 'Objekt 10002' then 'Burgring ZüriOberland Geschäftshaus' else name end,
     strasse     = coalesce(strasse, 'Bahnhofstr. 63'),
     plz         = coalesce(plz,     '8620'),
     ort         = coalesce(ort,     'Wetzikon'),
@@ -269,7 +269,7 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, null)
   where objekt_nr = '10031';
 update objekte set
-    name        = case when name = 'Objekt 10005' then 'Baeckerei-Konditorei Birmensdorf' else name end,
+    name        = case when name = 'Objekt 10005' then 'Bäckerei-Konditorei Birmensdorf' else name end,
     strasse     = coalesce(strasse, 'Zürcherstrasse 11'),
     plz         = coalesce(plz,     '8903'),
     ort         = coalesce(ort,     'Birmensdorf'),
@@ -279,7 +279,7 @@ update objekte set
 
 -- 3. Ansaetze des Monats Februar 2026
 insert into kalk_monat (monat, ahv, alv, nbu, bu, ktg_objekt, ktg_personal, rpk, fak, ml13, nbu_schwelle, nbu_traegt_ag, bvg_satz, bvg_eintritt, bvg_koord, bvg_min, bvg_max, mat, mas, trs, trs_topf, trs_schluessel, admin_reserve, notiz)
-  values ('2026-02-01', 0.053, 0.011, 0.0138, 0.014494, 0.00796, 0.00825, 0.002, 0.012, 0.0833, 8, false, 0.07, 22680, 26460, 3780, 64260, 15, 15, 0, 1400, 'abos', 0.10, 'Aus Kalkulationstabelle_DELS.xlsx uebernommen und gegen das Excel geprueft. Treibstoff steht im trs_topf statt in den Adminkosten, die Trs-Pauschale ist deshalb 0. NBU traegt laut Art. 91 UVG der Arbeitnehmer, daher nbu_traegt_ag = false.')
+  values ('2026-02-01', 0.053, 0.011, 0.0138, 0.014494, 0.00796, 0.00825, 0.002, 0.012, 0.0833, 8, false, 0.07, 22680, 26460, 3780, 64260, 15, 15, 0, 1400, 'abos', 0.10, 'Aus Kalkulationstabelle_DELS.xlsx übernommen und gegen das Excel geprüft. Treibstoff steht im trs_topf statt in den Adminkosten, die Trs-Pauschale ist deshalb 0. NBU trägt laut Art. 91 UVG der Arbeitnehmer, daher nbu_traegt_ag = false.')
   on conflict (monat) do nothing;
 
 -- 4. Adminkosten Februar (Kostenuebersicht.xlsx, ohne Treibstoff)
@@ -317,7 +317,7 @@ insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_m
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
   select '2026-02-01', id, 390, 4, 25.46, 1, true from objekte where name = 'Friedhof Chloos';
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
-  select '2026-02-01', id, 1090, 8, 26, 1, true from objekte where name = 'Apartment + Aufenthaltsraum Chaesernweg';
+  select '2026-02-01', id, 1090, 8, 26, 1, true from objekte where name = 'Apartment + Aufenthaltsraum Chäsernweg';
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
   select '2026-02-01', id, 1560, 24, 25.46, 1, true from objekte where name = 'Dreifach Kindergarten Geissberg';
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
@@ -349,7 +349,7 @@ insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_m
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
   select '2026-02-01', id, null, 0, 25.46, 1, true from objekte where name = 'FC Othmarsingen';
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
-  select '2026-02-01', id, 445, 6, 25.46, 1, true from objekte where name = 'Burgring ZueriOberland Geschaeftshaus';
+  select '2026-02-01', id, 445, 6, 25.46, 1, true from objekte where name = 'Burgring ZüriOberland Geschäftshaus';
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
   select '2026-02-01', id, 640, 6, 26, 1, true from objekte where name = 'LS Hofackerstrasse';
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
@@ -379,4 +379,4 @@ insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_m
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
   select '2026-02-01', id, 1750, 40, 25.46, 1, true from objekte where name = 'Bäckerei-Konditorei Reppischtalstrasse';
 insert into kalk_objekt_monat (monat, objekt_id, abo_betrag, std_manuell, lohn_manuell, ma, aktiv)
-  select '2026-02-01', id, 2100, 48, 25.46, 1, true from objekte where name = 'Baeckerei-Konditorei Birmensdorf';
+  select '2026-02-01', id, 2100, 48, 25.46, 1, true from objekte where name = 'Bäckerei-Konditorei Birmensdorf';

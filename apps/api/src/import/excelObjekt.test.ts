@@ -83,7 +83,7 @@ describe("Objektdatei lesen", () => {
     ]);
   });
 
-  test("hoert bei der Monatstotal-Zeile auf", () => {
+  test("hört bei der Monatstotal-Zeile auf", () => {
     const mappe = baueObjektmappe([person("1010", "Person", { 2: 8 })]);
     // Nach der Schlusszeile darf nichts mehr gelesen werden.
     expect(leseObjektblatt(mappe, "Februar", 2026).eintraege).toHaveLength(1);
@@ -121,7 +121,7 @@ describe("Objektdatei lesen", () => {
 });
 
 describe("Mehrere Objektdateien zusammenfuehren", () => {
-  test("Ferien derselben Person zaehlen einmal, nicht je Datei", () => {
+  test("Ferien derselben Person zählen einmal, nicht je Datei", () => {
     // Der entscheidende Fall: wer auf drei Objekten arbeitet, hat seine
     // Ferien in drei Dateien stehen. Ohne Entdopplung waeren das drei Tage.
     const ausDrei = ["10002", "10003", "10004"].map((nr) => {

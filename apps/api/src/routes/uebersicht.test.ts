@@ -110,7 +110,7 @@ describe("Matrix", () => {
     expect(person.monate[6]!.arbeit).toBe(0);
   });
 
-  test("Arten werden getrennt gefuehrt", async () => {
+  test("Arten werden getrennt geführt", async () => {
     const daten = await holeJahr();
     const person = daten.mitarbeiter.find((p) => p.name === `${marke} Aktiv`)!;
 
@@ -130,7 +130,7 @@ describe("Matrix", () => {
     expect(person.jahr.arbeit).toBeCloseTo(15.5, 6);
   });
 
-  test("ein Eintrag im Folgejahr zaehlt nicht mit", async () => {
+  test("ein Eintrag im Folgejahr zählt nicht mit", async () => {
     const daten = await holeJahr();
     const person = daten.mitarbeiter.find((p) => p.name === `${marke} Aktiv`)!;
     // 99 Stunden am 2. Januar des Folgejahres duerfen nirgends auftauchen.
@@ -143,7 +143,7 @@ describe("Matrix", () => {
 });
 
 describe("Wer erscheint", () => {
-  test("Ausgetretene ohne Eintraege im Jahr bleiben draussen", async () => {
+  test("Ausgetretene ohne Einträge im Jahr bleiben draussen", async () => {
     const daten = await holeJahr();
     expect(daten.mitarbeiter.some((p) => p.name === `${marke} Weg`)).toBe(false);
   });
@@ -153,7 +153,7 @@ describe("Wer erscheint", () => {
     expect(daten.mitarbeiter.some((p) => p.name === `${marke} Weg`)).toBe(true);
   });
 
-  test("Ausgetretene MIT Eintraegen im Jahr sind auch ohne alle=true dabei", async () => {
+  test("Ausgetretene MIT Einträgen im Jahr sind auch ohne alle=true dabei", async () => {
     const daten = await holeJahr(JAHR - 1);
     const weg = daten.mitarbeiter.find((p) => p.name === `${marke} Weg`);
     expect(weg).toBeDefined();
@@ -194,7 +194,7 @@ describe("Export", () => {
     expect(mappe.SheetNames.some((n) => /\s\d$/.test(n))).toBe(false);
   });
 
-  test("die Zahlen im Blatt stimmen mit der Ansicht ueberein", async () => {
+  test("die Zahlen im Blatt stimmen mit der Ansicht überein", async () => {
     const daten = await holeJahr();
     const person = daten.mitarbeiter.find((p) => p.name === `${marke} Aktiv`)!;
 
@@ -213,7 +213,7 @@ describe("Export", () => {
     expect(zeile[14]).toBe(person.jahr.arbeit); // Total
   });
 
-  test("Blaetter ohne Eintraege bleiben leer statt voller Nullen", async () => {
+  test("Blaetter ohne Einträge bleiben leer statt voller Nullen", async () => {
     const klient = await anmelden(app, MAIL);
     const antwort = await klient.get(`/api/export/uebersicht?jahr=${JAHR}`).responseType("blob");
     const mappe = XLSX.read(antwort.body, { type: "buffer" });

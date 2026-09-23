@@ -51,7 +51,7 @@ afterAll(async () => {
 });
 
 describe("Lohnfelder", () => {
-  test("buero bekommt die Loehne gar nicht erst geschickt", async () => {
+  test("buero bekommt die Löhne gar nicht erst geschickt", async () => {
     const klient = await anmelden(app, BUERO_MAIL);
     const antwort = await klient.get(`/api/mitarbeiter/${mitarbeiterId}`);
 
@@ -63,7 +63,7 @@ describe("Lohnfelder", () => {
     expect(JSON.stringify(antwort.body)).not.toContain("5200.50");
   });
 
-  test("auch in der Liste tauchen sie fuer buero nicht auf", async () => {
+  test("auch in der Liste tauchen sie für buero nicht auf", async () => {
     const klient = await anmelden(app, BUERO_MAIL);
     const antwort = await klient.get("/api/mitarbeiter");
 
@@ -96,7 +96,7 @@ describe("Lohnfelder", () => {
   });
 });
 
-describe("Mitarbeiter anlegen und aendern", () => {
+describe("Mitarbeiter anlegen und ändern", () => {
   test("buero darf Stammdaten pflegen", async () => {
     const klient = await anmelden(app, BUERO_MAIL);
     const antwort = await klient
@@ -136,7 +136,7 @@ describe("Mitarbeiter anlegen und aendern", () => {
 });
 
 describe("Loeschen", () => {
-  test("ein Mitarbeiter mit Stunden laesst sich nicht loeschen", async () => {
+  test("ein Mitarbeiter mit Stunden lässt sich nicht löschen", async () => {
     await db.insert(eintraege).values({
       mitarbeiterId,
       objektId,
@@ -161,7 +161,7 @@ describe("Loeschen", () => {
     expect(antwort.body.code).toBe("hat_daten");
   });
 
-  test("ein frisch angelegtes Objekt ohne Daten laesst sich loeschen", async () => {
+  test("ein frisch angelegtes Objekt ohne Daten lässt sich löschen", async () => {
     const klient = await anmelden(app, ADMIN_MAIL);
     const neu = await klient.post("/api/objekte").send({ name: `${marke} Wegwerf` });
     expect(neu.status).toBe(201);
@@ -172,7 +172,7 @@ describe("Loeschen", () => {
 });
 
 describe("Protokoll", () => {
-  test("jede Aenderung wird mit Benutzer und altem Wert festgehalten", async () => {
+  test("jede Änderung wird mit Benutzer und altem Wert festgehalten", async () => {
     const klient = await anmelden(app, ADMIN_MAIL);
     await klient.patch(`/api/mitarbeiter/${mitarbeiterId}`).send({ ort: "Zuerich" });
 

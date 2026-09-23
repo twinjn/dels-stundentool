@@ -105,7 +105,7 @@ describe("adminAnlegen mit umgeleiteter Eingabe", () => {
     expect(gefunden).toBeDefined();
   }, 40_000);
 
-  test("zwei verschiedene Passwoerter werden abgelehnt", async () => {
+  test("zwei verschiedene Passwörter werden abgelehnt", async () => {
     const email = `${marke}-vier@dels.ch`;
     const { code, ausgabe } = await starte(
       ["--noch-einen", "--name", `${marke} Vier`, "--email", email],
@@ -113,13 +113,13 @@ describe("adminAnlegen mit umgeleiteter Eingabe", () => {
     );
 
     expect(code).toBe(1);
-    expect(ausgabe).toContain("stimmen nicht ueberein");
+    expect(ausgabe).toContain("stimmen nicht überein");
 
     const [gefunden] = await db.select().from(benutzer).where(eq(benutzer.email, email));
     expect(gefunden).toBeUndefined();
   }, 40_000);
 
-  test("abgebrochene Eingabe haengt nicht, sondern meldet einen Fehler", async () => {
+  test("abgebrochene Eingabe hängt nicht, sondern meldet einen Fehler", async () => {
     const email = `${marke}-fuenf@dels.ch`;
     // Nur eine von zwei Passwortzeilen, dann Ende der Eingabe.
     const { code } = await starte(

@@ -172,7 +172,7 @@ export function lesePersonalblatt(mappe: XLSX.WorkBook): PersonalErgebnis {
     });
   }
 
-  if (zeilen.length === 0) warnungen.push("Das Blatt Personal enthaelt keine Zeilen.");
+  if (zeilen.length === 0) warnungen.push("Das Blatt Personal enthält keine Zeilen.");
 
   return { zeilen, warnungen };
 }

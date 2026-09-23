@@ -18,7 +18,7 @@ import { datenbankErreichbar } from "./db/index.js";
 if (istProduktion && config.WEB_ORIGIN.startsWith("http://")) {
   console.warn(
     "\n!! WEB_ORIGIN zeigt auf http:// statt https://." +
-      "\n!! In Produktion wird das Sitzungs-Cookie nur ueber HTTPS geschickt." +
+      "\n!! In Produktion wird das Sitzungs-Cookie nur über HTTPS geschickt." +
       "\n!! Die Anmeldung wird deshalb NICHT funktionieren." +
       "\n!! Entweder TLS davorschalten oder NODE_ENV auf development setzen.\n",
   );
@@ -29,7 +29,7 @@ if (istProduktion && config.WEB_ORIGIN.startsWith("http://")) {
 if (!(await datenbankErreichbar())) {
   console.error(
     "\nDie Datenbank ist nicht erreichbar." +
-      "\nDATABASE_URL pruefen und sicherstellen, dass Postgres laeuft.\n",
+      "\nDATABASE_URL prüfen und sicherstellen, dass Postgres läuft.\n",
   );
   process.exit(1);
 }
@@ -37,7 +37,7 @@ if (!(await datenbankErreichbar())) {
 const app = baueApp();
 
 const server = app.listen(config.PORT, config.HOST, () => {
-  console.log(`API laeuft auf http://${config.HOST}:${config.PORT}  (${config.NODE_ENV})`);
+  console.log(`API läuft auf http://${config.HOST}:${config.PORT}  (${config.NODE_ENV})`);
 });
 
 /**

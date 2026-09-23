@@ -125,7 +125,7 @@ describe("Anmeldung", () => {
     expect(sitzungsCookie).toMatch(/SameSite=Lax/i);
   });
 
-  test("die Antwort enthaelt nirgends den Passwort-Hash", async () => {
+  test("die Antwort enthält nirgends den Passwort-Hash", async () => {
     const antwort = await request(app)
       .post("/api/auth/anmelden")
       .send({ email: ADMIN_MAIL, passwort: PASSWORT });
@@ -154,7 +154,7 @@ describe("Anmeldung", () => {
     expect(treffer).toBeUndefined();
   });
 
-  test("mit gueltigem Cookie liefert /api/auth/ich den Benutzer", async () => {
+  test("mit gültigem Cookie liefert /api/auth/ich den Benutzer", async () => {
     const klient = await angemeldetAls(ADMIN_MAIL);
     const antwort = await klient.get("/api/auth/ich");
 
@@ -171,7 +171,7 @@ describe("Anmeldung", () => {
     expect((await klient.get("/api/auth/ich")).status).toBe(401);
   });
 
-  test("nach fuenf Fehlversuchen wird gesperrt", async () => {
+  test("nach fünf Fehlversuchen wird gesperrt", async () => {
     for (let i = 0; i < 5; i++) {
       const antwort = await request(app)
         .post("/api/auth/anmelden")
@@ -228,7 +228,7 @@ describe("Rechte", () => {
 });
 
 describe("Schutz vor dem Aussperren", () => {
-  test("der letzte aktive Admin laesst sich nicht stilllegen", async () => {
+  test("der letzte aktive Admin lässt sich nicht stilllegen", async () => {
     const klient = await angemeldetAls(ADMIN_MAIL);
 
     // Der zweite Admin darf weg, danach ist nur noch einer uebrig.

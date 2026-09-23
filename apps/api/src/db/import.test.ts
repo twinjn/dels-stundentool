@@ -132,7 +132,7 @@ afterAll(async () => {
 });
 
 describe("Import aus dem Altsystem", () => {
-  test("uebernimmt alle sieben Tabellen", async () => {
+  test("übernimmt alle sieben Tabellen", async () => {
     const bericht = await importiere(quelle, ziel, { quellSchema: SCHEMA });
     expect(bericht).toEqual({
       mitarbeiter: 1,
@@ -164,7 +164,7 @@ describe("Import aus dem Altsystem", () => {
     expect(rows[0]?.datum).toBe("2026-02-01");
   });
 
-  test("Sozialversicherungssaetze kommen unveraendert an", async () => {
+  test("Sozialversicherungssaetze kommen unverändert an", async () => {
     const { rows } = await ziel.query("select bu, ahv, ml13 from kalk_monat where monat = $1", [
       MONAT,
     ]);
@@ -174,7 +174,7 @@ describe("Import aus dem Altsystem", () => {
     expect(rows[0]?.ml13).toBe("0.083300");
   });
 
-  test("Loehne bleiben auf den Rappen genau", async () => {
+  test("Löhne bleiben auf den Rappen genau", async () => {
     const { rows } = await ziel.query(
       "select lohn from kalk_person_monat where monat = $1 and mitarbeiter_id = $2",
       [MONAT, MITARBEITER],
@@ -182,7 +182,7 @@ describe("Import aus dem Altsystem", () => {
     expect(rows[0]?.lohn).toBe("5200.50");
   });
 
-  test("bricht vollstaendig ab, wenn eine Tabelle Mist enthaelt", async () => {
+  test("bricht vollständig ab, wenn eine Tabelle Mist enthält", async () => {
     // Zweiter Durchlauf mit derselben ID: der Primaerschluessel muss
     // zuschlagen. Wichtig ist, dass dabei NICHTS halb importiert bleibt.
     await expect(importiere(quelle, ziel, { quellSchema: SCHEMA })).rejects.toThrow();

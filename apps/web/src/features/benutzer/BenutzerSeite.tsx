@@ -38,7 +38,7 @@ export function BenutzerSeite() {
       neuLaden();
     } catch (e: unknown) {
       // Haeufigster Fall: es ist der letzte aktive Admin.
-      setAktionsfehler(e instanceof ApiFehler ? e.message : "Aenderung fehlgeschlagen.");
+      setAktionsfehler(e instanceof ApiFehler ? e.message : "Änderung fehlgeschlagen.");
     }
   }
 
@@ -72,7 +72,7 @@ export function BenutzerSeite() {
       await api.post(`/benutzer/${zeile.id}/passwort`, { passwort: geprueft.data });
       setMeldung(
         zeile.id === ich?.id
-          ? "Dein Passwort ist gesetzt. Du bist auf allen Geraeten abgemeldet."
+          ? "Dein Passwort ist gesetzt. Du bist auf allen Geräten abgemeldet."
           : `Passwort fuer ${zeile.name} gesetzt.`,
       );
     } catch (e: unknown) {
@@ -87,7 +87,7 @@ export function BenutzerSeite() {
       await api.patch(`/benutzer/${zeile.id}`, { rolle });
       neuLaden();
     } catch (e: unknown) {
-      setAktionsfehler(e instanceof ApiFehler ? e.message : "Aenderung fehlgeschlagen.");
+      setAktionsfehler(e instanceof ApiFehler ? e.message : "Änderung fehlgeschlagen.");
     }
   }
 
@@ -259,8 +259,8 @@ function NeuerBenutzer({ onFertig }: { onFertig: (name: string) => void }) {
           </select>
           <span className="feldhinweis">
             {rolle === "admin"
-              ? "Sieht alles, auch Loehne und Kalkulation."
-              : "Stunden und Stammdaten, keine Loehne."}
+              ? "Sieht alles, auch Löhne und Kalkulation."
+              : "Stunden und Stammdaten, keine Löhne."}
           </span>
         </div>
       </div>

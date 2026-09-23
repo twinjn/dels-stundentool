@@ -8,7 +8,7 @@
  *   - Nimmt sie eine hochgerechnete Zahl optisch zurueck, oder steht
  *     sie fett da wie eine Tatsache?
  *   - Kommt bei einer abgelehnten Eingabe die konkrete Feldmeldung an
- *     oder nur ein nichtssagendes "Eingabe ist ungueltig"?
+ *     oder nur ein nichtssagendes "Eingabe ist ungültig"?
  *
  * Alle drei sind Fehler, die gruene API-Tests nicht bemerken.
  */
@@ -71,7 +71,7 @@ describe("Trennung nach Lohnart", () => {
     expect(screen.getByRole("heading", { name: "Stundenlohn" })).toBeInTheDocument();
   });
 
-  test("nennt beim Stundenlohn ausdruecklich, dass es keinen Saldo gibt", async () => {
+  test("nennt beim Stundenlohn ausdrücklich, dass es keinen Saldo gibt", async () => {
     rendereAngemeldet(<FerienSeite />);
     await screen.findByRole("heading", { name: "Stundenlohn" });
 
@@ -82,7 +82,7 @@ describe("Trennung nach Lohnart", () => {
 });
 
 describe("Lohndaten", () => {
-  test("Admin sieht Basis und Entschaedigung", async () => {
+  test("Admin sieht Basis und Entschädigung", async () => {
     rendereAngemeldet(<FerienSeite />, "admin");
     await screen.findByRole("heading", { name: "Stundenlohn" });
 
@@ -90,7 +90,7 @@ describe("Lohndaten", () => {
     expect(screen.getByText("319.15")).toBeInTheDocument();
   });
 
-  test("Buero sieht die Frankenspalten gar nicht erst", async () => {
+  test("Büro sieht die Frankenspalten gar nicht erst", async () => {
     /*
      * Der Server schickt fuer diese Rolle basis und entschaedigung als
      * null. Die Seite darf daraus kein "0.00" machen: ein Betrag von
@@ -125,7 +125,7 @@ describe("Hochgerechneter Saldo", () => {
     expect(screen.queryByText(/fehlt ein Stichtag/i)).not.toBeInTheDocument();
   });
 
-  test("warnt und nimmt die Zahl optisch zurueck, wenn der Stichtag fehlt", async () => {
+  test("warnt und nimmt die Zahl optisch zurück, wenn der Stichtag fehlt", async () => {
     /*
      * Der Fall, der mir im Browser aufgefallen ist und in keinem
      * API-Test steht: 96 Tage Rest, fett gedruckt, mit einem kleinen
@@ -150,8 +150,8 @@ describe("Hochgerechneter Saldo", () => {
   });
 });
 
-describe("Uebertrag von Hand", () => {
-  test("Buero sieht keinen Uebertrag-Knopf", async () => {
+describe("Übertrag von Hand", () => {
+  test("Büro sieht keinen Übertrag-Knopf", async () => {
     // Die Rolle darf Stammdaten schreiben, also SIEHT sie ihn. Dieser
     // Test haelt fest, dass die Sichtbarkeit am Recht haengt und nicht
     // an der Rolle, damit ein spaeteres Umhaengen der Rechte hier
@@ -164,16 +164,16 @@ describe("Uebertrag von Hand", () => {
   test("zeigt die konkrete Feldmeldung, nicht die Sammelmeldung", async () => {
     /*
      * Die API antwortet bei einer abgelehnten Eingabe mit
-     *   { code, nachricht: "Eingabe ist ungueltig.", felder: [...] }
+     *   { code, nachricht: "Eingabe ist ungültig.", felder: [...] }
      * Nur die Sammelmeldung anzuzeigen ist der Unterschied zwischen
-     * "irgendwas stimmt nicht" und "Begruendung angeben".
+     * "irgendwas stimmt nicht" und "Begründung angeben".
      */
     const { ApiFehler } = await import("../../api/client.js");
     vi.spyOn(api, "put").mockRejectedValue(
-      new ApiFehler(400, "ungueltig", "Eingabe ist ungueltig.", [
+      new ApiFehler(400, "ungueltig", "Eingabe ist ungültig.", [
         {
           feld: "bemerkung",
-          problem: "Begruendung angeben, sonst weiss in einem Jahr niemand mehr warum.",
+          problem: "Begründung angeben, sonst weiss in einem Jahr niemand mehr warum.",
         },
       ]),
     );
@@ -185,11 +185,11 @@ describe("Uebertrag von Hand", () => {
     await benutzerIn.click(screen.getByRole("button", { name: "Übertrag" }));
     await benutzerIn.click(screen.getByRole("button", { name: "Speichern" }));
 
-    expect(await screen.findByText(/Begründung angeben|Begruendung angeben/)).toBeInTheDocument();
-    expect(screen.queryByText("Eingabe ist ungueltig.")).not.toBeInTheDocument();
+    expect(await screen.findByText(/Begründung angeben/)).toBeInTheDocument();
+    expect(screen.queryByText("Eingabe ist ungültig.")).not.toBeInTheDocument();
   });
 
-  test("laedt nach dem Speichern neu, damit der Rest stimmt", async () => {
+  test("lädt nach dem Speichern neu, damit der Rest stimmt", async () => {
     const holen = vi.spyOn(api, "get").mockResolvedValue(antwort());
     vi.spyOn(api, "put").mockResolvedValue({});
 

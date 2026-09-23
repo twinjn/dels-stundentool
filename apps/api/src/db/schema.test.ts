@@ -91,7 +91,7 @@ describe("Regeln, die die Datenbank selbst durchsetzt", () => {
     expect(eintrag?.art).toBe("ferien");
   });
 
-  test("ein Datum kommt als YYYY-MM-DD zurueck und verschiebt sich nicht", async () => {
+  test("ein Datum kommt als YYYY-MM-DD zurück und verschiebt sich nicht", async () => {
     // Der klassische Fehler: aus dem 1. Februar wird je nach Zeitzone der
     // 31. Januar, und die Schicht landet im falschen Lohnmonat.
     const [eintrag] = await db
@@ -102,7 +102,7 @@ describe("Regeln, die die Datenbank selbst durchsetzt", () => {
     expect(typeof eintrag?.datum).toBe("string");
   });
 
-  test("Betraege kommen als Zeichenkette, nicht als Gleitkommazahl", async () => {
+  test("Beträge kommen als Zeichenkette, nicht als Gleitkommazahl", async () => {
     const [eintrag] = await db
       .insert(eintraege)
       .values({ mitarbeiterId, objektId, datum: "2026-02-05", art: "spesen", wert: "12.35" })
@@ -120,7 +120,7 @@ describe("Regeln, die die Datenbank selbst durchsetzt", () => {
     expect(ergebnis.rows[0]?.probe).toBe("0.014494");
   });
 
-  test("E-Mail ist unabhaengig von Gross- und Kleinschreibung eindeutig", async () => {
+  test("E-Mail ist unabhängig von Gross- und Kleinschreibung eindeutig", async () => {
     await db.insert(benutzer).values({
       name: `${marke} Erster`,
       email: `${marke}@dels.ch`,
@@ -137,7 +137,7 @@ describe("Regeln, die die Datenbank selbst durchsetzt", () => {
     expect(grund).toMatch(/benutzer_email_eindeutig/);
   });
 
-  test("ein Mitarbeiter mit erfassten Stunden laesst sich nicht loeschen", async () => {
+  test("ein Mitarbeiter mit erfassten Stunden lässt sich nicht löschen", async () => {
     // Schutz gegen den teuersten Bedienfehler: ein Klick auf "Loeschen",
     // und die Lohndaten eines ganzen Jahres waeren weg.
     const grund = await scheitertMit(() =>
@@ -146,12 +146,12 @@ describe("Regeln, die die Datenbank selbst durchsetzt", () => {
     expect(grund).toMatch(/eintraege_mitarbeiter_id_mitarbeiter_id_fk/);
   });
 
-  test("ein Objekt mit gebuchten Stunden laesst sich nicht loeschen", async () => {
+  test("ein Objekt mit gebuchten Stunden lässt sich nicht löschen", async () => {
     const grund = await scheitertMit(() => db.delete(objekte).where(eq(objekte.id, objektId)));
     expect(grund).toMatch(/eintraege_objekt_id_objekte_id_fk/);
   });
 
-  test("Eintraege lassen sich nach Mitarbeiter und Monat finden", async () => {
+  test("Einträge lassen sich nach Mitarbeiter und Monat finden", async () => {
     const treffer = await db
       .select()
       .from(eintraege)

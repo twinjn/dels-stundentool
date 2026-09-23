@@ -8,12 +8,12 @@ describe("Rollen und Rechte", () => {
     }
   });
 
-  test("Buero darf Stunden erfassen", () => {
+  test("Büro darf Stunden erfassen", () => {
     expect(hatRecht("buero", "stunden:schreiben")).toBe(true);
     expect(hatRecht("buero", "stammdaten:schreiben")).toBe(true);
   });
 
-  test("Buero kommt nicht an Loehne, Kalkulation und Benutzer", () => {
+  test("Büro kommt nicht an Löhne, Kalkulation und Benutzer", () => {
     expect(hatRecht("buero", "loehne:lesen")).toBe(false);
     expect(hatRecht("buero", "loehne:schreiben")).toBe(false);
     expect(hatRecht("buero", "kalkulation:lesen")).toBe(false);

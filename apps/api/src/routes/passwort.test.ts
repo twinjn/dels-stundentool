@@ -43,7 +43,7 @@ afterAll(async () => {
   await datenbankSchliessen();
 });
 
-describe("Eigenes Passwort aendern", () => {
+describe("Eigenes Passwort ändern", () => {
   test("mit richtigem altem Passwort, danach gilt nur noch das neue", async () => {
     const klient = await anmelden(app, BUERO);
 
@@ -118,7 +118,7 @@ describe("Eigenes Passwort aendern", () => {
   });
 });
 
-describe("Admin setzt ein Passwort zurueck", () => {
+describe("Admin setzt ein Passwort zurück", () => {
   test("der Betroffene kann sich danach mit dem neuen anmelden", async () => {
     const admin = await anmelden(app, ADMIN);
 

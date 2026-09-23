@@ -86,7 +86,7 @@ describe("Zellen setzen", () => {
     expect(antwort.body.zelle).toEqual({ art: "arbeit", wert: "8.40" });
   });
 
-  test("eine Zelle haelt genau einen Wert", async () => {
+  test("eine Zelle hält genau einen Wert", async () => {
     const klient = await anmelden(app, MAIL);
     await setzeZelle(klient, objektId, "8");
     await setzeZelle(klient, objektId, "6");
@@ -100,7 +100,7 @@ describe("Zellen setzen", () => {
     expect(treffer.find((t) => t.objektId === objektId)?.wert).toBe("6.00");
   });
 
-  test("leere Eingabe loescht den Eintrag", async () => {
+  test("leere Eingabe löscht den Eintrag", async () => {
     const klient = await anmelden(app, MAIL);
     await setzeZelle(klient, objektId, "8");
     const antwort = await setzeZelle(klient, objektId, "");
@@ -119,7 +119,7 @@ describe("Zellen setzen", () => {
     expect(treffer).toHaveLength(0);
   });
 
-  test("Ferien gehoeren auf die Personenzeile", async () => {
+  test("Ferien gehören auf die Personenzeile", async () => {
     const klient = await anmelden(app, MAIL);
     const antwort = await setzeZelle(klient, null, "F", `${MONAT}-06`);
 
@@ -142,7 +142,7 @@ describe("Zellen setzen", () => {
     expect(antwort.status).toBe(400);
   });
 
-  test("eine Person hat pro Tag hoechstens eine Abwesenheit", async () => {
+  test("eine Person hat pro Tag höchstens eine Abwesenheit", async () => {
     const klient = await anmelden(app, MAIL);
     await setzeZelle(klient, null, "F", `${MONAT}-09`);
     await setzeZelle(klient, null, "K", `${MONAT}-09`);

@@ -79,7 +79,7 @@ const EnvSchema = z.object({
 const ergebnis = EnvSchema.safeParse(process.env);
 
 if (!ergebnis.success) {
-  console.error("\nKonfiguration ist unvollstaendig oder falsch:\n");
+  console.error("\nKonfiguration ist unvollständig oder falsch:\n");
   for (const problem of ergebnis.error.issues) {
     console.error(`  ${problem.path.join(".")}: ${problem.message}`);
   }

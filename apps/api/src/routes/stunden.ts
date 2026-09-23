@@ -32,8 +32,8 @@ stundenRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
 });
 
 const ZelleSchema = z.object({
-  mitarbeiterId: z.uuid("Ungueltige Mitarbeiter-ID."),
-  objektId: z.uuid("Ungueltige Objekt-ID.").nullable(),
+  mitarbeiterId: z.uuid("Ungültige Mitarbeiter-ID."),
+  objektId: z.uuid("Ungültige Objekt-ID.").nullable(),
   datum: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Datum im Format JJJJ-MM-TT erwartet."),
   eingabe: z.string().max(10),
 });

@@ -36,14 +36,14 @@ const JahrSchema = z.coerce
 const UebertragSchema = z.object({
   tage: z
     .number()
-    .min(-100, "Hoechstens 100 Tage Minus.")
-    .max(100, "Hoechstens 100 Tage.")
+    .min(-100, "Höchstens 100 Tage Minus.")
+    .max(100, "Höchstens 100 Tage.")
     // Ferien gibt es halbtagsweise, nicht in Minuten.
     .refine((v) => Number.isInteger(v * 2), "Nur ganze oder halbe Tage."),
   bemerkung: z
     .string()
     .trim()
-    .min(3, "Begruendung angeben, sonst weiss in einem Jahr niemand mehr warum.")
+    .min(3, "Begründung angeben, sonst weiss in einem Jahr niemand mehr warum.")
     .max(500),
 });
 
@@ -80,7 +80,7 @@ ferienRouter.put(
   "/:mitarbeiterId/:jahr",
   brauchtRecht("stammdaten:schreiben"),
   async (req, res) => {
-    const mitarbeiterId = z.uuid("Keine gueltige Mitarbeiter-ID.").parse(req.params.mitarbeiterId);
+    const mitarbeiterId = z.uuid("Keine gültige Mitarbeiter-ID.").parse(req.params.mitarbeiterId);
     const jahr = JahrSchema.parse(req.params.jahr);
     const daten = UebertragSchema.parse(req.body);
 
@@ -98,7 +98,7 @@ ferienRouter.put(
       throw new HttpFehler(
         422,
         `${person.name} ist im Stundenlohn. Dort wird die Ferienentschaedigung ` +
-          "mit dem Lohn ausbezahlt, einen Uebertrag in Tagen gibt es nicht.",
+          "mit dem Lohn ausbezahlt, einen Übertrag in Tagen gibt es nicht.",
         "falsche_lohnart",
       );
     }
@@ -143,7 +143,7 @@ ferienRouter.delete(
   "/:mitarbeiterId/:jahr",
   brauchtRecht("stammdaten:schreiben"),
   async (req, res) => {
-    const mitarbeiterId = z.uuid("Keine gueltige Mitarbeiter-ID.").parse(req.params.mitarbeiterId);
+    const mitarbeiterId = z.uuid("Keine gültige Mitarbeiter-ID.").parse(req.params.mitarbeiterId);
     const jahr = JahrSchema.parse(req.params.jahr);
 
     const [weg] = await db
@@ -151,7 +151,7 @@ ferienRouter.delete(
       .where(and(eq(ferienUebertrag.mitarbeiterId, mitarbeiterId), eq(ferienUebertrag.jahr, jahr)))
       .returning();
 
-    if (!weg) throw nichtGefunden("Fuer dieses Jahr ist kein Uebertrag gesetzt.");
+    if (!weg) throw nichtGefunden("Für dieses Jahr ist kein Übertrag gesetzt.");
 
     await protokolliere({
       benutzer: req.benutzer,

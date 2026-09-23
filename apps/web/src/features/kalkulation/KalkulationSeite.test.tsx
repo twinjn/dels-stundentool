@@ -141,7 +141,7 @@ describe("Objekt ohne erfasste Stunden", () => {
   });
 });
 
-describe("Vollstaendig erfasster Monat", () => {
+describe("Vollständig erfasster Monat", () => {
   beforeEach(() => {
     antworten(
       monatsdaten({
@@ -174,7 +174,7 @@ describe("Vollstaendig erfasster Monat", () => {
 });
 
 describe("Person mit Stunden, aber ohne Stundenlohn", () => {
-  test("zaehlt als unvollstaendige Basis", async () => {
+  test("zählt als unvollstaendige Basis", async () => {
     /*
      * Der zweite Weg, auf dem das Ergebnis zu gut wird: wer Stunden
      * erfasst hat, aber keinen hinterlegten Lohn, faellt mit null Franken

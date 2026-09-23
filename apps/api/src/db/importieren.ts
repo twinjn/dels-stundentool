@@ -42,7 +42,7 @@ try {
       console.error(`  ${tabelle}: ${anzahl}`);
     }
     console.error(
-      "\nDer Import wuerde an den Primaerschluesseln scheitern." +
+      "\nDer Import würde an den Primärschlüsseln scheitern." +
         "\nEntweder die Tabellen von Hand bereinigen oder so aufrufen:" +
         "\n  npm run db:import -w @dels/api -- --leeren\n",
     );
@@ -58,7 +58,7 @@ try {
   console.log("Importiere ...");
   const bericht = await importiere(quelle, pool);
 
-  console.log("\nUebernommen:");
+  console.log("\nÜbernommen:");
   let summe = 0;
   for (const [tabelle, anzahl] of Object.entries(bericht)) {
     console.log(`  ${tabelle.padEnd(20)} ${String(anzahl).padStart(6)}`);
@@ -66,7 +66,7 @@ try {
   }
   console.log(`  ${"gesamt".padEnd(20)} ${String(summe).padStart(6)}\n`);
 } catch (fehler) {
-  console.error("\nImport fehlgeschlagen, es wurde nichts uebernommen:\n", fehler);
+  console.error("\nImport fehlgeschlagen, es wurde nichts übernommen:\n", fehler);
   process.exitCode = 1;
 } finally {
   await quelle.end();

@@ -29,10 +29,10 @@ const prozent = (anteil: number): string =>
 /**
  * Die brauchbarste Meldung aus einem Fehler ziehen.
  *
- * Bei einer abgelehnten Eingabe schickt die API "Eingabe ist ungueltig"
+ * Bei einer abgelehnten Eingabe schickt die API "Eingabe ist ungültig"
  * als Sammelmeldung und daneben pro Feld, was genau klemmt. Nur die
  * Sammelmeldung anzuzeigen ist der Unterschied zwischen "irgendwas
- * stimmt nicht" und "Begruendung angeben".
+ * stimmt nicht" und "Begründung angeben".
  */
 function meldung(e: unknown, ersatz: string): string {
   if (!(e instanceof ApiFehler)) return ersatz;

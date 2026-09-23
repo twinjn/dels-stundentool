@@ -21,7 +21,7 @@ export const benutzerRouter = Router();
 // Gilt fuer JEDE Route in dieser Datei.
 benutzerRouter.use(brauchtRecht("benutzer:verwalten"));
 
-const IdSchema = z.uuid("Ungueltige Benutzer-ID.");
+const IdSchema = z.uuid("Ungültige Benutzer-ID.");
 
 /** Spalten, die nach aussen gehen duerfen. Der Passwort-Hash gehoert NICHT dazu. */
 const oeffentlich = {

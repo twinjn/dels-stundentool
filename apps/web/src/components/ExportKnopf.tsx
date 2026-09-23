@@ -56,7 +56,7 @@ export function DruckKnopf({ beschriftung = "Drucken / PDF" }: { beschriftung?: 
       <button
         type="button"
         onClick={() => window.print()}
-        title="Oeffnet den Druckdialog. Dort 'Als PDF speichern' waehlen."
+        title="Öffnet den Druckdialog. Dort 'Als PDF speichern' wählen."
       >
         {beschriftung}
       </button>

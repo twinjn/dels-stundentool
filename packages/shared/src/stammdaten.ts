@@ -193,7 +193,7 @@ const mitarbeiterFelder = {
     .transform((w) => (w ? ibanFormatieren(w) : w))
     .refine(
       (w) => w === null || w === undefined || ibanGueltig(w),
-      "IBAN stimmt nicht. Bitte pruefen, ob sich eine Ziffer vertauscht hat.",
+      "IBAN stimmt nicht. Bitte prüfen, ob sich eine Ziffer vertauscht hat.",
     ),
 
   notizen: optionalerText(2000),
@@ -217,7 +217,7 @@ export type MitarbeiterAnlegen = z.infer<typeof MitarbeiterAnlegenSchema>;
 export const MitarbeiterAendernSchema = z
   .object(mitarbeiterFelder)
   .partial()
-  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geaendert.")
+  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geändert.")
   .refine(datenPassenZusammen, {
     message: "Der Austritt liegt vor dem Eintritt.",
     path: ["austrittsdatum"],
@@ -247,5 +247,5 @@ export type ObjektAnlegen = z.infer<typeof ObjektAnlegenSchema>;
 export const ObjektAendernSchema = z
   .object(objektFelder)
   .partial()
-  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geaendert.");
+  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geändert.");
 export type ObjektAendern = z.infer<typeof ObjektAendernSchema>;

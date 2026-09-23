@@ -97,7 +97,7 @@ function dateiLesen(pfad: string): Gelesen | null {
   try {
     mappe = XLSX.readFile(pfad);
   } catch (fehler) {
-    console.log(`  ${name}: liess sich nicht oeffnen (${(fehler as Error).message})`);
+    console.log(`  ${name}: liess sich nicht öffnen (${(fehler as Error).message})`);
     return null;
   }
 
@@ -105,7 +105,7 @@ function dateiLesen(pfad: string): Gelesen | null {
   const jahr = jahrVorgabe ?? info.jahr;
 
   if (info.typ === "unbekannt" || jahr === null) {
-    console.log(`  ${name}: uebersprungen (${info.grund ?? "Jahr unbekannt"})`);
+    console.log(`  ${name}: übersprungen (${info.grund ?? "Jahr unbekannt"})`);
     return null;
   }
 
@@ -166,7 +166,7 @@ const { eintraege: alleEintraege, warnungen: zusammenfuehrWarnungen } = zusammen
 
 const alleWarnungen = [...gelesen.flatMap((g) => g.warnungen), ...zusammenfuehrWarnungen];
 
-console.log(`\nNach dem Zusammenfuehren: ${alleEintraege.length} Eintraege.`);
+console.log(`\nNach dem Zusammenführen: ${alleEintraege.length} Einträge.`);
 if (alleEintraege.length !== gelesen.reduce((s, g) => s + g.eintraege.length, 0)) {
   const weg = gelesen.reduce((s, g) => s + g.eintraege.length, 0) - alleEintraege.length;
   console.log(`  ${weg} doppelte Abwesenheiten zusammengefasst (dieselbe Person, derselbe Tag).`);
@@ -289,7 +289,7 @@ if (personalstamm.size > 0) {
     `\nPersonalstamm im Blatt "Personal": ${personalstamm.size} Personen (${aktive} aktiv), Stand ${stichtag ?? "unbekannt"}.`,
   );
   if (!stammdaten) {
-    console.log("  Wird nicht uebernommen. Dafuer --stammdaten dazusetzen.");
+    console.log("  Wird nicht übernommen. Dafür --stammdaten dazusetzen.");
   }
 }
 
@@ -339,7 +339,7 @@ if ((vorhanden?.anzahl ?? 0) > 0 && !ersetzen) {
   console.error(
     `\nIn diesem Zeitraum stehen bereits ${vorhanden?.anzahl} Eintraege in der Datenbank.` +
       "\nEntweder die Monate einschraenken oder mit --ersetzen aufrufen." +
-      "\n--ersetzen loescht die vorhandenen Eintraege dieser Monate zuerst.\n",
+      "\n--ersetzen löscht die vorhandenen Einträge dieser Monate zuerst.\n",
   );
   await datenbankSchliessen();
   process.exit(1);
@@ -436,7 +436,7 @@ try {
       await tx
         .delete(eintraegeTabelle)
         .where(and(gte(eintraegeTabelle.datum, vonDatum), lt(eintraegeTabelle.datum, bisDatum)));
-      console.log(`Geloescht: ${vorhanden?.anzahl} vorhandene Eintraege dieser Monate.`);
+      console.log(`Gelöscht: ${vorhanden?.anzahl} vorhandene Einträge dieser Monate.`);
     }
 
     const zuSchreiben = alleEintraege
@@ -470,9 +470,9 @@ try {
       },
     });
 
-    console.log(`\nGeschrieben: ${zuSchreiben.length} Eintraege.`);
+    console.log(`\nGeschrieben: ${zuSchreiben.length} Einträge.`);
     if (uebersprungen > 0) {
-      console.log(`Uebersprungen: ${uebersprungen} (unbekannte Personal- oder Objektnummer).`);
+      console.log(`Übersprungen: ${uebersprungen} (unbekannte Personal- oder Objektnummer).`);
     }
   });
 

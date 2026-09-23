@@ -32,7 +32,7 @@ function ansatzzeilen(s: Daten["ansaetze"]): { zeilen: Zellwert[][]; prozent: Se
     ["AHV", alsZahl(s.ahv), true],
     ["ALV", alsZahl(s.alv), true],
     ["NBU", alsZahl(s.nbu), true],
-    ["NBU traegt Arbeitgeber", s.nbuTraegtAg ? "ja" : "nein", false],
+    ["NBU trägt Arbeitgeber", s.nbuTraegtAg ? "ja" : "nein", false],
     ["NBU-Schwelle (Std./Woche)", alsZahl(s.nbuSchwelle), false],
     ["BU", alsZahl(s.bu), true],
     ["KTG Objekt", alsZahl(s.ktgObjekt), true],
@@ -125,7 +125,7 @@ export function kalkulationsmappe(daten: Daten, erstelltAm = jetztInZuerich()): 
   for (const zeile of ganzeZahlen) zusammen.push(zeile);
 
   zusammen.push([]);
-  zusammen.push(["Angewandte Ansaetze", ""]);
+  zusammen.push(["Angewandte Ansätze", ""]);
   const ansaetzeAb = zusammen.length;
   const { zeilen: ansatz, prozent } = ansatzzeilen(daten.ansaetze);
   for (const zeile of ansatz) zusammen.push(zeile);

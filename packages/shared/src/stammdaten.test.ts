@@ -9,7 +9,7 @@ import {
 } from "./stammdaten.js";
 
 describe("IBAN", () => {
-  test("erkennt gueltige Schweizer IBAN", () => {
+  test("erkennt gültige Schweizer IBAN", () => {
     expect(ibanGueltig("CH93 0076 2011 6238 5295 7")).toBe(true);
     expect(ibanGueltig("CH9300762011623852957")).toBe(true);
     expect(ibanGueltig("ch9300762011623852957")).toBe(true);
@@ -32,7 +32,7 @@ describe("IBAN", () => {
 });
 
 describe("AHV-Nummer", () => {
-  test("erkennt eine gueltige Nummer", () => {
+  test("erkennt eine gültige Nummer", () => {
     expect(ahvGueltig("756.1234.5678.97")).toBe(true);
     expect(ahvGueltig("7561234567897")).toBe(true);
   });
@@ -97,7 +97,7 @@ describe("Mitarbeiter-Schema", () => {
 });
 
 describe("Objekt-Schema", () => {
-  test("Name genuegt", () => {
+  test("Name genügt", () => {
     const geprueft = ObjektAnlegenSchema.parse({ name: "Musterstrasse 1" });
     expect(geprueft.name).toBe("Musterstrasse 1");
   });

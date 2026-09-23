@@ -86,7 +86,7 @@ describe("Stunden lesen", () => {
     expect(leseVerwaltungsblatt(mappe, "Februar", 2026).eintraege).toHaveLength(0);
   });
 
-  test("Personenzeilen ohne Namen sind leere Rasterplaetze", () => {
+  test("Personenzeilen ohne Namen sind leere Rasterplätze", () => {
     const mappe = baueMappe([zeile(1, "1099", "0", "0", {}), zeile(2, "1099", "0", "0", {})]);
     const e = leseVerwaltungsblatt(mappe, "Februar", 2026);
     expect(e.eintraege).toHaveLength(0);
@@ -110,7 +110,7 @@ describe("Abwesenheiten der Person", () => {
     expect(summenNachrechnen(e.eintraege).get("1001|2026-02")?.ferien).toBe(2);
   });
 
-  test("eine vergessene Markierung wird gemeldet, der Tag zaehlt trotzdem ganz", () => {
+  test("eine vergessene Markierung wird gemeldet, der Tag zählt trotzdem ganz", () => {
     const mappe = baueMappe([
       zeile(1, "1001", "Person", "0", {}, [0, 1.5]),
       zeile(2, "1001", "Objekt A", "10001", { 2: "F", 3: "F" }),
@@ -124,7 +124,7 @@ describe("Abwesenheiten der Person", () => {
     expect(e.warnungen[0]).toMatch(/1 von 2/);
   });
 
-  test("kleingeschriebene Kuerzel zaehlen genauso", () => {
+  test("kleingeschriebene Kuerzel zählen genauso", () => {
     const mappe = baueMappe([
       zeile(1, "1001", "Person", "0", {}, [0, 1]),
       zeile(2, "1001", "Objekt A", "10001", { 5: "f" }),
@@ -174,7 +174,7 @@ describe('"Frei" gehoert zum Objekt, nicht zur Person', () => {
     ]);
   });
 
-  test("zaehlt in keine Summe hinein, genau wie in Excel", () => {
+  test("zählt in keine Summe hinein, genau wie in Excel", () => {
     const mappe = baueMappe([
       zeile(1, "1048", "Person", "0", {}, []),
       zeile(2, "1048", "Objekt A", "10012", { 5: "Fr" }),
@@ -238,7 +238,7 @@ describe("Raster und Randfaelle", () => {
 });
 
 describe("Summen je Person und Monat", () => {
-  test("der Schluessel enthaelt den Monat, sonst vermischen sich die Monate", () => {
+  test("der Schlüssel enthält den Monat, sonst vermischen sich die Monate", () => {
     // Genau hier lag ein Fehler: wer nur nach Personalnummer zusammenfasst,
     // vergleicht spaeter die Jahressumme mit einer Monatssumme aus Excel.
     const februar = leseVerwaltungsblatt(

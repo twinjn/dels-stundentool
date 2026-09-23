@@ -25,7 +25,7 @@ export function Anmeldung() {
 
     const geprueft = AnmeldungSchema.safeParse({ email, passwort });
     if (!geprueft.success) {
-      setFehler(geprueft.error.issues[0]?.message ?? "Eingabe ist unvollstaendig.");
+      setFehler(geprueft.error.issues[0]?.message ?? "Eingabe ist unvollständig.");
       return;
     }
 

@@ -100,7 +100,7 @@ export function deuteZelleneingabe(eingabe: string, fuerObjekt: boolean): Zellen
   if (zeitTreffer) {
     const stunden = Number(zeitTreffer[1]) + Number(zeitTreffer[2]) / 60;
     if (!fuerObjekt) {
-      return { fehler: "Stunden gehoeren auf eine Objektzeile." };
+      return { fehler: "Stunden gehören auf eine Objektzeile." };
     }
     return { leeren: false, art: "arbeit", wert: stunden.toFixed(2) };
   }
@@ -116,7 +116,7 @@ export function deuteZelleneingabe(eingabe: string, fuerObjekt: boolean): Zellen
   if (zahl === 0) return { leeren: true };
   if (zahl > 24) return { fehler: "Mehr als 24 Stunden an einem Tag?" };
   if (!fuerObjekt) {
-    return { fehler: "Stunden gehoeren auf eine Objektzeile, nicht auf die Personenzeile." };
+    return { fehler: "Stunden gehören auf eine Objektzeile, nicht auf die Personenzeile." };
   }
 
   return { leeren: false, art: "arbeit", wert: zahl.toFixed(2) };

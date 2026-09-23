@@ -43,7 +43,7 @@ describe("Zugriff", () => {
 });
 
 describe("Inhalt", () => {
-  test("eine Aenderung taucht mit Benutzer, altem und neuem Wert auf", async () => {
+  test("eine Änderung taucht mit Benutzer, altem und neuem Wert auf", async () => {
     const klient = await anmelden(app, ADMIN);
 
     const angelegt = await klient
@@ -63,7 +63,7 @@ describe("Inhalt", () => {
     expect(aenderung.nachher).toEqual({ ort: "Bern" });
   });
 
-  test("laesst sich nach Bereich und Aktion einschraenken", async () => {
+  test("lässt sich nach Bereich und Aktion einschraenken", async () => {
     const klient = await anmelden(app, ADMIN);
 
     const nurAnlegen = await klient.get("/api/protokoll?aktion=anlegen&tage=1");
@@ -78,7 +78,7 @@ describe("Inhalt", () => {
     ).toBe(true);
   });
 
-  test("es gibt keinen Weg, Protokolleintraege zu aendern oder zu loeschen", async () => {
+  test("es gibt keinen Weg, Protokolleintraege zu ändern oder zu löschen", async () => {
     const klient = await anmelden(app, ADMIN);
     const { body } = await klient.get("/api/protokoll?tage=1");
     const ersteId = body.zeilen[0]?.id;

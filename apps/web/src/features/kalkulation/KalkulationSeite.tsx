@@ -308,7 +308,7 @@ export function KalkulationSeite() {
             open={zeigeAnsaetze}
             onToggle={(e) => setZeigeAnsaetze((e.target as HTMLDetailsElement).open)}
           >
-            <summary>Ansaetze dieses Monats</summary>
+            <summary>Ansätze dieses Monats</summary>
             <p className="hinweis">
               Die Saetze gelten nur fuer {monatName(daten.monat)}. Aeltere Monate behalten ihre
               eigenen, sonst rechnet man die Vergangenheit mit heutigen Saetzen nach.
@@ -357,7 +357,7 @@ export function KalkulationSeite() {
                 </label>
               ))}
               <label className="ansatzfeld">
-                <span>NBU traegt der Arbeitgeber</span>
+                <span>NBU trägt der Arbeitgeber</span>
                 <input
                   type="checkbox"
                   checked={daten.ansaetze.nbuTraegtAg}
@@ -371,7 +371,7 @@ export function KalkulationSeite() {
                   onChange={(e) => aendereAnsatz("trsSchluessel", e.target.value)}
                 >
                   <option value="abos">Abo-Anteil</option>
-                  <option value="objekt">gleichmaessig je Objekt</option>
+                  <option value="objekt">gleichmässig je Objekt</option>
                 </select>
               </label>
             </div>
@@ -385,7 +385,7 @@ export function KalkulationSeite() {
                   <th>Objekt</th>
                   <th className="rechts">Abo</th>
                   <th className="rechts">Std.</th>
-                  <th className="rechts">Loehne</th>
+                  <th className="rechts">Löhne</th>
                   <th className="rechts">inkl. Sozial</th>
                   <th className="rechts">Mat/Mas/Trs</th>
                   <th className="rechts">Admin</th>
@@ -632,7 +632,7 @@ function Adminkosten({
                   })
                 }
               >
-                hinzufuegen
+                hinzufügen
               </button>
             </td>
           </tr>

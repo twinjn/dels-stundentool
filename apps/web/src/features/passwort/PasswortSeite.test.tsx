@@ -74,7 +74,7 @@ describe("Erfolgsfall", () => {
     expect(abgemeldet).not.toHaveBeenCalled();
   });
 
-  test("meldet erst ab, wenn der Benutzer den Knopf drueckt", async () => {
+  test("meldet erst ab, wenn der Benutzer den Knopf drückt", async () => {
     vi.spyOn(api, "post").mockResolvedValue({});
     const { abgemeldet } = rendere();
 
@@ -85,7 +85,7 @@ describe("Erfolgsfall", () => {
     expect(abgemeldet).toHaveBeenCalledTimes(1);
   });
 
-  test("sagt vorher, dass alle Geraete abgemeldet werden", async () => {
+  test("sagt vorher, dass alle Geräte abgemeldet werden", async () => {
     // Ohne diesen Hinweis ist das Abmelden auf dem Handy eine boese
     // Ueberraschung statt einer gewollten Wirkung.
     rendere();
@@ -100,7 +100,7 @@ describe("Eingabepruefung im Browser", () => {
 
     await ausfuellen(ALT, NEU, "etwas-ganz-anderes");
 
-    expect(await screen.findByText(/stimmen nicht ueberein/i)).toBeInTheDocument();
+    expect(await screen.findByText(/stimmen nicht überein/i)).toBeInTheDocument();
     expect(senden).not.toHaveBeenCalled();
   });
 

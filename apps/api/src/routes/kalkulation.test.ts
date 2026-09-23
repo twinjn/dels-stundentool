@@ -92,7 +92,7 @@ describe("Monat anlegen", () => {
     expect(antwort.body.nachricht).toMatch(/noch kein Monat/);
   });
 
-  test("der erste Monat uebernimmt die aktiven Objekte", async () => {
+  test("der erste Monat übernimmt die aktiven Objekte", async () => {
     const klient = await anmelden(app, ADMIN);
     const antwort = await klient.post(`/api/kalkulation/${ERSTER}`);
 
@@ -114,7 +114,7 @@ describe("Monat anlegen", () => {
     expect(antwort.body.code).toBe("schon_vorhanden");
   });
 
-  test("die Ansaetze stehen mit ihren Standardwerten da", async () => {
+  test("die Ansätze stehen mit ihren Standardwerten da", async () => {
     const klient = await anmelden(app, ADMIN);
     const { body } = await klient.get(`/api/kalkulation/${ERSTER}`);
     // Die Saetze brauchen sechs Nachkommastellen, sonst wird aus
@@ -126,7 +126,7 @@ describe("Monat anlegen", () => {
 });
 
 describe("Aendern", () => {
-  test("Ansaetze lassen sich aendern und bleiben genau", async () => {
+  test("Ansätze lassen sich ändern und bleiben genau", async () => {
     const klient = await anmelden(app, ADMIN);
     const antwort = await klient
       .patch(`/api/kalkulation/${ERSTER}`)
@@ -137,7 +137,7 @@ describe("Aendern", () => {
     expect(antwort.body.nbuTraegtAg).toBe(true);
   });
 
-  test("eine Objektzeile laesst sich aendern", async () => {
+  test("eine Objektzeile lässt sich ändern", async () => {
     const klient = await anmelden(app, ADMIN);
     const antwort = await klient
       .patch(`/api/kalkulation/${ERSTER}/objekt/${objektId}`)
@@ -158,7 +158,7 @@ describe("Aendern", () => {
 });
 
 describe("Adminkosten", () => {
-  test("anlegen, aendern, loeschen", async () => {
+  test("anlegen, ändern, löschen", async () => {
     const klient = await anmelden(app, ADMIN);
 
     const neu = await klient
@@ -190,7 +190,7 @@ describe("Adminkosten", () => {
 });
 
 describe("Folgemonat", () => {
-  test("uebernimmt Ansaetze, Objektzeilen und Adminposten des Vormonats", async () => {
+  test("übernimmt Ansätze, Objektzeilen und Adminposten des Vormonats", async () => {
     const klient = await anmelden(app, ADMIN);
 
     await klient

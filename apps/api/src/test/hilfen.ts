@@ -35,7 +35,7 @@ function pruefeDatenbank(): void {
   throw new Error(
     `\nDie Tests wuerden gegen die Datenbank "${name}" laufen.\n` +
       "Das sieht nicht nach einer Testdatenbank aus, und die Tests legen\n" +
-      "Daten an und loeschen sie wieder.\n\n" +
+      "Daten an und löschen sie wieder.\n\n" +
       "Entweder DATABASE_URL auf eine Datenbank mit test, dev oder probe\n" +
       "im Namen zeigen lassen, oder, wenn es wirklich gewollt ist:\n" +
       "  TESTS_GEGEN_DIESE_DB=ja npm test\n",

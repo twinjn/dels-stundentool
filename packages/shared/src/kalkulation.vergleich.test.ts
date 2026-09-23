@@ -255,7 +255,7 @@ describe("Portierung: alt gegen neu", () => {
     expect(verglichen).toBeGreaterThan(50_000);
   });
 
-  test("bvgAuto stimmt ueber die ganze Bandbreite ueberein", () => {
+  test("bvgAuto stimmt über die ganze Bandbreite überein", () => {
     const rnd = wuerfel(7);
     const s = baueSzenario(rnd).s;
 

@@ -161,7 +161,7 @@ export function ObjekteSeite() {
             onAbbrechen={() => setAuswahl(null)}
           />
         ) : (
-          <p className="hinweis">Ein Objekt auswaehlen oder oben auf Neu klicken.</p>
+          <p className="hinweis">Ein Objekt auswählen oder oben auf Neu klicken.</p>
         )}
       </section>
     </div>
@@ -235,7 +235,7 @@ function ObjektFormular({
     } catch (e: unknown) {
       // Der haeufige Fall: es haengen Stunden dran. Die Meldung vom
       // Server sagt, was stattdessen zu tun ist.
-      setFehler(e instanceof ApiFehler ? e.message : "Loeschen fehlgeschlagen.");
+      setFehler(e instanceof ApiFehler ? e.message : "Löschen fehlgeschlagen.");
     }
   }
 

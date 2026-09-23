@@ -25,7 +25,7 @@ afterAll(async () => {
   await datenbankSchliessen();
 });
 
-test("die truncate-Anweisung von --leeren laeuft durch", async () => {
+test("die truncate-Anweisung von --leeren läuft durch", async () => {
   await expect(
     db.transaction(async (tx) => {
       await tx.execute(sql.raw(`truncate table ${ZU_LEEREN.join(", ")} restart identity`));

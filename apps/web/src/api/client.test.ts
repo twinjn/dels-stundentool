@@ -30,7 +30,7 @@ beforeEach(() => {
 });
 
 describe("Erfolgsfall", () => {
-  test("gibt den Koerper zurueck", async () => {
+  test("gibt den Körper zurück", async () => {
     vi.mocked(fetch).mockResolvedValue(antwort(200, { name: "Anna" }));
     await expect(api.get("/mitarbeiter")).resolves.toEqual({ name: "Anna" });
   });
@@ -50,7 +50,7 @@ describe("Erfolgsfall", () => {
     expect(optionen?.credentials).toBe("include");
   });
 
-  test("gibt bei 204 nichts zurueck, ohne den Koerper zu lesen", async () => {
+  test("gibt bei 204 nichts zurück, ohne den Körper zu lesen", async () => {
     // 204 heisst "erledigt, kein Inhalt". Ein .json() darauf wuerde
     // werfen, weil nichts da ist.
     const leer = antwort(204, null);
@@ -74,12 +74,12 @@ describe("Fehlerbehandlung", () => {
   });
 
   test("reicht die Feldfehler weiter", async () => {
-    // Ohne die kann ein Formular nur "Eingabe ist ungueltig" sagen und
+    // Ohne die kann ein Formular nur "Eingabe ist ungültig" sagen und
     // nicht, welches Feld klemmt.
     vi.mocked(fetch).mockResolvedValue(
       antwort(400, {
         code: "ungueltig",
-        nachricht: "Eingabe ist ungueltig.",
+        nachricht: "Eingabe ist ungültig.",
         felder: [{ feld: "email", problem: "Das sieht nicht nach einer E-Mail aus." }],
       }),
     );
@@ -131,7 +131,7 @@ describe("Fehlerbehandlung", () => {
     });
   });
 
-  test("kommt mit einer Fehlerantwort ohne Koerper zurecht", async () => {
+  test("kommt mit einer Fehlerantwort ohne Körper zurecht", async () => {
     // Manche Zwischenstationen antworten mit einem nackten Status. Die
     // Anwendung darf daran nicht auseinanderfallen.
     vi.mocked(fetch).mockResolvedValue(antwort(418, null));

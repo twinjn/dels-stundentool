@@ -207,7 +207,7 @@ export function MitarbeiterSeite() {
             onAbbrechen={() => setAuswahl(null)}
           />
         ) : (
-          <p className="hinweis">Einen Mitarbeiter auswaehlen oder oben auf Neu klicken.</p>
+          <p className="hinweis">Einen Mitarbeiter auswählen oder oben auf Neu klicken.</p>
         )}
       </section>
     </div>
@@ -292,7 +292,7 @@ function MitarbeiterFormular({
       await api.delete(`/mitarbeiter/${vorhanden.id}`);
       onFertig();
     } catch (e: unknown) {
-      setFehler(e instanceof ApiFehler ? e.message : "Loeschen fehlgeschlagen.");
+      setFehler(e instanceof ApiFehler ? e.message : "Löschen fehlgeschlagen.");
       setLaeuft(false);
     }
   }
@@ -335,7 +335,7 @@ function MitarbeiterFormular({
         />
         <Feld
           id="nationalitaet"
-          beschriftung="Nationalitaet"
+          beschriftung="Nationalität"
           wert={werte.nationalitaet}
           onChange={(w) => setze("nationalitaet", w)}
           deaktiviert={!darfSchreiben}
@@ -402,7 +402,7 @@ function MitarbeiterFormular({
           beschriftung="Funktion"
           wert={werte.funktion}
           onChange={(w) => setze("funktion", w)}
-          hinweis="Manager, Aussendienst, Buero, UHR I-III, Hauswart"
+          hinweis="Manager, Aussendienst, Büro, UHR I-III, Hauswart"
           deaktiviert={!darfSchreiben}
         />
         <Feld
@@ -449,7 +449,7 @@ function MitarbeiterFormular({
           hinweis={
             werte.lohnart === "stunde"
               ? "Ferien werden als Zuschlag auf den Stundenlohn ausbezahlt"
-              : "Ferien werden als Saldo in Tagen gefuehrt"
+              : "Ferien werden als Saldo in Tagen geführt"
           }
           deaktiviert={!darfSchreiben}
         />
@@ -505,7 +505,7 @@ function MitarbeiterFormular({
           beschriftung="IBAN"
           wert={werte.iban}
           onChange={(w) => setze("iban", w)}
-          hinweis="Wird auf Zahlendreher geprueft"
+          hinweis="Wird auf Zahlendreher geprüft"
           fehler={feldfehler.iban}
           breit
           deaktiviert={!darfSchreiben}

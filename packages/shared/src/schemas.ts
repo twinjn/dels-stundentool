@@ -51,7 +51,7 @@ export const BenutzerAendernSchema = z
     rolle: z.enum(ROLLEN).optional(),
     aktiv: z.boolean().optional(),
   })
-  .refine((d) => Object.keys(d).length > 0, { message: "Es wurde nichts geaendert." });
+  .refine((d) => Object.keys(d).length > 0, { message: "Es wurde nichts geändert." });
 export type BenutzerAendern = z.infer<typeof BenutzerAendernSchema>;
 
 export const PasswortAendernSchema = z.object({

@@ -25,10 +25,10 @@ export class HttpFehler extends Error {
 
 export const nichtAngemeldet = (n = "Nicht angemeldet.") =>
   new HttpFehler(401, n, "nicht_angemeldet");
-export const keinZugriff = (n = "Dafuer fehlt dir die Berechtigung.") =>
+export const keinZugriff = (n = "Dafür fehlt dir die Berechtigung.") =>
   new HttpFehler(403, n, "kein_zugriff");
 export const nichtGefunden = (n = "Nicht gefunden.") => new HttpFehler(404, n, "nicht_gefunden");
-export const ungueltig = (n = "Eingabe ist ungueltig.") => new HttpFehler(400, n, "ungueltig");
+export const ungueltig = (n = "Eingabe ist ungültig.") => new HttpFehler(400, n, "ungueltig");
 
 /** Greift, wenn keine Route gepasst hat. Muss VOR fehlerBehandlung stehen. */
 export function routeNichtGefunden(req: Request, _res: Response, next: NextFunction): void {
@@ -49,7 +49,7 @@ export function fehlerBehandlung(
   if (fehler instanceof ZodError) {
     res.status(400).json({
       code: "ungueltig",
-      nachricht: "Eingabe ist ungueltig.",
+      nachricht: "Eingabe ist ungültig.",
       felder: fehler.issues.map((i) => ({ feld: i.path.join("."), problem: i.message })),
     });
     return;

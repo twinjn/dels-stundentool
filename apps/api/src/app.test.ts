@@ -17,7 +17,7 @@ describe("API-Grundgeruest", () => {
     expect(antwort.body.code).toBe("route_unbekannt");
   });
 
-  test("verraet nicht, dass Express laeuft", async () => {
+  test("verraet nicht, dass Express läuft", async () => {
     const antwort = await request(app).get("/api/health");
     expect(antwort.headers["x-powered-by"]).toBeUndefined();
   });

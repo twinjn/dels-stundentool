@@ -27,7 +27,7 @@ import { protokolliere, unterschiede } from "../protokoll.js";
 
 export const mitarbeiterRouter = Router();
 
-const IdSchema = z.uuid("Ungueltige Mitarbeiter-ID.");
+const IdSchema = z.uuid("Ungültige Mitarbeiter-ID.");
 
 /** Felder, die jeder mit "stammdaten:lesen" sehen darf. */
 const OHNE_LOHN = {
@@ -81,7 +81,7 @@ function lohnfelderPruefen(rumpf: Record<string, unknown>, rolle: Rolle): void {
 
   const verbotene = LOHNFELDER.filter((feld) => feld in rumpf);
   if (verbotene.length > 0) {
-    throw keinZugriff(`Lohnfelder (${verbotene.join(", ")}) darf deine Rolle nicht aendern.`);
+    throw keinZugriff(`Lohnfelder (${verbotene.join(", ")}) darf deine Rolle nicht ändern.`);
   }
 }
 
@@ -183,7 +183,7 @@ mitarbeiterRouter.delete("/:id", brauchtRecht("stammdaten:schreiben"), async (re
     throw new HttpFehler(
       409,
       `Zu diesem Mitarbeiter gibt es ${stunden} Eintraege und ${kalk} Kalkulationszeilen. ` +
-        "Lohndaten werden nicht geloescht. Lege den Mitarbeiter stattdessen still.",
+        "Lohndaten werden nicht gelöscht. Lege den Mitarbeiter stattdessen still.",
       "hat_daten",
     );
   }

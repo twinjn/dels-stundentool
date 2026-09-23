@@ -173,14 +173,14 @@ const AnsaetzeSchema = zod
     notiz: zod.string().max(2000).nullable(),
   })
   .partial()
-  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geaendert.");
+  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geändert.");
 
 kalkulationRouter.patch("/:monat", brauchtRecht("kalkulation:schreiben"), async (req, res) => {
   const monat = MonatSchema.parse(req.params.monat);
   const daten = AnsaetzeSchema.parse(req.body);
 
   const [vorher] = await db.select().from(kalkMonat).where(eq(kalkMonat.monat, monat));
-  if (!vorher) throw nichtGefunden(`Fuer ${monat} ist noch kein Monat angelegt.`);
+  if (!vorher) throw nichtGefunden(`Für ${monat} ist noch kein Monat angelegt.`);
 
   const werte = Object.fromEntries(
     Object.entries(daten).map(([feld, wert]) => [
@@ -218,7 +218,7 @@ const ObjektZeileSchema = zod
     aktiv: zod.boolean(),
   })
   .partial()
-  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geaendert.");
+  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geändert.");
 
 kalkulationRouter.patch(
   "/:monat/objekt/:objektId",
@@ -258,7 +258,7 @@ const PersonZeileSchema = zod
     bvgManuell: zod.union([zod.string(), zod.number()]).nullable(),
   })
   .partial()
-  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geaendert.");
+  .refine((d) => Object.keys(d).length > 0, "Es wurde nichts geändert.");
 
 kalkulationRouter.patch(
   "/:monat/person/:mitarbeiterId",

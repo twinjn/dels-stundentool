@@ -131,7 +131,7 @@ async function holeStand(mail = MAIL_ADMIN, jahr = JAHR) {
 }
 
 describe("Ferienstand im Monatslohn", () => {
-  test("schreibt den Rest des Vorjahres als Uebertrag fort", async () => {
+  test("schreibt den Rest des Vorjahres als Übertrag fort", async () => {
     const { person } = await holeStand();
     const p = person("Monat");
 
@@ -151,7 +151,7 @@ describe("Ferienstand im Monatslohn", () => {
     });
   });
 
-  test("warnt, wenn der Uebertrag ohne Stichtag aus der Historie kommt", async () => {
+  test("warnt, wenn der Übertrag ohne Stichtag aus der Historie kommt", async () => {
     const { person } = await holeStand();
 
     /*
@@ -168,7 +168,7 @@ describe("Ferienstand im Monatslohn", () => {
     expect(person("Lang")).toMatchObject({ rest: 150, verlaufUnvollstaendig: true });
   });
 
-  test("zaehlt beim uebernommenen Saldo nur, was nach dem Stichtag bezogen wurde", async () => {
+  test("zählt beim uebernommenen Saldo nur, was nach dem Stichtag bezogen wurde", async () => {
     const { person } = await holeStand();
     const p = person("Saldo");
 
@@ -195,7 +195,7 @@ describe("Ferienstand im Monatslohn", () => {
 });
 
 describe("Ferien im Stundenlohn", () => {
-  test("weist Zuschlag und Entschaedigung aus statt eines Saldos", async () => {
+  test("weist Zuschlag und Entschädigung aus statt eines Saldos", async () => {
     const { person } = await holeStand();
     const p = person("Stunde") as Record<string, number | string>;
 
@@ -219,7 +219,7 @@ describe("Ferien im Stundenlohn", () => {
 });
 
 describe("Rechte", () => {
-  test("Buero sieht die Tage, aber keine Frankenbetraege", async () => {
+  test("Büro sieht die Tage, aber keine Frankenbeträge", async () => {
     const { darfLoehne, person } = await holeStand(MAIL_BUERO);
     expect(darfLoehne).toBe(false);
 
@@ -231,7 +231,7 @@ describe("Rechte", () => {
     expect((person("Monat") as Record<string, number>).rest).toBe(41);
   });
 
-  test("Admin sieht die Betraege", async () => {
+  test("Admin sieht die Beträge", async () => {
     const { darfLoehne, person } = await holeStand(MAIL_ADMIN);
     expect(darfLoehne).toBe(true);
     expect((person("Stunde") as Record<string, number>).entschaedigung).toBe(319.15);
@@ -243,8 +243,8 @@ describe("Rechte", () => {
   });
 });
 
-describe("Uebertrag von Hand", () => {
-  test("uebersteuert die Rechnung und wird protokolliert", async () => {
+describe("Übertrag von Hand", () => {
+  test("übersteuert die Rechnung und wird protokolliert", async () => {
     const klient = await anmelden(app, MAIL_ADMIN);
 
     const gesetzt = await klient
@@ -287,7 +287,7 @@ describe("Uebertrag von Hand", () => {
     });
   });
 
-  test("verlangt eine Begruendung", async () => {
+  test("verlangt eine Begründung", async () => {
     const klient = await anmelden(app, MAIL_ADMIN);
     const antwort = await klient.put(`/api/ferien/${monatId}/${JAHR}`).send({ tage: 0 });
     expect(antwort.status).toBe(400);
@@ -301,7 +301,7 @@ describe("Uebertrag von Hand", () => {
     expect(antwort.status).toBe(400);
   });
 
-  test("lehnt einen Uebertrag fuer Stundenloehner ab", async () => {
+  test("lehnt einen Übertrag für Stundenloehner ab", async () => {
     const klient = await anmelden(app, MAIL_ADMIN);
     const antwort = await klient
       .put(`/api/ferien/${stundeId}/${JAHR}`)
@@ -311,7 +311,7 @@ describe("Uebertrag von Hand", () => {
     expect(antwort.body.code).toBe("falsche_lohnart");
   });
 
-  test("meldet sich, wenn nichts zu loeschen da ist", async () => {
+  test("meldet sich, wenn nichts zu löschen da ist", async () => {
     const klient = await anmelden(app, MAIL_ADMIN);
     await klient.delete(`/api/ferien/${neuId}/${JAHR}`).expect(404);
   });
