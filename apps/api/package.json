@@ -17,7 +17,8 @@
     "db:admin": "tsx src/db/adminAnlegen.ts",
     "db:import-excel": "tsx src/import/excelKommando.ts",
     "db:migrate:prod": "node dist/db/migrieren.js",
-    "db:admin:prod": "node dist/db/adminAnlegen.js"
+    "db:admin:prod": "node dist/db/adminAnlegen.js",
+    "db:stammdaten": "tsx src/db/stammdatenLaden.ts"
   },
   "dependencies": {
     "@dels/shared": "*",
