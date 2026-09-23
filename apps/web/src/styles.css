@@ -1525,3 +1525,10 @@ button:focus-visible {
 .ferientabelle tr.unsicher td {
   color: var(--farbe-gedaempft);
 }
+
+/* Der Loeschen-Knopf im Formularfuss wird nach ganz links geschoben und
+   durch den ganzen Freiraum von "Speichern" getrennt. Ein Klick daneben
+   soll nicht Daten vernichten. */
+.formularfuss-gefahr {
+  margin-right: auto;
+}

@@ -268,6 +268,35 @@ function MitarbeiterFormular({
     }
   }
 
+  /**
+   * Endgueltig loeschen.
+   *
+   * Der Server laesst das nur zu, solange es zu der Person weder Stunden
+   * noch Kalkulationszeilen gibt, und antwortet sonst mit 409 und einer
+   * Meldung, die auf das Stilllegen verweist. Diese Pruefung gehoert
+   * dorthin und nicht hierher: die Oberflaeche kennt den Datenbestand
+   * nicht und koennte ihn zwischen Laden und Klicken ohnehin nicht
+   * garantieren.
+   *
+   * Hier steht nur die Rueckfrage. Sie nennt den Namen, damit niemand
+   * aus Versehen den Falschen erwischt, weil er inzwischen in der Liste
+   * weitergeklickt hat.
+   */
+  async function loeschen() {
+    if (!vorhanden) return;
+    if (!window.confirm(`${vorhanden.name} endgueltig loeschen?`)) return;
+
+    setFehler(null);
+    setLaeuft(true);
+    try {
+      await api.delete(`/mitarbeiter/${vorhanden.id}`);
+      onFertig();
+    } catch (e: unknown) {
+      setFehler(e instanceof ApiFehler ? e.message : "Loeschen fehlgeschlagen.");
+      setLaeuft(false);
+    }
+  }
+
   return (
     <form className="formular" onSubmit={speichern} noValidate>
       <h2>{vorhanden ? vorhanden.name : "Neuer Mitarbeiter"}</h2>
@@ -504,6 +533,23 @@ function MitarbeiterFormular({
       </Feldgruppe>
 
       <div className="formularfuss">
+        {/*
+          Loeschen steht ganz links und durch den Freiraum abgesetzt
+          (siehe .formularfuss-gefahr in styles.css), nicht neben
+          "Speichern". Zwei Knoepfe nebeneinander, von denen einer Daten
+          vernichtet, sind eine Falle fuer jeden, der schnell klickt.
+        */}
+        {darfSchreiben && vorhanden && (
+          <button
+            type="button"
+            className="knopf-gefahr formularfuss-gefahr"
+            onClick={() => void loeschen()}
+            disabled={laeuft}
+            title="Geht nur, solange zu dieser Person keine Stunden erfasst sind"
+          >
+            Loeschen
+          </button>
+        )}
         <button type="button" className="knopf-leise" onClick={onAbbrechen}>
           Schliessen
         </button>
