@@ -22,6 +22,7 @@ import { authRouter } from "./routes/auth.js";
 import { benutzerRouter } from "./routes/benutzer.js";
 import { dashboardRouter } from "./routes/dashboard.js";
 import { exportRouter } from "./routes/export.js";
+import { ferienRouter } from "./routes/ferien.js";
 import { healthRouter } from "./routes/health.js";
 import { kalkulationRouter } from "./routes/kalkulation.js";
 import { mitarbeiterRouter } from "./routes/mitarbeiter.js";
@@ -74,6 +75,7 @@ export function baueApp() {
   app.use("/api/export", exportRouter);
   app.use("/api/dashboard", dashboardRouter);
   app.use("/api/uebersicht", uebersichtRouter);
+  app.use("/api/ferien", ferienRouter);
 
   // --- Oberflaeche ----------------------------------------------------
   /**

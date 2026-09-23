@@ -1,8 +1,8 @@
 /**
  * Liest die bestehenden Excel-Stundenkontrollen ein.
  *
- *   npm run db:import-excel -w @dels/api -- --ordner "/Pfad/zu/2026"
- *   npm run db:import-excel -w @dels/api -- --datei "…/10019_2026.xlsm"
+ *   npm run db:import-excel -- --ordner "C:\\Pfad\\zu\\2026"
+ *   npm run db:import-excel -- --datei  "C:\\Pfad\\zu\\10019_2026.xlsm"
  *
  * Standardmaessig ein TROCKENLAUF: es wird gelesen, gerechnet, verglichen
  * und berichtet, aber nichts geschrieben. Erst mit --schreiben landet
@@ -60,8 +60,8 @@ if (!ordner && !einzeldatei) {
   console.error(`
 Kein Ordner und keine Datei angegeben.
 
-  npm run db:import-excel -w @dels/api -- --ordner "/Pfad/zu/2026"
-  npm run db:import-excel -w @dels/api -- --datei  "/Pfad/zur/Datei.xlsm"
+  npm run db:import-excel -- --ordner "/Pfad/zu/2026"
+  npm run db:import-excel -- --datei  "/Pfad/zur/Datei.xlsm"
 
 Ohne --schreiben passiert nichts, es wird nur berichtet.
 `);

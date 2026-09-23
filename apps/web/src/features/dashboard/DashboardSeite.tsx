@@ -165,18 +165,43 @@ export function DashboardSeite() {
 
   const aufgaben = [];
   if (lage) {
-    if (lage.offen.ueberFerienanspruch.length > 0) {
+    if (lage.offen.ferienMinus.length > 0) {
       aufgaben.push({
-        schluessel: "ferien",
-        anzahl: lage.offen.ueberFerienanspruch.length,
-        titel: "mehr Ferientage bezogen als Jahresanspruch",
-        namen: lage.offen.ueberFerienanspruch
+        schluessel: "ferien-minus",
+        anzahl: lage.offen.ferienMinus.length,
+        titel: "im Ferienminus",
+        namen: lage.offen.ferienMinus
           .slice(0, 4)
-          .map((p) => `${p.name} (${zahl(p.bezogen)} von ${zahl(p.anspruch)})`)
+          .map((p) => `${p.name} (${zahl(p.rest)})`)
           .join(", "),
-        // Ohne diesen Satz liest jemand die Zahl als fertigen Saldo.
-        hinweis: "ohne Übertrag aus dem Vorjahr und ohne anteiligen Anspruch bei Eintritt",
-        ziel: () => navigiere("/uebersicht"),
+        hinweis: lage.offen.ferienMinus.some((p) => p.unsicher)
+          ? "Anspruch und Übertrag sind eingerechnet, bei einzelnen fehlt aber ein Stichtag"
+          : "Anspruch und Übertrag aus dem Vorjahr sind eingerechnet",
+        ziel: () => navigiere("/ferien"),
+      });
+    }
+    if (lage.offen.ferienOffen && lage.offen.ferienOffen.length > 0) {
+      const tage = lage.offen.ferienOffen.reduce((summe, p) => summe + p.rest, 0);
+      const unsicher = lage.offen.ferienOffen.filter((p) => p.unsicher).length;
+      aufgaben.push({
+        schluessel: "ferien-offen",
+        anzahl: lage.offen.ferienOffen.length,
+        titel: "haben noch Ferientage offen",
+        namen: lage.offen.ferienOffen
+          .slice(0, 4)
+          .map((p) => `${p.name} (${zahl(p.rest)})`)
+          .join(", "),
+        // Der Zweck der Meldung steht dran, sonst wirkt sie wie eine
+        // Ruege statt wie eine Planungshilfe.
+        //
+        // Und der Vorbehalt kommt mit: die Ferienseite kennzeichnet
+        // Saldi ohne Stichtag sorgfaeltig, und wenn hier dieselbe Zahl
+        // ohne den Hinweis steht, ist die Sorgfalt dort wertlos.
+        hinweis:
+          unsicher > 0
+            ? `${zahl(tage)} Tage bis Jahresende einzuplanen, davon ${unsicher} ohne Stichtag und darum unsicher`
+            : `${zahl(tage)} Tage bis Jahresende einzuplanen`,
+        ziel: () => navigiere("/ferien"),
       });
     }
     if (lage.offen.ohneErfassungAnzahl > 0) {

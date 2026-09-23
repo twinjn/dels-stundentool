@@ -65,6 +65,24 @@ export const eintragsartEnum = pgEnum("eintragsart", [
 
 export const verteilschluesselEnum = pgEnum("verteilschluessel", ["abos", "objekt"]);
 
+/**
+ * Wie jemand entloehnt wird. Steuert die Ferienrechnung, und zwar
+ * grundlegend, nicht nur im Detail:
+ *
+ *   monat   Ferien sind Tage. Es gibt einen Anspruch, einen Bezug und
+ *           einen Rest, der ins naechste Jahr laeuft.
+ *   stunde  Ferien sind Geld. Der Anspruch wird als Zuschlag auf den
+ *           Stundenlohn ausbezahlt (bei 5 Wochen 10.638 %), einen
+ *           Saldo in Tagen gibt es nicht.
+ *
+ * Bis hierher steckte die Unterscheidung in "mitarbeiterstufe", einem
+ * Freitextfeld aus dem Excel, das an einer Stelle gegen die Zeichenkette
+ * "Monatslohn" verglichen wurde. Ein Tippfehler oder ein "Monatslohn 80%"
+ * haette dort still das Falsche gerechnet. Eine Aufzaehlung kann das
+ * nicht: was nicht in der Liste steht, nimmt die Datenbank nicht an.
+ */
+export const lohnartEnum = pgEnum("lohnart", ["monat", "stunde"]);
+
 // --- Benutzer und Sitzungen ---------------------------------------------
 
 export const benutzer = pgTable(
@@ -124,6 +142,7 @@ export const mitarbeiter = pgTable("mitarbeiter", {
   aktiv: boolean("aktiv").notNull().default(true),
 
   // Arbeitszeit und Ferien
+  lohnart: lohnartEnum("lohnart").notNull().default("stunde"),
   ferienanspruch: numeric("ferienanspruch", { precision: 5, scale: 2 }).notNull().default("25"),
   sollProTag: numeric("soll_pro_tag", { precision: 5, scale: 2 }).notNull().default("8.4"),
 
@@ -131,11 +150,12 @@ export const mitarbeiter = pgTable("mitarbeiter", {
    * Ferien-Saldo, wie er bei der Uebernahme aus dem Excel galt, mit dem
    * Stichtag dazu.
    *
-   * Bewusst ein uebernommener Wert und keine laufende Rechnung: wie sich
-   * der Saldo genau bildet (anteiliger Anspruch bei Ein- und Austritt,
-   * Uebertrag ins Folgejahr, Halbtage), sind Firmenregeln, die hier
-   * niemand erfunden haben sollte. Was seit dem Stichtag bezogen wurde,
-   * steht in den Eintraegen und wird daneben angezeigt.
+   * Das ist der STARTWERT der laufenden Rechnung, nicht ihr Ergebnis.
+   * Vor dem Stichtag liegen Jahre, die nur im Excel existieren und die
+   * niemand nachrechnen kann. Ab dem Stichtag rechnet ferien/saldo.ts
+   * Jahr fuer Jahr weiter: Anspruch plus Uebertrag minus Bezug.
+   *
+   * Fehlt der Wert, beginnt die Rechnung beim Eintrittsjahr.
    */
   ferienSaldo: numeric("ferien_saldo", { precision: 6, scale: 2 }),
   ferienSaldoStand: date("ferien_saldo_stand"),
@@ -333,6 +353,46 @@ export const kalkPersonMonat = pgTable(
     bvgManuell: geld("bvg_manuell"),
   },
   (t) => [primaryKey({ columns: [t.monat, t.mitarbeiterId] })],
+);
+
+/**
+ * Ferientage, die aus dem Vorjahr ins Jahr "jahr" mitgenommen werden.
+ *
+ * Normalerweise steht hier NICHTS. Der Uebertrag wird gerechnet: was am
+ * 31. Dezember uebrig war, ist am 1. Januar da. Ein Datensatz hier ist
+ * die Ausnahme und uebersteuert die Rechnung.
+ *
+ * Warum herum, und nicht andersherum:
+ *
+ * Der naheliegende Entwurf waere, den Saldo jedes Jahr auf null zu
+ * setzen und den Uebertrag von Hand nachzutragen. Dann kostet einmal
+ * Vergessen im Januar jemandem seine Ferientage, still und ohne Spur.
+ * So herum kostet Vergessen gar nichts, und das Streichen ist eine
+ * bewusste Handlung mit Begruendung und Namen daran.
+ *
+ * Ein Eintrag mit tage = 0 ist also die Aussage "der Rest verfaellt",
+ * und die Bemerkung sagt warum.
+ */
+export const ferienUebertrag = pgTable(
+  "ferien_uebertrag",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    mitarbeiterId: uuid("mitarbeiter_id")
+      .notNull()
+      .references(() => mitarbeiter.id, { onDelete: "cascade" }),
+    /** Das Jahr, IN das uebertragen wird. 2027 heisst: Rest aus 2026. */
+    jahr: integer("jahr").notNull(),
+    tage: numeric("tage", { precision: 6, scale: 2 }).notNull(),
+    bemerkung: text("bemerkung"),
+    /** Klartextname, bleibt auch erhalten, wenn das Konto verschwindet. */
+    erfasstVon: text("erfasst_von"),
+    erstelltAm,
+  },
+  (t) => [
+    uniqueIndex("ferien_uebertrag_person_jahr_idx").on(t.mitarbeiterId, t.jahr),
+    // Ein Uebertrag von 3000 Tagen ist ein Tippfehler, kein Sonderfall.
+    check("ferien_uebertrag_tage_grenzen", sql`${t.tage} between -100 and 100`),
+  ],
 );
 
 // --- Protokoll -----------------------------------------------------------

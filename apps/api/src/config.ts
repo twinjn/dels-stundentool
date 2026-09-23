@@ -29,6 +29,25 @@ const EnvSchema = z.object({
 
   PORT: z.coerce.number().int().positive().max(65535).default(3000),
 
+  /**
+   * Auf welcher Netzwerkschnittstelle gelauscht wird.
+   *
+   * Die Vorgabe ist 127.0.0.1, also NUR die eigene Maschine. Das ist
+   * Absicht: vor der Anwendung steht immer etwas, das TLS macht (Caddy,
+   * nginx, Tailscale). Lauschte sie auf allen Schnittstellen, waere sie
+   * im Firmennetz zusaetzlich unter http://rechner:3000 erreichbar, an
+   * diesem Schutz vorbei. Wer sich dort anmeldet, schickt sein Passwort
+   * unverschluesselt durchs Netz.
+   *
+   * Im Docker-Container muss dagegen 0.0.0.0 stehen: dort ist 127.0.0.1
+   * das Innere des Containers, und die Portweiterleitung kaeme nie an.
+   * Deshalb setzt docker-compose.prod.yml HOST ausdruecklich.
+   *
+   * Sichere Vorgabe, unsichere Einstellung nur dort, wo sie gebraucht
+   * wird und begruendet ist.
+   */
+  HOST: z.string().min(1).default("127.0.0.1"),
+
   // Das "error" greift auch, wenn die Variable komplett fehlt. Ohne das
   // kaeme an dieser Stelle Zods englische Standardmeldung durch.
   DATABASE_URL: z

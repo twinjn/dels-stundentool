@@ -8,11 +8,12 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { hatRecht } from "@dels/shared";
+import type { Lohnart } from "@dels/shared";
 import { ApiFehler, api } from "../../api/client.js";
 import { ExportKnopf } from "../../components/ExportKnopf.js";
 import { useAuth } from "../../app/AuthKontext.js";
 import { useListe } from "../../app/useListe.js";
-import { Feld, Feldgruppe, Kontrollkaestchen } from "../../components/Feld.js";
+import { Auswahl, Feld, Feldgruppe, Kontrollkaestchen } from "../../components/Feld.js";
 
 export type Mitarbeiter = {
   id: string;
@@ -25,6 +26,7 @@ export type Mitarbeiter = {
   eintrittsdatum: string | null;
   austrittsdatum: string | null;
   aktiv: boolean;
+  lohnart: Lohnart;
   ferienanspruch: string;
   sollProTag: string;
   telefon: string | null;
@@ -54,6 +56,7 @@ const LEER = {
   eintrittsdatum: "",
   austrittsdatum: "",
   aktiv: true,
+  lohnart: "stunde",
   ferienanspruch: "25",
   sollProTag: "8.4",
   telefon: "",
@@ -265,6 +268,35 @@ function MitarbeiterFormular({
     }
   }
 
+  /**
+   * Endgueltig loeschen.
+   *
+   * Der Server laesst das nur zu, solange es zu der Person weder Stunden
+   * noch Kalkulationszeilen gibt, und antwortet sonst mit 409 und einer
+   * Meldung, die auf das Stilllegen verweist. Diese Pruefung gehoert
+   * dorthin und nicht hierher: die Oberflaeche kennt den Datenbestand
+   * nicht und koennte ihn zwischen Laden und Klicken ohnehin nicht
+   * garantieren.
+   *
+   * Hier steht nur die Rueckfrage. Sie nennt den Namen, damit niemand
+   * aus Versehen den Falschen erwischt, weil er inzwischen in der Liste
+   * weitergeklickt hat.
+   */
+  async function loeschen() {
+    if (!vorhanden) return;
+    if (!window.confirm(`${vorhanden.name} endgueltig loeschen?`)) return;
+
+    setFehler(null);
+    setLaeuft(true);
+    try {
+      await api.delete(`/mitarbeiter/${vorhanden.id}`);
+      onFertig();
+    } catch (e: unknown) {
+      setFehler(e instanceof ApiFehler ? e.message : "Loeschen fehlgeschlagen.");
+      setLaeuft(false);
+    }
+  }
+
   return (
     <form className="formular" onSubmit={speichern} noValidate>
       <h2>{vorhanden ? vorhanden.name : "Neuer Mitarbeiter"}</h2>
@@ -405,6 +437,22 @@ function MitarbeiterFormular({
           fehler={feldfehler.austrittsdatum}
           deaktiviert={!darfSchreiben}
         />
+        <Auswahl
+          id="lohnart"
+          beschriftung="Lohnart"
+          wert={werte.lohnart}
+          moeglichkeiten={[
+            { wert: "stunde" as const, text: "Stundenlohn" },
+            { wert: "monat" as const, text: "Monatslohn" },
+          ]}
+          onChange={(w) => setze("lohnart", w)}
+          hinweis={
+            werte.lohnart === "stunde"
+              ? "Ferien werden als Zuschlag auf den Stundenlohn ausbezahlt"
+              : "Ferien werden als Saldo in Tagen gefuehrt"
+          }
+          deaktiviert={!darfSchreiben}
+        />
         <Feld
           id="ferienanspruch"
           beschriftung="Ferien (Tage/Jahr)"
@@ -485,6 +533,23 @@ function MitarbeiterFormular({
       </Feldgruppe>
 
       <div className="formularfuss">
+        {/*
+          Loeschen steht ganz links und durch den Freiraum abgesetzt
+          (siehe .formularfuss-gefahr in styles.css), nicht neben
+          "Speichern". Zwei Knoepfe nebeneinander, von denen einer Daten
+          vernichtet, sind eine Falle fuer jeden, der schnell klickt.
+        */}
+        {darfSchreiben && vorhanden && (
+          <button
+            type="button"
+            className="knopf-gefahr formularfuss-gefahr"
+            onClick={() => void loeschen()}
+            disabled={laeuft}
+            title="Geht nur, solange zu dieser Person keine Stunden erfasst sind"
+          >
+            Loeschen
+          </button>
+        )}
         <button type="button" className="knopf-leise" onClick={onAbbrechen}>
           Schliessen
         </button>

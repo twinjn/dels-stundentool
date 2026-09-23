@@ -174,6 +174,12 @@ Passwort neu setzen:
 
 NODE_ENV=production
 PORT=3000
+
+# Nur die eigene Maschine. Erreichbar wird die Anwendung ueber den
+# Webserver davor (Caddy) oder ueber Tailscale. Stuende hier 0.0.0.0,
+# waere sie zusaetzlich unter http://DIESER-RECHNER:3000 im ganzen
+# Firmennetz erreichbar, ohne Verschluesselung.
+HOST=127.0.0.1
 DATABASE_URL=postgres://$DB_BENUTZER:$DB_PASSWORT@localhost:5432/$DB_NAME
 SESSION_SECRET=$SITZUNGSSCHLUESSEL
 

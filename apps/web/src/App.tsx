@@ -7,6 +7,7 @@ import { Layout } from "./app/Layout.js";
 import { Anmeldung } from "./features/anmeldung/Anmeldung.js";
 import { BenutzerSeite } from "./features/benutzer/BenutzerSeite.js";
 import { DashboardSeite } from "./features/dashboard/DashboardSeite.js";
+import { FerienSeite } from "./features/ferien/FerienSeite.js";
 import { KalkulationSeite } from "./features/kalkulation/KalkulationSeite.js";
 import { MitarbeiterSeite } from "./features/mitarbeiter/MitarbeiterSeite.js";
 import { ObjekteSeite } from "./features/objekte/ObjekteSeite.js";
@@ -55,6 +56,7 @@ function Inhalt() {
           <Route path="/" element={<DashboardSeite />} />
           <Route path="/stunden" element={<StundenSeite />} />
           <Route path="/uebersicht" element={<UebersichtSeite />} />
+          <Route path="/ferien" element={<FerienSeite />} />
           <Route path="/mitarbeiter" element={<MitarbeiterSeite />} />
           <Route path="/objekte" element={<ObjekteSeite />} />
           <Route path="/kalkulation" element={<KalkulationSeite />} />

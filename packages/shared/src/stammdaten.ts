@@ -135,6 +135,10 @@ export function ibanFormatieren(eingabe: string): string {
 
 // --- Mitarbeiter ---------------------------------------------------------
 
+/** Muss zur Aufzaehlung "lohnart" in der Datenbank passen. */
+export const LOHNARTEN = ["monat", "stunde"] as const;
+export type Lohnart = (typeof LOHNARTEN)[number];
+
 const mitarbeiterFelder = {
   name: z.string().trim().min(1, "Name fehlt.").max(120),
 
@@ -148,6 +152,13 @@ const mitarbeiterFelder = {
   eintrittsdatum: optionalesDatum("Eintritt"),
   austrittsdatum: optionalesDatum("Austritt"),
   aktiv: z.boolean().optional(),
+
+  /**
+   * Monats- oder Stundenlohn. Steuert die ganze Ferienrechnung, nicht
+   * nur die Anzeige: im Stundenlohn gibt es keinen Saldo in Tagen,
+   * sondern einen Zuschlag auf den Lohn.
+   */
+  lohnart: z.enum(LOHNARTEN).optional(),
 
   // NOT NULL in der Datenbank, deshalb ohne null.
   ferienanspruch: dezimalzahlOhneNull(3, 2, "Ferienanspruch"),

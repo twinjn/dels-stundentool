@@ -14,6 +14,52 @@
 Diese Anleitung geht von einem Linux-Server mit Ubuntu 24.04 oder Debian
 12 aus. Ob der im Büro steht oder gemietet ist, spielt keine Rolle.
 
+## Welche Maschine
+
+Die Anforderungen sind winzig. Eure ganze Datenbank ist als Sicherung
+148 KB gross, die Anwendung braucht im Betrieb ein paar hundert MB
+Arbeitsspeicher.
+
+| | Minimum | Angenehm |
+|---|---|---|
+| Kerne | 2 | 4 |
+| Arbeitsspeicher | 2 GB | 8 GB |
+| Platte | 20 GB | 128 GB SSD |
+
+Damit qualifiziert sich praktisch jedes Gerät der letzten zehn Jahre.
+
+### Gebraucht ist hier die vernünftige Wahl
+
+Ausgemusterte Büro-Kleinrechner sind für genau diesen Zweck gebaut:
+leise, sparsam, robust, und es gibt sie in Massen.
+
+- **HP EliteDesk Mini**, **Lenovo ThinkCentre Tiny**, **Dell OptiPlex
+  Micro**: gebraucht meist unter 150 Franken, oft mit 8 oder 16 GB
+- **Neu mit Intel N100 oder N150**: rund 130 bis 200 Franken, etwa 6 bis
+  10 Watt
+
+### Ein Hinweis zur Architektur
+
+Ein **Raspberry Pi** würde reichen und braucht noch weniger Strom. Aber:
+alles hier ist auf x86 geprüft, die CI baut das Docker-Bild für x86, und
+die Einrichtung wurde auf x86 durchgespielt. Node, PostgreSQL und argon2
+gibt es auch für ARM, es sollte also laufen.
+
+"Sollte" ist nicht "geprüft". Wer keine Lust auf Überraschungen hat,
+nimmt einen gebrauchten x86-Kleinrechner. Der kostet etwa gleich viel
+und wirft keine Fragen auf.
+
+### Was dazugehört, auch wenn niemand daran denkt
+
+- **Die Maschine muss laufen.** Nicht im Ruhezustand, nicht "wenn jemand
+  sie einschaltet". Im BIOS meist "Restore on AC Power" einstellen, damit
+  sie nach einem Stromausfall von allein wieder hochkommt
+- **Jemand spielt Updates ein.** Das ist der eigentliche Preis des
+  Selbstbetriebs, nicht der Strom
+- **Ein zweiter Ort für die Sicherungen.** Eine Sicherung auf derselben
+  Maschine hilft gegen einen Bedienfehler, nicht gegen einen Blitzschlag.
+  Ein NAS, ein zweiter Rechner oder eine externe Platte reicht
+
 ## Was der Server braucht
 
 Wenig. Eure ganze Datenbank ist als Sicherung **148 KB** gross.
@@ -117,6 +163,47 @@ Caddy holt das Zertifikat von Let's Encrypt selbst und erneuert es auch
 selbst. Kein certbot, kein Cronjob, kein abgelaufenes Zertifikat an einem
 Sonntag. Voraussetzung: der DNS-Eintrag zeigt auf den Server, Port 80 und
 443 sind offen.
+
+#### Eine Subdomain der Firmenwebseite genügt
+
+Es braucht **keine zweite Domain**. `stunden.firma.ch` ist ein eigener
+DNS-Eintrag und hat mit `www.firma.ch` nichts zu tun: andere Adresse,
+anderer Server, andere Inhalte. Die Webseite merkt davon nichts, und es
+kostet nichts extra, die Domain ist ja bezahlt.
+
+Beim Hoster einen Eintrag anlegen, mehr ist es nicht:
+
+```
+Typ    Name       Wert
+A      stunden    <öffentliche IP des Büros>
+```
+
+**Der Haken: die öffentliche IP.** Die meisten Geschäftsanschlüsse
+bekommen eine *dynamische* IP, die sich gelegentlich ändert. Dann zeigt
+der Eintrag irgendwann ins Leere. Zwei Auswege:
+
+- eine **feste IP** beim Anbieter dazubuchen, meist ein paar Franken im
+  Monat
+- **DynDNS**: ein kleines Programm auf dem Server meldet dem
+  DNS-Anbieter die neue IP, sobald sie sich ändert
+
+Dazu kommt die **Portfreigabe** für 80 und 443 im Router.
+
+Und der eigentliche Unterschied zu Tailscale: danach steht die
+Anmeldemaske **im offenen Internet**. Nicht dramatisch, die Anmeldung ist
+gegen Rateversuche geschützt, aber es ist eine bewusste Entscheidung.
+
+#### Hübscher Name ohne offenes Internet
+
+Beides geht auch zusammen: ein DNS-Eintrag auf die **Tailscale-Adresse**
+des Servers (`100.x.y.z`). Diese Adressen sind im offenen Internet nicht
+erreichbar, nur innerhalb eures Tailnets. Wer bei euch im Tailnet ist,
+tippt `stunden.firma.ch`, alle anderen laufen ins Leere.
+
+Der Preis: Let's Encrypt kann den Server dann nicht von aussen erreichen,
+das Zertifikat muss also über die sogenannte DNS-01-Prüfung ausgestellt
+werden. Dafür braucht Caddy Zugang zur DNS-Verwaltung eures Hosters.
+Machbar, aber deutlich mehr Aufwand als die beiden einfachen Wege.
 
 ### Weg B: Tailscale, nur für eure Geräte
 
@@ -251,27 +338,84 @@ Linux-Abhängigkeit: keine Shell-Aufrufe, alle Pfade mit `path.join`
 gebaut. Nur die Skripte unter `infra/` sind Bash, und die braucht man
 zum Ausprobieren nicht.
 
-1. **Node.js 22** von nodejs.org installieren (LTS, Windows Installer)
-2. **PostgreSQL** von postgresql.org installieren. Das Passwort, das
-   dabei gesetzt wird, merken
-3. In der mitgelieferten "SQL Shell (psql)" einmal:
+### Was installiert wird
+
+1. **Node.js 22** von nodejs.org, LTS, Windows Installer. Durchklicken,
+   nichts umstellen
+2. **PostgreSQL** von postgresql.org/download/windows. Beim Installieren
+   wird ein Passwort für den Benutzer `postgres` abgefragt.
+
+   > **Nimm ein Passwort aus nur Buchstaben und Ziffern.** Zeichen wie
+   > `@ : / # ?` haben in einer Verbindungsadresse eine eigene Bedeutung
+   > und müssten umständlich umgeschrieben werden. Ein `@` im Passwort
+   > ist der häufigste Grund, warum `DATABASE_URL` nicht funktioniert.
+
+   Port 5432 lassen. Am Ende fragt der "Stack Builder": abbrechen,
+   braucht es nicht
+3. **Visual Studio Code**, freiwillig, von code.visualstudio.com. Es
+   bringt ein Terminal mit und zeigt den Quelltext. Wer lieber die
+   Eingabeaufforderung benutzt, kann das auch
+
+### Die Datenbank anlegen
+
+Der Windows-Installer trägt `psql` **nicht** in den Suchpfad ein. Der
+Weg führt deshalb über das Startmenü:
+
+1. Startmenü, **"SQL Shell (psql)"** öffnen
+2. Viermal Enter (Server, Datenbank, Port, Benutzer übernehmen)
+3. Das Passwort von vorhin eingeben
+4. Tippen:
    ```sql
    CREATE DATABASE dels;
    ```
-4. Im Projektordner eine Datei `.env` anlegen, zwei Zeilen genügen:
-   ```
-   DATABASE_URL=postgres://postgres:DEIN-PASSWORT@localhost:5432/dels
-   SESSION_SECRET=irgendeine-zeichenfolge-mit-mindestens-32-zeichen
-   ```
-   Alles andere hat brauchbare Vorgaben.
-5. In der Eingabeaufforderung im Projektordner:
-   ```
-   npm ci
-   npm run db:migrate -w @dels/api
-   npm run db:admin -w @dels/api
-   npm run dev
-   ```
-6. Browser auf http://localhost:5173
+   Das Semikolon gehört dazu. Ohne passiert nichts
+5. `\q` und Enter zum Beenden
+
+### Die Einstellungen
+
+Im Projektordner eine Datei namens `.env` anlegen, genau so, mit Punkt
+am Anfang und ohne Endung. In VS Code: Rechtsklick in die Dateiliste,
+"Neue Datei".
+
+```
+DATABASE_URL=postgres://postgres:DEIN-PASSWORT@localhost:5432/dels
+SESSION_SECRET=irgendeine-zeichenfolge-mit-mindestens-32-zeichen
+```
+
+Beim Sitzungsschlüssel reicht lokal, auf der Tastatur herumzuhauen.
+Hauptsache 32 Zeichen. Alles Weitere hat brauchbare Vorgaben.
+
+### Starten
+
+Terminal im Projektordner öffnen (in VS Code: Terminal, Neues Terminal),
+dann der Reihe nach:
+
+```
+git pull
+npm ci
+npm run db:migrate -w @dels/api
+npm run db:admin -w @dels/api
+npm run dev
+```
+
+- `npm ci` lädt die Abhängigkeiten, dauert ein bis zwei Minuten
+- `db:migrate` legt die Tabellen an
+- `db:admin` fragt nach Name, E-Mail und Passwort für das erste Konto.
+  Das Passwort braucht **mindestens 12 Zeichen**
+- `npm run dev` startet und bleibt laufen. Das Fenster offen lassen,
+  Strg+C beendet
+
+Dann im Browser: **http://localhost:5173**
+
+### Wenn etwas klemmt
+
+| Meldung | Ursache |
+|---|---|
+| `DATABASE_URL muss mit postgres:// beginnen` | Tippfehler in der `.env` |
+| `password authentication failed` | falsches Passwort, oder ein Sonderzeichen darin |
+| `database "dels" does not exist` | Schritt "Datenbank anlegen" fehlt |
+| `ECONNREFUSED ... 5432` | PostgreSQL läuft nicht. Dienste öffnen, `postgresql-x64-16` starten |
+| `'npm' ist nicht als Befehl erkannt` | Node ist nicht installiert, oder das Terminal war beim Installieren schon offen. Terminal schliessen und neu öffnen |
 
 **Ehrlich dazu:** dieser Weg ist durchdacht, aber nicht ausprobiert, weil
 hier kein Windows zur Verfügung stand. Geprüft ist nur, dass der

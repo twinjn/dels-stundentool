@@ -36,6 +36,12 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
+      # Im Container MUSS auf allen Schnittstellen gelauscht werden.
+      # 127.0.0.1 waere hier das Innere des Containers, und die
+      # Weiterleitung von 127.0.0.1:3000 des Wirts kaeme nie an.
+      # Nach aussen ist trotzdem nichts offen: die Weiterleitung unten
+      # bindet nur an den localhost des Wirts.
+      HOST: 0.0.0.0
       DATABASE_URL: postgres://dels:${POSTGRES_PASSWORD}@db:5432/dels
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET fehlt}
       WEB_ORIGIN: ${WEB_ORIGIN:?WEB_ORIGIN fehlt}

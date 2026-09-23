@@ -1,13 +1,96 @@
 # Betrieb
 
-Wie die Anwendung auf einem Server läuft, und wie die Daten sicher
-bleiben.
+Wie die Anwendung läuft, wie sie im Alltag benutzt wird, und wie die
+Daten sicher bleiben.
+
+Für die Einrichtung auf einem eigenen Server siehe `docs/SERVER.md`.
+Dieses Dokument beschreibt, was danach passiert.
+
+## Wie es im Alltag aussieht
+
+Kurz: ein Kasten steht im Büro und läuft. Alle anderen benutzen einen
+Browser. Es wird nichts installiert, ausser einmalig der Zugangsweg.
+
+```
+   Mini-PC im Büro
+   ├─ die Anwendung        läuft rund um die Uhr, niemand fasst sie an
+   ├─ die Datenbank        daneben, auf derselben Maschine
+   └─ nächtliche Sicherung um 2 Uhr, prüft sich selbst
+
+        ▲  Browser, nichts installiert
+        │
+   ┌────┴─────┬───────────┬──────────────┐
+   Büro-PC   Notebook    Handy         von zuhause
+```
+
+Nach der Einrichtung braucht die Maschine **keinen Bildschirm und keine
+Tastatur**. Sie steht im Schrank, hat Strom und Netzwerk, das reicht.
+
+### Wer macht was
+
+| Wer | Was | Wo |
+|---|---|---|
+| Büro | Stunden erfassen, Stammdaten pflegen | im Browser |
+| Büro | Monatsblatt als Excel herausziehen | Knopf "Als Excel" |
+| Admin | Kalkulation, Löhne, Benutzer, Protokoll | im Browser |
+| niemand | Sicherungen | läuft von allein |
+| jemand, gelegentlich | Systemupdates | eine Zeile auf dem Server |
+
+Die Reinigungskräfte selbst arbeiten nicht in der Anwendung. Ihre Stunden
+kommen wie bisher über Telefon, Nachricht oder Zettel herein, und das
+Büro trägt sie ein. Genau dafür ist das Erfassungsraster gebaut: es sieht
+aus wie das gewohnte Monatsblatt und lässt sich mit der Tastatur
+durchtippen.
+
+### Der Monatsrhythmus
+
+1. **Während des Monats:** das Büro trägt Stunden ein, laufend oder
+   gesammelt
+2. **Gegen Monatsende:** auf der Startseite steht unter "Zu erledigen",
+   wer noch keine Erfassung hat. Das ist die Liste, die man abarbeitet
+3. **Monatsabschluss:** Monatsblatt als Excel herausziehen, Kalkulation
+   für den Monat anlegen und durchsehen
+4. **Nachts:** die Sicherung läuft von allein und prüft sich selbst
+
+### Wie man hinkommt
+
+Das hängt an einem Entscheid, und der ist der wichtigste beim
+Einrichten: **soll die Anwendung nur im Büro erreichbar sein oder auch
+von aussen?**
+
+| Weg | Adresse | Von zuhause | Aufwand je Arbeitsplatz |
+|---|---|---|---|
+| **Tailscale** | `https://server.tailnet.ts.net` | ja | Tailscale einmal installieren und anmelden |
+| **Eigene Domain** | `https://stunden.dels.ch` | ja | nichts |
+| **Nur Büronetz** | `https://stunden.intern` | nein | Zertifikat einmal eintragen |
+
+**Empfehlung: Tailscale.** Es funktioniert im Büro und von zuhause, es
+gibt ein echtes Zertifikat, und die Anwendung ist aus dem offenen
+Internet **gar nicht erreichbar**. Bei Löhnen, AHV-Nummern und IBANs ist
+"von aussen nicht sichtbar" das stärkste Sicherheitsmerkmal, das man
+bekommen kann. Der Gratis-Tarif deckt 6 Benutzer ab, und gezählt wird nur,
+wer von ausserhalb des Büros zugreift.
+
+Die Einrichtung der drei Wege steht in `docs/SERVER.md`.
+
+### Was passiert, wenn etwas ausfällt
+
+| Fall | Folge | Was zu tun ist |
+|---|---|---|
+| Strom weg | Anwendung steht | Maschine kommt von allein wieder hoch, wenn im BIOS "Restore on AC Power" gesetzt ist |
+| Internet weg | Büro arbeitet weiter, Zugriff von zuhause fällt aus | nichts |
+| Maschine defekt | Anwendung steht | Sicherung auf einer neuen Maschine zurückspielen, siehe unten |
+| Datenbank kaputt | Daten seit der letzten Nacht weg | Sicherung zurückspielen, siehe unten |
+
+Der dritte Fall ist der Grund, warum die Sicherungen an einen zweiten Ort
+gehören. Liegen sie nur auf der defekten Maschine, sind sie mit ihr weg.
 
 ## Was du brauchst
 
 - Einen Server mit Docker (ein kleiner VPS für 5 bis 10 Euro im Monat
-  reicht für eure Grösse)
-- Einen Domainnamen, der darauf zeigt
+  reicht für eure Grösse), oder einen Mini-PC im Büro nach
+  `docs/SERVER.md`
+- Einen Domainnamen, der darauf zeigt, oder Tailscale
 - **TLS.** Nicht optional, siehe unten
 
 ## Einrichten

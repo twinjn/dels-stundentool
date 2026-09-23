@@ -27,6 +27,8 @@ let adminId: string;
 let bueroId: string;
 let personId: string;
 let zweiteId: string;
+let ohneLohnId: string;
+let monatsId: string;
 let objektId: string;
 
 beforeAll(async () => {
@@ -42,9 +44,21 @@ beforeAll(async () => {
   // Zweite Person: keine Stunden, kein Stundenlohn, zu viele Ferien.
   const [q] = await db
     .insert(mitarbeiter)
-    .values({ name: `${marke} Faellt auf`, ferienanspruch: "2" })
+    .values({ name: `${marke} Faellt auf`, lohnart: "monat", ferienanspruch: "2" })
     .returning({ id: mitarbeiter.id });
   zweiteId = q!.id;
+
+  const [k] = await db
+    .insert(mitarbeiter)
+    .values({ name: `${marke} Ohne Lohn`, lohnart: "stunde" })
+    .returning({ id: mitarbeiter.id });
+  ohneLohnId = k!.id;
+
+  const [m] = await db
+    .insert(mitarbeiter)
+    .values({ name: `${marke} Monatslohn`, lohnart: "monat", ferienanspruch: "25" })
+    .returning({ id: mitarbeiter.id });
+  monatsId = m!.id;
 
   const [o] = await db
     .insert(objekte)
@@ -70,7 +84,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await db.delete(eintraege).where(inArray(eintraege.mitarbeiterId, [personId, zweiteId]));
+  await db
+    .delete(eintraege)
+    .where(inArray(eintraege.mitarbeiterId, [personId, zweiteId, monatsId, ohneLohnId]));
   await db.delete(mitarbeiter).where(like(mitarbeiter.name, `${marke}%`));
   await db.delete(objekte).where(like(objekte.name, `${marke}%`));
   await db.delete(sitzungen).where(inArray(sitzungen.benutzerId, [adminId, bueroId]));
@@ -143,16 +159,23 @@ describe("Zahlen", () => {
     expect(namen).not.toContain(`${marke} Arbeitet`);
   });
 
-  test("mehr Ferien als Anspruch wird gemeldet, mit beiden Zahlen", async () => {
+  test("ein Ferienminus wird gemeldet, mit dem Rest als Zahl", async () => {
     const klient = await anmelden(app, ADMIN);
     const { body } = await klient.get(`/api/dashboard?monat=${MONAT}`);
 
-    const treffer = body.offen.ueberFerienanspruch.find(
+    // Zwei Tage Anspruch, drei bezogen, kein Uebertrag: minus einer.
+    const treffer = body.offen.ferienMinus.find(
       (p: { name: string }) => p.name === `${marke} Faellt auf`,
     );
     expect(treffer).toBeDefined();
-    expect(treffer.anspruch).toBe(2);
-    expect(treffer.bezogen).toBe(3);
+    expect(treffer.rest).toBe(-1);
+  });
+
+  test("wer im Plus ist, steht nicht im Ferienminus", async () => {
+    const klient = await anmelden(app, ADMIN);
+    const { body } = await klient.get(`/api/dashboard?monat=${MONAT}`);
+    const namen = (body.offen.ferienMinus as { name: string }[]).map((p) => p.name);
+    expect(namen).not.toContain(`${marke} Monatslohn`);
   });
 });
 
@@ -176,8 +199,14 @@ describe("Rechte", () => {
 
     expect(Array.isArray(body.offen.ohneStundenlohn)).toBe(true);
     const namen = body.offen.ohneStundenlohn.map((p: { name: string }) => p.name);
-    expect(namen).toContain(`${marke} Faellt auf`);
+    expect(namen).toContain(`${marke} Ohne Lohn`);
+    // Hat einen Stundenlohn, gehoert also nicht auf die Liste.
     expect(namen).not.toContain(`${marke} Arbeitet`);
+    // Monatslohn: dort ist ein fehlender Stundenlohn kein Mangel,
+    // sondern der Normalfall. Frueher stand diese Gruppe faelschlich
+    // mit drauf, weil gegen den Freitext "mitarbeiterstufe" geprueft
+    // wurde und der bei den Testdaten leer war.
+    expect(namen).not.toContain(`${marke} Monatslohn`);
   });
 });
 
@@ -193,5 +222,30 @@ describe("Eingaben", () => {
     const { body, status } = await klient.get("/api/dashboard");
     expect(status).toBe(200);
     expect(body.monat).toBe(body.heute.slice(0, 7));
+  });
+});
+
+describe("Erinnerung an offene Ferientage", () => {
+  test("schweigt vor Oktober", async () => {
+    const klient = await anmelden(app, ADMIN);
+    // MONAT ist der Maerz. Im Fruehling hat fast jeder fast alles offen,
+    // eine Warnung waere hier reines Rauschen.
+    const { body } = await klient.get(`/api/dashboard?monat=${MONAT}`);
+    expect(body.offen.ferienOffen).toBeNull();
+  });
+
+  test("listet ab Oktober, wer im Monatslohn noch Tage offen hat", async () => {
+    const klient = await anmelden(app, ADMIN);
+    const { body } = await klient.get(`/api/dashboard?monat=${MONAT.slice(0, 4)}-10`);
+
+    const zeilen = body.offen.ferienOffen as { name: string; rest: number }[];
+    expect(zeilen).not.toBeNull();
+
+    // Monatslohn, 25 Tage Anspruch, nichts bezogen: 25 offen.
+    expect(zeilen.find((z) => z.name === `${marke} Monatslohn`)?.rest).toBe(25);
+
+    // Wer im Stundenlohn ist, gehoert nicht auf diese Liste: dort sind
+    // die Ferien mit jedem Lohn schon ausbezahlt.
+    expect(zeilen.some((z) => z.name === `${marke} Arbeitet`)).toBe(false);
   });
 });
