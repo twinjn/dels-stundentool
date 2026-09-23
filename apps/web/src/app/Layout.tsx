@@ -16,6 +16,7 @@ const NAVIGATION: Eintrag[] = [
   { pfad: "/", text: "Übersicht", recht: "stunden:lesen" },
   { pfad: "/stunden", text: "Stunden", recht: "stunden:lesen" },
   { pfad: "/uebersicht", text: "Jahr", recht: "stunden:lesen" },
+  { pfad: "/ferien", text: "Ferien", recht: "stammdaten:lesen" },
   { pfad: "/mitarbeiter", text: "Mitarbeiter", recht: "stammdaten:lesen" },
   { pfad: "/objekte", text: "Objekte", recht: "stammdaten:lesen" },
   { pfad: "/kalkulation", text: "Kalkulation", recht: "kalkulation:lesen" },

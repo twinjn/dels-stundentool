@@ -1453,3 +1453,75 @@ button:focus-visible {
 .kopfleiste .knopf-leise {
   text-decoration: none;
 }
+
+/* --- Ferien ------------------------------------------------------------ */
+
+.ferienseite .seitenkopf {
+  align-items: center;
+}
+
+/* Zahlen untereinander ausrichten. Ohne tabular-nums springen die
+   Spalten, sobald eine 1 neben einer 8 steht, und ein Saldo, den man
+   nicht ueberfliegen kann, wird nicht ueberflogen. */
+.ferientabelle td.rechts,
+.ferientabelle th.rechts {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ferientabelle .summe {
+  font-weight: 600;
+}
+
+.ferientabelle .summe.neg {
+  color: var(--farbe-rot);
+}
+
+/* Das Warnschild an einem ungesicherten Uebertrag. Orange als Flaeche,
+   Text in der dunkleren Variante: Orange auf Weiss haelt als Text den
+   Kontrast nicht ein (siehe docs/DESIGN.md). */
+.schild-warnung {
+  color: var(--farbe-orange-text);
+  background: #fff4ed;
+  border-color: #ffd5bd;
+}
+
+.ferientabelle .unterzeile td {
+  background: var(--farbe-hintergrund);
+}
+
+.uebertragformular {
+  padding: var(--abstand-2) 0;
+}
+
+.uebertragformular .feldgruppe {
+  display: flex;
+  gap: var(--abstand-3);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.uebertragformular label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--farbe-gedaempft);
+}
+
+.uebertragformular .feld-schmal {
+  width: 8rem;
+  flex: none;
+}
+
+.uebertragformular .feld-breit {
+  flex: 1 1 22rem;
+}
+
+/* Eine Zeile, deren Uebertrag ohne Stichtag hochgerechnet wurde. Die
+   Zahl steht da, aber nicht als Tatsache: kein Fettdruck, gedaempfte
+   Farbe. Ein kleines Schild neben einer fetten 96 liest niemand. */
+.ferientabelle tr.unsicher td {
+  color: var(--farbe-gedaempft);
+}

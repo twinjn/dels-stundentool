@@ -42,6 +42,7 @@ const OHNE_LOHN = {
   eintrittsdatum: mitarbeiter.eintrittsdatum,
   austrittsdatum: mitarbeiter.austrittsdatum,
   aktiv: mitarbeiter.aktiv,
+  lohnart: mitarbeiter.lohnart,
   ferienanspruch: mitarbeiter.ferienanspruch,
   sollProTag: mitarbeiter.sollProTag,
   telefon: mitarbeiter.telefon,

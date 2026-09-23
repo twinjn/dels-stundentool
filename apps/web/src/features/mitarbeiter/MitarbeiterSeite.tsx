@@ -8,11 +8,12 @@
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { hatRecht } from "@dels/shared";
+import type { Lohnart } from "@dels/shared";
 import { ApiFehler, api } from "../../api/client.js";
 import { ExportKnopf } from "../../components/ExportKnopf.js";
 import { useAuth } from "../../app/AuthKontext.js";
 import { useListe } from "../../app/useListe.js";
-import { Feld, Feldgruppe, Kontrollkaestchen } from "../../components/Feld.js";
+import { Auswahl, Feld, Feldgruppe, Kontrollkaestchen } from "../../components/Feld.js";
 
 export type Mitarbeiter = {
   id: string;
@@ -25,6 +26,7 @@ export type Mitarbeiter = {
   eintrittsdatum: string | null;
   austrittsdatum: string | null;
   aktiv: boolean;
+  lohnart: Lohnart;
   ferienanspruch: string;
   sollProTag: string;
   telefon: string | null;
@@ -54,6 +56,7 @@ const LEER = {
   eintrittsdatum: "",
   austrittsdatum: "",
   aktiv: true,
+  lohnart: "stunde",
   ferienanspruch: "25",
   sollProTag: "8.4",
   telefon: "",
@@ -403,6 +406,22 @@ function MitarbeiterFormular({
           wert={werte.austrittsdatum}
           onChange={(w) => setze("austrittsdatum", w)}
           fehler={feldfehler.austrittsdatum}
+          deaktiviert={!darfSchreiben}
+        />
+        <Auswahl
+          id="lohnart"
+          beschriftung="Lohnart"
+          wert={werte.lohnart}
+          moeglichkeiten={[
+            { wert: "stunde" as const, text: "Stundenlohn" },
+            { wert: "monat" as const, text: "Monatslohn" },
+          ]}
+          onChange={(w) => setze("lohnart", w)}
+          hinweis={
+            werte.lohnart === "stunde"
+              ? "Ferien werden als Zuschlag auf den Stundenlohn ausbezahlt"
+              : "Ferien werden als Saldo in Tagen gefuehrt"
+          }
           deaktiviert={!darfSchreiben}
         />
         <Feld

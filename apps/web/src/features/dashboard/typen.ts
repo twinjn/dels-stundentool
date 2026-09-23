@@ -1,10 +1,13 @@
 export type Person = { id: string; name: string };
 
-export type FerienUeberzug = {
+/** Eine Zeile aus der Ferienrechnung, so wie das Dashboard sie braucht. */
+export type Ferienzeile = {
   id: string;
   name: string;
-  anspruch: number;
-  bezogen: number;
+  /** Rest in Tagen. Negativ heisst: mehr bezogen als zusteht. */
+  rest: number;
+  /** Kein Stichtag hinterlegt, der Uebertrag ist aus der Historie gerechnet. */
+  unsicher: boolean;
 };
 
 export type TopObjekt = {
@@ -27,7 +30,10 @@ export type Lagebild = {
   offen: {
     ohneErfassung: Person[];
     ohneErfassungAnzahl: number;
-    ueberFerienanspruch: FerienUeberzug[];
+    /** Saldo im Minus: mehr bezogen, als Anspruch plus Uebertrag hergeben. */
+    ferienMinus: Ferienzeile[];
+    /** Ab Oktober: wer hat noch Tage offen. null = noch zu frueh im Jahr. */
+    ferienOffen: Ferienzeile[] | null;
     /** null heisst: diese Rolle darf die Liste nicht sehen. */
     ohneStundenlohn: Person[] | null;
   };

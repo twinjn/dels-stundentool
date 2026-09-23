@@ -27,6 +27,7 @@ let adminId: string;
 let bueroId: string;
 let personId: string;
 let zweiteId: string;
+let ohneLohnId: string;
 let monatsId: string;
 let objektId: string;
 
@@ -43,9 +44,15 @@ beforeAll(async () => {
   // Zweite Person: keine Stunden, kein Stundenlohn, zu viele Ferien.
   const [q] = await db
     .insert(mitarbeiter)
-    .values({ name: `${marke} Faellt auf`, ferienanspruch: "2" })
+    .values({ name: `${marke} Faellt auf`, lohnart: "monat", ferienanspruch: "2" })
     .returning({ id: mitarbeiter.id });
   zweiteId = q!.id;
+
+  const [k] = await db
+    .insert(mitarbeiter)
+    .values({ name: `${marke} Ohne Lohn`, lohnart: "stunde" })
+    .returning({ id: mitarbeiter.id });
+  ohneLohnId = k!.id;
 
   const [m] = await db
     .insert(mitarbeiter)
@@ -79,7 +86,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await db
     .delete(eintraege)
-    .where(inArray(eintraege.mitarbeiterId, [personId, zweiteId, monatsId]));
+    .where(inArray(eintraege.mitarbeiterId, [personId, zweiteId, monatsId, ohneLohnId]));
   await db.delete(mitarbeiter).where(like(mitarbeiter.name, `${marke}%`));
   await db.delete(objekte).where(like(objekte.name, `${marke}%`));
   await db.delete(sitzungen).where(inArray(sitzungen.benutzerId, [adminId, bueroId]));
@@ -152,16 +159,23 @@ describe("Zahlen", () => {
     expect(namen).not.toContain(`${marke} Arbeitet`);
   });
 
-  test("mehr Ferien als Anspruch wird gemeldet, mit beiden Zahlen", async () => {
+  test("ein Ferienminus wird gemeldet, mit dem Rest als Zahl", async () => {
     const klient = await anmelden(app, ADMIN);
     const { body } = await klient.get(`/api/dashboard?monat=${MONAT}`);
 
-    const treffer = body.offen.ueberFerienanspruch.find(
+    // Zwei Tage Anspruch, drei bezogen, kein Uebertrag: minus einer.
+    const treffer = body.offen.ferienMinus.find(
       (p: { name: string }) => p.name === `${marke} Faellt auf`,
     );
     expect(treffer).toBeDefined();
-    expect(treffer.anspruch).toBe(2);
-    expect(treffer.bezogen).toBe(3);
+    expect(treffer.rest).toBe(-1);
+  });
+
+  test("wer im Plus ist, steht nicht im Ferienminus", async () => {
+    const klient = await anmelden(app, ADMIN);
+    const { body } = await klient.get(`/api/dashboard?monat=${MONAT}`);
+    const namen = (body.offen.ferienMinus as { name: string }[]).map((p) => p.name);
+    expect(namen).not.toContain(`${marke} Monatslohn`);
   });
 });
 
@@ -185,8 +199,14 @@ describe("Rechte", () => {
 
     expect(Array.isArray(body.offen.ohneStundenlohn)).toBe(true);
     const namen = body.offen.ohneStundenlohn.map((p: { name: string }) => p.name);
-    expect(namen).toContain(`${marke} Faellt auf`);
+    expect(namen).toContain(`${marke} Ohne Lohn`);
+    // Hat einen Stundenlohn, gehoert also nicht auf die Liste.
     expect(namen).not.toContain(`${marke} Arbeitet`);
+    // Monatslohn: dort ist ein fehlender Stundenlohn kein Mangel,
+    // sondern der Normalfall. Frueher stand diese Gruppe faelschlich
+    // mit drauf, weil gegen den Freitext "mitarbeiterstufe" geprueft
+    // wurde und der bei den Testdaten leer war.
+    expect(namen).not.toContain(`${marke} Monatslohn`);
   });
 });
 

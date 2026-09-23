@@ -74,3 +74,48 @@ export function Feldgruppe({ titel, children }: { titel: string; children: React
     </fieldset>
   );
 }
+
+/**
+ * Eine Auswahl aus festen Moeglichkeiten.
+ *
+ * Bewusst ein select und kein Freitextfeld: die Lohnart steuert, welche
+ * Ferienrechnung gilt. Was man tippen kann, wird irgendwann vertippt,
+ * und ein Tippfehler waere hier kein Schoenheitsfehler, sondern eine
+ * falsche Abrechnung.
+ */
+export function Auswahl<T extends string>({
+  id,
+  beschriftung,
+  wert,
+  moeglichkeiten,
+  onChange,
+  hinweis,
+  deaktiviert,
+}: {
+  id: string;
+  beschriftung: string;
+  wert: T;
+  moeglichkeiten: readonly { wert: T; text: string }[];
+  onChange: (wert: T) => void;
+  hinweis?: string;
+  deaktiviert?: boolean;
+}) {
+  return (
+    <div className="feld">
+      <label htmlFor={id}>{beschriftung}</label>
+      <select
+        id={id}
+        value={wert}
+        disabled={deaktiviert}
+        onChange={(e) => onChange(e.target.value as T)}
+      >
+        {moeglichkeiten.map((m) => (
+          <option key={m.wert} value={m.wert}>
+            {m.text}
+          </option>
+        ))}
+      </select>
+      {hinweis ? <span className="feldhinweis">{hinweis}</span> : null}
+    </div>
+  );
+}
