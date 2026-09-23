@@ -85,6 +85,39 @@ Hinterlegt in `packages/shared/src/rollen.ts`, damit Server und Browser
 dieselbe Quelle benutzen. Durchgesetzt wird es **ausschliesslich** in der
 API.
 
+### Warum `buero` IBAN und AHV-Nummer sieht
+
+Das ist eine bewusste Entscheidung und kein Versehen, deshalb steht sie
+hier.
+
+`buero` sieht die **kompletten** Stammdaten: Adresse, Geburtsdatum,
+Nationalität, AHV-Nummer und IBAN aller Mitarbeitenden. Nicht sichtbar
+sind nur Stundenlohn, Monatslohn und die Kalkulation.
+
+Die Trennung verläuft also entlang der Frage "was verdient jemand", nicht
+entlang der Frage "wie heikel ist das Feld". Das ist ungewöhnlich, IBAN
+und AHV-Nummer sind für sich genommen heikler als ein Stundenlohn.
+
+Der Grund ist die Arbeitsteilung bei DELS: im Büro bereitet jeder
+Zahlungen und Meldungen vor, und wer eine Überweisung auslösen soll,
+braucht die Bankverbindung. Eine Rolle, die dafür jedes Mal beim Admin
+nachfragen muss, wäre im Alltag nicht benutzbar, und benutzte Regeln
+schlagen ungenutzte.
+
+Die Entscheidung wurde zweimal getroffen: einmal beim Entwurf des
+Rechte-Modells, und einmal wieder, als klar wurde, dass nicht ein oder
+zwei Personen zugreifen, sondern das ganze Büro.
+
+**Was daraus folgt:** Ein `buero`-Konto ist kein harmloses Konto. Wer
+eines bekommt, hat Zugriff auf die Personendaten der ganzen Belegschaft.
+Konten sparsam vergeben, beim Austritt sofort stilllegen (`aktiv`
+wegnehmen, die Sitzung ist damit in derselben Sekunde ungültig), und im
+Protokoll gelegentlich nachsehen, wer was angefasst hat.
+
+Wer das später enger fassen will: eine dritte Rolle, die Stunden erfassen
+darf, aber keine Personendaten sieht, ist in `rollen.ts` eine Zeile plus
+ein zweiter Spaltensatz neben `OHNE_LOHN` in `routes/mitarbeiter.ts`.
+
 ## Regeln für dieses Projekt
 
 1. **Die API prüft, der Browser verschönert.** Kein Recht wird allein
