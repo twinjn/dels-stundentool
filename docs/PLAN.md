@@ -132,31 +132,75 @@ ein zweiter Spaltensatz neben `OHNE_LOHN` in `routes/mitarbeiter.ts`.
 
 ## Offene Punkte
 
-Braucht eine Antwort aus der Firma:
+Stand 23. September 2026.
 
-- **Wie bildet sich der Ferien-Saldo?** Anteiliger Anspruch bei Ein- und
-  Austritt, Übertrag ins Folgejahr, Halbtage. Ohne diese Regeln zeigt die
-  Anwendung den aus dem Excel übernommenen Saldo und daneben, was seither
-  bezogen wurde, rechnet aber keinen laufenden Saldo
-- **Sollen die Objektdateien mit importiert werden?** Die Frage, ob sie
-  überhaupt benutzt werden, ist beantwortet: ja. Eine dritte Datei
-  (10005) enthält echte Zahlen, und der Leser ist daran geprüft (siehe
-  unten). Offen ist nur noch, ob ihr sie zusätzlich zur Verwaltungsdatei
-  einlesen wollt. Achtung dabei: eine Person, die auf fünf Objekten
-  arbeitet, hat ihre Ferien in fünf Objektdateien stehen. Entdoppelt wird
-  das in `zusammenfuehren()`, aber der Umstand gehört bedacht
-- **Wo läuft das Ganze?** Siehe `docs/BETRIEB.md`. Wichtig dabei: es sind
-  Personendaten von Schweizer Angestellten, inklusive AHV-Nummer und IBAN
-- **Wer bekommt welche Rolle?**
+### Blockiert, dass das Büro zugreifen kann
+
+- **Wo läuft es?** Mini-PC im Büro oder gemieteter Server. Zwei
+  Teilfragen hängen dran: arbeitet jemand aus dem Homeoffice, und wer
+  entscheidet, ob Personendaten das Gebäude verlassen dürfen. Zur Technik
+  siehe `docs/SERVER.md`, zur Abwägung `docs/BETRIEB.md`
+- **HTTPS.** Folgt aus der Frage oben und ist keine Kür: das
+  Sitzungs-Cookie trägt in Produktion `secure`, und Browser speichern
+  solche Cookies nur über HTTPS. Über blankes `http://` im Firmennetz
+  kommt niemand rein, obwohl das Passwort stimmt
+- **Konten.** Wer bekommt eines, mit Name und E-Mail. Die Rolle ist
+  geklärt: das Büro bekommt `buero`, siehe die Begründung oben
+
+### Sicherheit und Betrieb
+
+- **Netlify baut aus diesem Repository den Ordner `legacy/`** und stellt
+  die alte Supabase-Version öffentlich ins Netz. Im ausgelieferten Bundle
+  stehen Projektadresse und Anon-Key. Nach den Schema-Dateien in
+  `legacy/` ist Row Level Security überall aktiv und lässt nur
+  angemeldete Benutzer durch, verifiziert ist das aber nicht. Prüfen,
+  dann die Netlify-Anbindung trennen: die neue Anwendung kann dort
+  ohnehin nicht laufen, Netlify liefert nur statische Dateien aus
+- **Das alte Supabase-Projekt stilllegen**, sobald das neue Tool läuft.
+  Es hält weiterhin alle Personendaten, und davon wegzukommen war der
+  Zweck des Umbaus
+- **Kein Restore wurde je durchgespielt.** Die Skripte liegen in `infra/`
+  (`backup.sh`, `restore.sh`, `backup-pruefen.sh`), aber zurückgespielt
+  hat sie noch niemand. Regel 5 dieses Projekts sagt, dass ein nie
+  zurückgespieltes Backup kein Backup ist
 - **Wohin soll eine Meldung, wenn eine Sicherung scheitert?**
 
-Technisch offen:
+### Daten
 
-- ~~Der Docker-Bau ist nicht ausprobiert.~~ Erledigt: die CI baut das Bild
-  bei jedem Push, startet den Container gegen eine echte Datenbank und
-  prüft Gesundheit, Oberfläche und Routen
+- **Oktober und Dezember 2026 enthalten Stunden, November nicht.** Beides
+  liegt in der Zukunft. Entweder ist vorausgeplant, oder in einer Zelle
+  steht ein vertipptes Datum. Ein falsches Jahr importiert das Tool
+  klaglos mit
+- **Importiert ist nur 2026.** Ob frühere Jahre dazusollen, ist offen
+- **Die Verwaltungsdatei ist nicht eingelesen.** Der Personalstamm kam
+  aus dem Blatt "Personal" der Objektdateien. Ob die Verwaltungsdatei
+  zusätzlich etwas beiträgt (Adressen, AHV, IBAN), ist ungeprüft
+
+### Funktionen
+
 - **Keine Lohnabrechnung.** War in Phase 7 mitgedacht, braucht aber
   Entscheide, die noch nicht gefallen sind
+
+### Qualität
+
+- **Die Oberflächentests decken drei Stellen ab**: API-Klient,
+  Passwortseite, Ferienseite. Stundenraster, Kalkulation und
+  Mitarbeiterformular haben keine. Das Stundenraster ist davon das
+  wichtigste, da wird täglich getippt
+
+### Erledigt seit der letzten Fassung
+
+- ~~Wie bildet sich der Ferien-Saldo?~~ Geklärt und gebaut: getrennt nach
+  Monats- und Stundenlohn, Übertrag wird gerechnet, anteiliger Anspruch
+  über Kalendertage. Siehe `apps/api/src/ferien/`
+- ~~Sollen die Objektdateien importiert werden?~~ Erledigt: 53 Dateien,
+  3980 Einträge, 144 Personen, 32 Objekte. Der Abgleich gegen die Summen,
+  die Excel selbst anzeigt, ergab keine Abweichung
+- ~~Wer bekommt welche Rolle?~~ Das Büro bekommt `buero`. Offen sind nur
+  noch die konkreten Namen und E-Mail-Adressen
+- ~~Der Docker-Bau ist nicht ausprobiert.~~ Die CI baut das Bild bei jedem
+  Push, startet den Container gegen eine echte Datenbank und prüft
+  Gesundheit, Oberfläche und Routen
 
 ### Geklärt: die Objektdateien werden benutzt
 
