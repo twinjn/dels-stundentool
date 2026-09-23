@@ -8,13 +8,14 @@
  * Zahlen bildet, waere genau die Langsamkeit, die am bisherigen Excel
  * stoert. Postgres summiert das in einer Abfrage.
  */
-import { and, asc, eq, gte, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { Router } from "express";
 import { z } from "zod";
 import { hatRecht } from "@dels/shared";
 import { brauchtRecht } from "../auth/guards.js";
 import { db } from "../db/index.js";
 import { eintraege, mitarbeiter, objekte } from "../db/schema.js";
+import { ferienstand } from "../ferien/saldo.js";
 
 export const dashboardRouter = Router();
 
@@ -70,6 +71,9 @@ export function zeitraeume(
 }
 
 const ABSENZARTEN = ["ferien", "krankheit", "unfall", "feiertag", "sonstiges"] as const;
+
+/** Ab diesem Monat wird an offene Ferientage erinnert. 10 = Oktober. */
+const AB_MONAT_MAHNEN = 10;
 
 dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
   const heute = heuteInZuerich();
@@ -220,15 +224,42 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
         .where(
           and(
             eq(mitarbeiter.aktiv, true),
-            or(
-              ne(mitarbeiter.mitarbeiterstufe, "Monatslohn"),
-              isNull(mitarbeiter.mitarbeiterstufe),
-            ),
+            // Frueher stand hier ein Vergleich gegen den Freitext
+            // "Monatslohn" aus dem Excel. Seit es die Spalte lohnart
+            // gibt, fragt man die, und ein Tippfehler im Freitext kann
+            // die Liste nicht mehr verfaelschen.
+            eq(mitarbeiter.lohnart, "stunde"),
             or(isNull(mitarbeiter.stundenlohn), eq(mitarbeiter.stundenlohn, "0.00")),
           ),
         )
         .orderBy(asc(sql`${mitarbeiter.name} collate "de-CH-x-icu"`))
     : null;
+
+  /*
+   * Ab Oktober: wer hat noch Ferientage offen.
+   *
+   * Drei Monate Vorlauf, damit die Leute ihre Tage noch planen koennen.
+   * Vorher waere es nur Rauschen: im Maerz hat naturgemaess fast jeder
+   * fast alles offen, und eine Warnung, die immer leuchtet, schaut nach
+   * zwei Wochen niemand mehr an.
+   *
+   * Nur Monatsloehner. Bei Stundenlohn sind die Ferien mit jedem Lohn
+   * schon ausbezahlt, da gibt es nichts zu mahnen.
+   */
+  const monatNr = Number(monat.slice(5, 7));
+  const ferienOffen =
+    monatNr >= AB_MONAT_MAHNEN
+      ? (await ferienstand(Number(monat.slice(0, 4))))
+          .filter((z): z is Extract<typeof z, { art: "monat" }> => z.art === "monat")
+          .filter((z) => z.rest > 0)
+          .map((z) => ({
+            id: z.id,
+            name: z.name,
+            rest: z.rest,
+            unsicher: z.verlaufUnvollstaendig,
+          }))
+          .sort((a, b) => b.rest - a.rest)
+      : null;
 
   res.json({
     monat,
@@ -258,6 +289,7 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
       ohneErfassung: ohneErfassung.slice(0, 40),
       ohneErfassungAnzahl: ohneErfassung.length,
       ueberFerienanspruch: ueberAnspruch,
+      ferienOffen,
       ohneStundenlohn,
     },
   });

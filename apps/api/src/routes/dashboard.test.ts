@@ -27,6 +27,7 @@ let adminId: string;
 let bueroId: string;
 let personId: string;
 let zweiteId: string;
+let monatsId: string;
 let objektId: string;
 
 beforeAll(async () => {
@@ -45,6 +46,12 @@ beforeAll(async () => {
     .values({ name: `${marke} Faellt auf`, ferienanspruch: "2" })
     .returning({ id: mitarbeiter.id });
   zweiteId = q!.id;
+
+  const [m] = await db
+    .insert(mitarbeiter)
+    .values({ name: `${marke} Monatslohn`, lohnart: "monat", ferienanspruch: "25" })
+    .returning({ id: mitarbeiter.id });
+  monatsId = m!.id;
 
   const [o] = await db
     .insert(objekte)
@@ -70,7 +77,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await db.delete(eintraege).where(inArray(eintraege.mitarbeiterId, [personId, zweiteId]));
+  await db
+    .delete(eintraege)
+    .where(inArray(eintraege.mitarbeiterId, [personId, zweiteId, monatsId]));
   await db.delete(mitarbeiter).where(like(mitarbeiter.name, `${marke}%`));
   await db.delete(objekte).where(like(objekte.name, `${marke}%`));
   await db.delete(sitzungen).where(inArray(sitzungen.benutzerId, [adminId, bueroId]));
@@ -193,5 +202,30 @@ describe("Eingaben", () => {
     const { body, status } = await klient.get("/api/dashboard");
     expect(status).toBe(200);
     expect(body.monat).toBe(body.heute.slice(0, 7));
+  });
+});
+
+describe("Erinnerung an offene Ferientage", () => {
+  test("schweigt vor Oktober", async () => {
+    const klient = await anmelden(app, ADMIN);
+    // MONAT ist der Maerz. Im Fruehling hat fast jeder fast alles offen,
+    // eine Warnung waere hier reines Rauschen.
+    const { body } = await klient.get(`/api/dashboard?monat=${MONAT}`);
+    expect(body.offen.ferienOffen).toBeNull();
+  });
+
+  test("listet ab Oktober, wer im Monatslohn noch Tage offen hat", async () => {
+    const klient = await anmelden(app, ADMIN);
+    const { body } = await klient.get(`/api/dashboard?monat=${MONAT.slice(0, 4)}-10`);
+
+    const zeilen = body.offen.ferienOffen as { name: string; rest: number }[];
+    expect(zeilen).not.toBeNull();
+
+    // Monatslohn, 25 Tage Anspruch, nichts bezogen: 25 offen.
+    expect(zeilen.find((z) => z.name === `${marke} Monatslohn`)?.rest).toBe(25);
+
+    // Wer im Stundenlohn ist, gehoert nicht auf diese Liste: dort sind
+    // die Ferien mit jedem Lohn schon ausbezahlt.
+    expect(zeilen.some((z) => z.name === `${marke} Arbeitet`)).toBe(false);
   });
 });
