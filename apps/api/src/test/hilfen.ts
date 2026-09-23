@@ -46,7 +46,7 @@ pruefeDatenbank();
 
 export const TESTPASSWORT = "ein-langes-testpasswort";
 
-/** Eindeutiger Namensraum pro Testdatei, damit sich Läufe nicht stoeren. */
+/** Eindeutiger Namensraum pro Testdatei, damit sich Läufe nicht stören. */
 export function markeErzeugen(vorsilbe: string): string {
   return `${vorsilbe}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 }
@@ -61,7 +61,7 @@ export async function benutzerAnlegen(name: string, email: string, rolle: Rolle)
   return zeile.id;
 }
 
-/** Meldet sich an und liefert einen Klienten, der das Cookie behaelt. */
+/** Meldet sich an und liefert einen Klienten, der das Cookie behält. */
 export async function anmelden(app: Express, email: string) {
   const klient = request.agent(app);
   const antwort = await klient.post("/api/auth/anmelden").send({ email, passwort: TESTPASSWORT });

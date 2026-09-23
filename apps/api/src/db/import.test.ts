@@ -14,7 +14,7 @@ import { erstellePool } from "./index.js";
 
 const SCHEMA = "alt_probe";
 
-// Feste IDs, damit der Test hinterher genau seine eigenen Zeilen aufraeumt.
+// Feste IDs, damit der Test hinterher genau seine eigenen Zeilen aufräumt.
 const MITARBEITER = "11111111-1111-4111-8111-111111111111";
 const OBJEKT = "22222222-2222-4222-8222-222222222222";
 const EINTRAG = "33333333-3333-4333-8333-333333333333";
@@ -164,7 +164,7 @@ describe("Import aus dem Altsystem", () => {
     expect(rows[0]?.datum).toBe("2026-02-01");
   });
 
-  test("Sozialversicherungssaetze kommen unverändert an", async () => {
+  test("Sozialversicherungssätze kommen unverändert an", async () => {
     const { rows } = await ziel.query("select bu, ahv, ml13 from kalk_monat where monat = $1", [
       MONAT,
     ]);

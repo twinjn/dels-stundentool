@@ -1,5 +1,5 @@
 /**
- * Prüft, dass --leeren beim Import überhaupt durchlaeuft.
+ * Prüft, dass --leeren beim Import überhaupt durchläuft.
  *
  * Warum es diesen Test gibt: Postgres verweigert ein truncate auf eine
  * Tabelle, auf die ein Fremdschlüssel zeigt, und zwar unabhängig davon,
@@ -30,7 +30,7 @@ test("die truncate-Anweisung von --leeren läuft durch", async () => {
     db.transaction(async (tx) => {
       await tx.execute(sql.raw(`truncate table ${ZU_LEEREN.join(", ")} restart identity`));
       // Immer zurücknehmen: der Test soll prüfen, ob die Anweisung
-      // zulässig ist, nicht die Testdatenbank ausraeumen.
+      // zulässig ist, nicht die Testdatenbank ausräumen.
       throw new Error("absichtlicher Rollback");
     }),
   ).rejects.toThrow("absichtlicher Rollback");

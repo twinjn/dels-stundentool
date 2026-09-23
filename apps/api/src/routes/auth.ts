@@ -78,7 +78,7 @@ authRouter.post("/anmelden", async (req, res) => {
   await db.update(benutzer).set({ letzterLoginAm: new Date() }).where(eq(benutzer.id, konto.id));
 
   // Gelegenheit nutzen: alte Sitzungen wegräumen, damit die Tabelle
-  // nicht unbegrenzt waechst. Ein eigener Zeitplan wäre hier Overkill.
+  // nicht unbegrenzt wächst. Ein eigener Zeitplan wäre hier Overkill.
   await abgelaufeneAufraeumen();
 
   res.cookie(COOKIE_NAME, token, cookieOptionen());

@@ -186,7 +186,7 @@ describe('"Frei" gehört zum Objekt, nicht zur Person', () => {
   });
 });
 
-describe("Raster und Randfaelle", () => {
+describe("Raster und Randfälle", () => {
   test("Spalten hinter dem Monatsende werden uebergangen und gemeldet", () => {
     // Das Raster ist immer 31 Spalten breit, der Februar hat aber 28 Tage.
     const mappe = baueMappe([
@@ -200,7 +200,7 @@ describe("Raster und Randfaelle", () => {
     expect(e.warnungen.some((w) => /hinter dem Monatsende/.test(w))).toBe(true);
   });
 
-  test("Schaltjahr wird beruecksichtigt", () => {
+  test("Schaltjahr wird berücksichtigt", () => {
     const mappe = baueMappe([
       zeile(1, "1001", "Person", "0", {}, []),
       zeile(2, "1001", "Objekt A", "10001", { 29: 8 }),

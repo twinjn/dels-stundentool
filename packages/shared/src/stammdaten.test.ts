@@ -41,7 +41,7 @@ describe("AHV-Nummer", () => {
     expect(ahvGueltig("756.1234.5678.98")).toBe(false);
   });
 
-  test("verlangt den Laendercode 756", () => {
+  test("verlangt den Ländercode 756", () => {
     expect(ahvGueltig("123.4567.8901.12")).toBe(false);
   });
 

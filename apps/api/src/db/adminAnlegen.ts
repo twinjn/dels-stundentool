@@ -51,7 +51,7 @@ let stumm = false;
  * eine Antwort wartet. Kommt die Eingabe aus einer Weiterleitung, sind
  * alle Zeilen auf einen Schlag da. Die erste Frage bekommt ihre Zeile,
  * und während ihre Zusage noch aufgelöst wird, meldet readline schon
- * die zweite Zeile, auf die in diesem Moment niemand hoert. Sie ist
+ * die zweite Zeile, auf die in diesem Moment niemand hört. Sie ist
  * damit weg. Die zweite Frage wartet dann ewig auf etwas, das bereits
  * durchgelaufen ist.
  *
@@ -78,7 +78,7 @@ function leserHolen(): readline.Interface {
     // Nur mit einer echten Tastatur. "terminal: true" schaltet die
     // Zeilenbearbeitung ein, die auf einer Weiterleitung Steuerzeichen
     // in die Ausgabe schreibt. Ohne Tastatur gibt es ausserdem kein Echo,
-    // also nichts zu unterdruecken.
+    // also nichts zu unterdrücken.
     terminal: process.stdin.isTTY === true,
   });
 

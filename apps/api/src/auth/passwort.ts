@@ -1,5 +1,5 @@
 /**
- * Passwoerter.
+ * Passwörter.
  *
  * Das ist die eine Stelle im Projekt, an der wir bewusst NICHTS selbst
  * erfinden. Passwort-Hashing ist Kryptographie, und selbstgebaute
@@ -12,9 +12,9 @@
  *  - Es salzt automatisch. Zwei gleiche Passwörter ergeben verschiedene
  *    Hashes, Regenbogentabellen sind damit nutzlos.
  *  - "id" ist die Mischvariante, die gegen Seitenkanal- UND gegen
- *    Speicher-Angriffe schuetzt.
+ *    Speicher-Angriffe schützt.
  *
- * Niemals SHA-256 oder MD5 für Passwoerter. Die sind auf Geschwindigkeit
+ * Niemals SHA-256 oder MD5 für Passwörter. Die sind auf Geschwindigkeit
  * gebaut, und Geschwindigkeit ist hier genau das Falsche.
  */
 import argon2 from "argon2";
@@ -24,7 +24,7 @@ export { MINDESTLAENGE_PASSWORT } from "@dels/shared";
  * Die Einstellungen stehen ausdrücklich hier, obwohl es zufällig die
  * aktuellen Standardwerte der Bibliothek sind. Bei Sicherheitsparametern
  * verlässt man sich nicht auf Standardwerte, die sich mit dem nächsten
- * Update ändern koennen.
+ * Update ändern können.
  */
 const EINSTELLUNGEN = {
   type: argon2.argon2id,
@@ -55,7 +55,7 @@ export async function passwortStimmt(hash: string, klartext: string): Promise<bo
  * dagegen erst nach rund 50 Millisekunden, weil argon2 erst rechnen muss.
  * Dieser Unterschied ist messbar, und damit kann ein Angreifer herausfinden,
  * WELCHE E-Mail-Adressen bei euch Konten haben. Das nennt sich
- * Benutzeraufzaehlung.
+ * Benutzeraufzählung.
  *
  * Deshalb prüfen wir bei unbekannter E-Mail gegen diesen Hash. Das
  * Ergebnis ist immer falsch, aber es dauert genauso lange.

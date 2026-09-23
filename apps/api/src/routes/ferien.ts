@@ -70,11 +70,11 @@ ferienRouter.get("/", brauchtRecht("stammdaten:lesen"), async (req, res) => {
 });
 
 /**
- * Übertrag von Hand setzen, also die gerechnete Zahl uebersteuern.
+ * Übertrag von Hand setzen, also die gerechnete Zahl übersteuern.
  *
  * Braucht stammdaten:schreiben, nicht loehne:schreiben: es geht um Tage.
  * Und es wird protokolliert, weil hier jemandem Ferien weggenommen oder
- * gegeben werden koennen.
+ * gegeben werden können.
  */
 ferienRouter.put(
   "/:mitarbeiterId/:jahr",

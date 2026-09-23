@@ -39,7 +39,7 @@ let monatId: string;
 let saldoId: string;
 /** Monatslohn, Eintritt zur Jahresmitte. */
 let neuId: string;
-/** Monatslohn, lange dabei, ohne Stichtag: der Verlauf ist lueckenhaft. */
+/** Monatslohn, lange dabei, ohne Stichtag: der Verlauf ist lückenhaft. */
 let langId: string;
 /** Stundenlohn. */
 let stundeId: string;
@@ -94,7 +94,7 @@ beforeAll(async () => {
     // Stunde: 100 Arbeitsstunden im Zieljahr.
     { mitarbeiterId: stundeId, objektId, datum: `${JAHR}-04-04`, art: "arbeit", wert: "60.00" },
     { mitarbeiterId: stundeId, objektId, datum: `${JAHR}-04-05`, art: "arbeit", wert: "40.00" },
-    // Arbeit im Vorjahr darf die Basis nicht aufblaehen.
+    // Arbeit im Vorjahr darf die Basis nicht aufblähen.
     {
       mitarbeiterId: stundeId,
       objektId,
@@ -135,7 +135,7 @@ describe("Ferienstand im Monatslohn", () => {
     const { person } = await holeStand();
     const p = person("Monat");
 
-    // Vorjahr: 25 Anspruch minus 4 bezogen = 21 uebrig.
+    // Vorjahr: 25 Anspruch minus 4 bezogen = 21 übrig.
     // Zieljahr: 21 Übertrag plus 25 Anspruch minus 5 bezogen = 41.
     expect(p).toMatchObject({
       art: "monat",
@@ -274,7 +274,7 @@ describe("Übertrag von Hand", () => {
 
     await klient
       .put(`/api/ferien/${monatId}/${JAHR}`)
-      .send({ tage: 2.5, bemerkung: "Korrektur nach Ruecksprache." })
+      .send({ tage: 2.5, bemerkung: "Korrektur nach Rücksprache." })
       .expect(200);
     expect((await holeStand()).person("Monat")).toMatchObject({ uebertrag: 2.5, rest: 22.5 });
 

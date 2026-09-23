@@ -2,7 +2,7 @@
  * Eingabeprüfung, einmal definiert, von beiden Seiten benutzt.
  *
  * Der Server prüft, WEIL er muss: alles, was hereinkommt, ist erstmal
- * unvertrauenswuerdig. Der Browser prüft, DAMIT der Benutzer den Fehler
+ * unvertrauenswürdig. Der Browser prüft, DAMIT der Benutzer den Fehler
  * sofort sieht und nicht erst nach dem Absenden.
  *
  * Eine Definition, zwei Verwendungen. Wären es zwei Definitionen, würden

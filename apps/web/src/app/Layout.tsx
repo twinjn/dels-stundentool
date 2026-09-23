@@ -42,7 +42,7 @@ export function Layout() {
               key={eintrag.pfad}
               to={eintrag.pfad}
               // Ohne "end" wäre "/" auf jeder Unterseite als aktiv markiert,
-              // weil jeder Pfad mit "/" anfaengt.
+              // weil jeder Pfad mit "/" anfängt.
               end={eintrag.pfad === "/"}
               className={({ isActive }) => (isActive ? "navlink aktiv" : "navlink")}
             >

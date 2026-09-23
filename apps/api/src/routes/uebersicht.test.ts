@@ -59,7 +59,7 @@ beforeAll(async () => {
       art: "krankheit",
       wert: "2.00",
     },
-    // Ein Tag im Folgejahr darf nicht mitzaehlen.
+    // Ein Tag im Folgejahr darf nicht mitzählen.
     { mitarbeiterId: aktivId, objektId, datum: `${JAHR + 1}-01-02`, art: "arbeit", wert: "99.00" },
     // Die ausgetretene Person hat nur im Vorjahr gearbeitet.
     {

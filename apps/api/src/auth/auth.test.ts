@@ -49,7 +49,7 @@ async function legeAn(email: string, rolle: "admin" | "buero"): Promise<string> 
   return zeile.id;
 }
 
-/** Meldet sich an und liefert einen Klienten, der das Cookie behaelt. */
+/** Meldet sich an und liefert einen Klienten, der das Cookie behält. */
 async function angemeldetAls(email: string) {
   const klient = request.agent(app);
   const antwort = await klient.post("/api/auth/anmelden").send({ email, passwort: PASSWORT });
@@ -231,7 +231,7 @@ describe("Schutz vor dem Aussperren", () => {
   test("der letzte aktive Admin lässt sich nicht stilllegen", async () => {
     const klient = await angemeldetAls(ADMIN_MAIL);
 
-    // Der zweite Admin darf weg, danach ist nur noch einer uebrig.
+    // Der zweite Admin darf weg, danach ist nur noch einer übrig.
     const ersterVersuch = await klient.patch(`/api/benutzer/${admin2Id}`).send({ aktiv: false });
     expect(ersterVersuch.status).toBe(200);
 

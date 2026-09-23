@@ -1,5 +1,5 @@
 /**
- * Startseite: eine Lagemeldung, keine Begruessung.
+ * Startseite: eine Lagemeldung, keine Begrüssung.
  *
  * Die Frage, die diese Seite beantworten soll, ist nicht "wie geht es
  * dir", sondern "was ist diesen Monat erfasst und was fehlt noch". Alle

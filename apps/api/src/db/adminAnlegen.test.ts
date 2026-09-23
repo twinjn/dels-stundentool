@@ -8,7 +8,7 @@
  * am Terminal immer alles lief.
  *
  * Deshalb wird hier das echte Skript als eigener Prozess gestartet und
- * mit umgeleiteter Eingabe gefuettert. Eine nachgebaute Leseschleife
+ * mit umgeleiteter Eingabe gefüttert. Eine nachgebaute Leseschleife
  * würde genau den Fehler nicht zeigen, um den es geht.
  */
 import { spawn } from "node:child_process";

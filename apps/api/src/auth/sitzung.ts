@@ -9,9 +9,9 @@
  * Warum der Umweg über den Hash: wer irgendwie an die Datenbank kommt
  * (Backup auf einem USB-Stick, geleakter Dump, neugieriger Praktikant),
  * kann sich damit trotzdem NICHT anmelden. Aus dem Hash lässt sich das
- * Token nicht zurueckrechnen.
+ * Token nicht zurückrechnen.
  *
- * Hier reicht SHA-256, anders als bei Passwoertern. Der Unterschied: ein
+ * Hier reicht SHA-256, anders als bei Passwörtern. Der Unterschied: ein
  * Token hat 256 Bit echten Zufall, ein Passwort hat vielleicht 30 Bit.
  * Zufall in dieser Grössenordnung kann niemand durchprobieren, also
  * braucht es kein absichtlich langsames Verfahren.

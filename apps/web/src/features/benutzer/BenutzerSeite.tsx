@@ -3,7 +3,7 @@
  *
  * Zur Erinnerung: dass diese Seite in der Navigation fehlt, hindert
  * niemanden daran, /benutzer einzutippen. Geschützt ist sie dadurch,
- * dass die API jede Anfrage prueft.
+ * dass die API jede Anfrage prüft.
  */
 import { useState } from "react";
 import type { FormEvent } from "react";
@@ -101,8 +101,8 @@ export function BenutzerSeite() {
       </div>
 
       <p className="hinweis">
-        Benutzer werden nie geloescht, sondern stillgelegt. So bleibt nachvollziehbar, wer frueher
-        welche Aenderung gemacht hat.
+        Benutzer werden nie gelöscht, sondern stillgelegt. So bleibt nachvollziehbar, wer früher
+        welche Änderung gemacht hat.
       </p>
 
       {zeigeNeu && (

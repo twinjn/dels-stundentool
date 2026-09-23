@@ -41,7 +41,7 @@ describe("Erfolgsfall", () => {
      * an einen anderen Ursprung kein Cookie mit. Die Anwendung wäre
      * dann bei jedem Aufruf abgemeldet, und zwar nur in Produktion,
      * wo API und Oberfläche unter verschiedenen Adressen liegen
-     * koennen. Der Fehler, den niemand beim Entwickeln sieht.
+     * können. Der Fehler, den niemand beim Entwickeln sieht.
      */
     vi.mocked(fetch).mockResolvedValue(antwort(200, {}));
     await api.get("/auth/ich");
@@ -96,13 +96,13 @@ describe("Fehlerbehandlung", () => {
 
     try {
       await api.get("/dashboard");
-      expect.unreachable("haette werfen muessen");
+      expect.unreachable("hätte werfen muessen");
     } catch (e) {
       expect((e as ApiFehler).istNichtAngemeldet).toBe(true);
     }
   });
 
-  test("uebersetzt 502, 503 und 504 in eine verständliche Meldung", async () => {
+  test("übersetzt 502, 503 und 504 in eine verständliche Meldung", async () => {
     /*
      * Diese drei kommen nicht von der Anwendung, sondern von dem, was
      * davorsteht: beim Entwickeln der Vite-Proxy, später der

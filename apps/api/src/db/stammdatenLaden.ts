@@ -45,7 +45,7 @@ async function zaehle(): Promise<Zaehlung> {
 }
 
 function zeile(titel: string, vorher: number, nachher: number): string {
-  const pfeil = vorher === nachher ? "  (unveraendert)" : `  ->  ${nachher}`;
+  const pfeil = vorher === nachher ? "  (unverändert)" : `  ->  ${nachher}`;
   return `  ${titel.padEnd(34)} ${String(vorher).padStart(4)}${pfeil}`;
 }
 

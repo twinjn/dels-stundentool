@@ -2,7 +2,7 @@
  * Anmeldemaske.
  *
  * Geprüft wird mit demselben Zod-Schema, das der Server benutzt. Der
- * Unterschied: hier dient es der Bequemlichkeit (sofortige Rueckmeldung),
+ * Unterschied: hier dient es der Bequemlichkeit (sofortige Rückmeldung),
  * beim Server der Sicherheit.
  */
 import { useState } from "react";

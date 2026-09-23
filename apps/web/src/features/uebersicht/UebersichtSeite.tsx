@@ -4,12 +4,12 @@
  * Die Monatsansicht beantwortet "was war am 14. September". Diese hier
  * beantwortet "wie viele Ferientage hat jemand dieses Jahr schon bezogen"
  * und "in welchen Monaten war jemand krank". Zwei Fragen, zwei Ansichten,
- * dieselben Eintraege.
+ * dieselben Einträge.
  *
  * Umgeschaltet wird die Art, nicht die Tabelle: dieselbe Matrix zeigt
  * wahlweise Arbeitsstunden, Ferien-, Kranken- oder Unfalltage. Wer die
  * Formen vergleichen will, klickt hin und her, ohne die Augen neu
- * ausrichten zu muessen.
+ * ausrichten zu müssen.
  */
 import { useEffect, useMemo, useState } from "react";
 import { ApiFehler, api } from "../../api/client.js";

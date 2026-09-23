@@ -13,7 +13,7 @@ import { datenbankErreichbar } from "./db/index.js";
  * Anmeldung scheint zu klappen und man ist sofort wieder abgemeldet.
  *
  * Das ist einer der Fehler, die man stundenlang sucht. Deshalb hier eine
- * unübersehbare Warnung statt eines stillen Raetsels.
+ * unübersehbare Warnung statt eines stillen Rätsels.
  */
 if (istProduktion && config.WEB_ORIGIN.startsWith("http://")) {
   console.warn(
@@ -49,7 +49,7 @@ for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, () => {
     console.log(`\n${signal} empfangen, fahre herunter ...`);
     server.close(() => process.exit(0));
-    // Notbremse, falls eine Verbindung nicht freiwillig loslaesst.
+    // Notbremse, falls eine Verbindung nicht freiwillig loslässt.
     setTimeout(() => process.exit(1), 10_000).unref();
   });
 }

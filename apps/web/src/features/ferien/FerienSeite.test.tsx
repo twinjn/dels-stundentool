@@ -220,7 +220,7 @@ describe("Suche", () => {
     expect(screen.getByText("Beat Stunde")).toBeInTheDocument();
     // Der Abschnitt bleibt stehen und sagt, dass er leer ist. Ihn
     // auszublenden wäre verwirrender: dann sieht es aus, als gäbe es
-    // gar keine Monatsloehner.
+    // gar keine Monatslöhner.
     const monatslohn = screen.getByRole("heading", { name: "Monatslohn" }).closest("section")!;
     expect(within(monatslohn).getByText("Niemand im Monatslohn.")).toBeInTheDocument();
   });

@@ -119,7 +119,7 @@ benutzerRouter.patch("/:id", async (req, res) => {
     .returning(oeffentlich);
 
   // Wer stillgelegt oder heruntergestuft wird, soll nicht mit einer alten
-  // Sitzung weiterarbeiten koennen.
+  // Sitzung weiterarbeiten können.
   if (daten.aktiv === false || daten.rolle !== undefined) {
     await alleSitzungenBeenden(id);
   }

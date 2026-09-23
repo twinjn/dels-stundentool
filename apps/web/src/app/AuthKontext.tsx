@@ -33,13 +33,13 @@ type AuthZustand = {
    * Nur den Browserzustand auf "abgemeldet" setzen, ohne den Server zu
    * fragen. Gebraucht nach einer Passwortänderung: der Server hat die
    * Sitzung dabei schon beendet, ein zusätzliches /auth/abmelden
-   * bekäme nur ein 401 zurueck.
+   * bekäme nur ein 401 zurück.
    */
   abgemeldet: () => void;
 };
 
 /**
- * Exportiert, damit Tests ihn direkt füllen koennen.
+ * Exportiert, damit Tests ihn direkt füllen können.
  *
  * Im Anwendungscode benutzt man useAuth() und nie diesen Kontext.
  * Tests brauchen ihn trotzdem: würden sie den echten AuthAnbieter

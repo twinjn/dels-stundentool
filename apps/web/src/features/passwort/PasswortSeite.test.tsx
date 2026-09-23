@@ -27,7 +27,7 @@ const NEU = "neues-passwort-lang";
 
 /**
  * Rendert die Seite und gibt die nachgebaute abgemeldet()-Funktion
- * zurueck. Auf die kommt es an: WANN sie gerufen wird, entscheidet, ob
+ * zurück. Auf die kommt es an: WANN sie gerufen wird, entscheidet, ob
  * der Benutzer die Erfolgsmeldung jemals sieht.
  */
 function rendere() {

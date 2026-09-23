@@ -114,7 +114,7 @@ export function kalkulationsmappe(daten: Daten, erstelltAm = jetztInZuerich()): 
   zusammen.push(["Marge", res.marge]);
   zusammen.push(["Stunden total", t.stdTotal!]);
 
-  // Anzahlen, keine Betraege. "35.00 Mitarbeiter" liest sich falsch.
+  // Anzahlen, keine Beträge. "35.00 Mitarbeiter" liest sich falsch.
   const ganzeZahlen: [string, number][] = [
     ["Mitarbeiter gerechnet", t.maTotal!],
     ["Objekte mit erfassten Stunden", t.ausErfassung!],
@@ -253,7 +253,7 @@ export function kalkulationsmappe(daten: Daten, erstelltAm = jetztInZuerich()): 
     "Summe der Posten",
     daten.adminkosten.reduce((a, p) => a + (alsZahl(p.betrag) ?? 0), 0),
   ]);
-  admin.push(["Zuzueglich Reserve", res.adminTopf]);
+  admin.push(["Zuzüglich Reserve", res.adminTopf]);
 
   const geldSpalten = (von: number, bis: number): Record<number, string> => {
     const formate: Record<number, string> = {};

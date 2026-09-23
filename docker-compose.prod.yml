@@ -7,7 +7,7 @@
 #
 # WICHTIG: Vor diese Anwendung gehoert ein Webserver mit TLS (Caddy,
 # nginx, Traefik). Das Sitzungs-Cookie ist "secure" und wird ueber reines
-# http nie zurueckgeschickt, die Anmeldung funktioniert dann nicht. Die
+# http nie zurückgeschickt, die Anmeldung funktioniert dann nicht. Die
 # Anwendung warnt beim Start, wenn WEB_ORIGIN auf http:// zeigt.
 
 services:
@@ -38,7 +38,7 @@ services:
       PORT: 3000
       # Im Container MUSS auf allen Schnittstellen gelauscht werden.
       # 127.0.0.1 waere hier das Innere des Containers, und die
-      # Weiterleitung von 127.0.0.1:3000 des Wirts kaeme nie an.
+      # Weiterleitung von 127.0.0.1:3000 des Wirts käme nie an.
       # Nach aussen ist trotzdem nichts offen: die Weiterleitung unten
       # bindet nur an den localhost des Wirts.
       HOST: 0.0.0.0
@@ -61,8 +61,8 @@ services:
       retries: 3
       start_period: 20s
 
-  # Sichert taeglich und prueft die Sicherung, indem sie wirklich
-  # zurueckgespielt wird. Eine ungepruefte Sicherung ist eine Hoffnung.
+  # Sichert täglich und prüft die Sicherung, indem sie wirklich
+  # zurückgespielt wird. Eine ungeprüfte Sicherung ist eine Hoffnung.
   backup:
     # Bewusst NICHT das alpine-Bild: die Sicherungsskripte brauchen bash,
     # und Alpine bringt nur ash mit. Der Dienst waere beim ersten Lauf

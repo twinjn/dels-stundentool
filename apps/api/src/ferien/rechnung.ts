@@ -87,7 +87,7 @@ export function jahresanspruch(
  * 52. Wer fünf Wochen Ferien hat, arbeitet 47 Wochen und muss in diesen
  * 47 Wochen auch die fünf mitverdienen: 5/47 = 10.638 %. Mit 5/52
  * käme 9.6 % heraus, und das ist der Klassiker unter den zu tief
- * abgerechneten Ferienzuschlaegen.
+ * abgerechneten Ferienzuschlägen.
  *
  * Die üblichen Werte: 4 Wochen = 8.333 %, 5 Wochen = 10.638 %,
  * 6 Wochen = 13.043 %.

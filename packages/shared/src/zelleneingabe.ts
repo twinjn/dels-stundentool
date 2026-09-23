@@ -36,7 +36,7 @@ export const PERSONEN_CODES: Record<string, Eintragsart> = {
   FT: "feiertag",
 };
 
-/** Codes, die zum Objekt gehoeren. */
+/** Codes, die zum Objekt gehören. */
 export const OBJEKT_CODES: Record<string, Eintragsart> = {
   FR: "frei",
   FF: "frei",

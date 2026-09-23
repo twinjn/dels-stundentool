@@ -53,7 +53,7 @@ export type { Eintragsart };
  * nicht aus einer Vermutung:
  *
  * ABWESENHEITEN DER PERSON (F, K, U, S, FT) gelten für den ganzen Tag.
- * Sie stehen auf jeder Objektzeile der Person und werden einmal gezaehlt.
+ * Sie stehen auf jeder Objektzeile der Person und werden einmal gezählt.
  * Excel summiert sie rechts in den Spalten Ferien, Krank, Unfall, Sonst.
  *
  * FREI (Fr, FF) ist etwas anderes. In den echten Daten steht es an

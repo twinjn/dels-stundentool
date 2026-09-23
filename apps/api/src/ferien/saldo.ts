@@ -8,13 +8,13 @@
  * war, ist am 1. Januar da. Der Übertrag wird also gerechnet und nicht
  * eingetippt. Wer ihn streichen will, legt einen Datensatz in
  * ferien_uebertrag an, und der trägt dann einen Namen und eine
- * Begruendung.
+ * Begründung.
  *
  * WARUM DIE SUMMEN IN JAVASCRIPT GEBILDET WERDEN und nicht per GROUP BY:
  * Die Rechnung braucht pro Person ein Jahr-für-Jahr-Fortschreiben und
  * einen Vergleich gegen den persönlichen Stichtag. In SQL wäre das
  * eine Abfrage mit rohen Bausteinen in der SELECT-Liste, und genau dort
- * setzt Drizzle keine Tabellenpraefixe. Dieses Projekt hat sich daran
+ * setzt Drizzle keine Tabellenpräfixe. Dieses Projekt hat sich daran
  * schon einmal eine still falsche Zahl eingehandelt (siehe den langen
  * Kommentar in routes/dashboard.ts). Die Datenmenge gibt das her: es
  * sind die Ferieneinträge weniger Jahre, keine Bewegungsdaten.

@@ -269,7 +269,7 @@ function MitarbeiterFormular({
   }
 
   /**
-   * Endgültig loeschen.
+   * Endgültig löschen.
    *
    * Der Server lässt das nur zu, solange es zu der Person weder Stunden
    * noch Kalkulationszeilen gibt, und antwortet sonst mit 409 und einer
@@ -278,7 +278,7 @@ function MitarbeiterFormular({
    * nicht und könnte ihn zwischen Laden und Klicken ohnehin nicht
    * garantieren.
    *
-   * Hier steht nur die Rueckfrage. Sie nennt den Namen, damit niemand
+   * Hier steht nur die Rückfrage. Sie nennt den Namen, damit niemand
    * aus Versehen den Falschen erwischt, weil er inzwischen in der Liste
    * weitergeklickt hat.
    */
@@ -484,8 +484,8 @@ function MitarbeiterFormular({
               ? new Date(vorhanden.ferienSaldoStand).toLocaleDateString("de-CH")
               : "unbekannt"}
             . Was seither bezogen wurde, steht in der Stundenerfassung. Die laufende Fortschreibung
-            ist noch nicht gebaut, weil dafuer eure Regeln zu Uebertrag und anteiligem Anspruch
-            feststehen muessen.
+            ist noch nicht gebaut, weil dafür eure Regeln zu Übertrag und anteiligem Anspruch
+            feststehen müssen.
           </p>
         )}
       </Feldgruppe>
@@ -534,10 +534,10 @@ function MitarbeiterFormular({
 
       <div className="formularfuss">
         {/*
-          Loeschen steht ganz links und durch den Freiraum abgesetzt
+          Löschen steht ganz links und durch den Freiraum abgesetzt
           (siehe .formularfuss-gefahr in styles.css), nicht neben
           "Speichern". Zwei Knoepfe nebeneinander, von denen einer Daten
-          vernichtet, sind eine Falle fuer jeden, der schnell klickt.
+          vernichtet, sind eine Falle für jeden, der schnell klickt.
         */}
         {darfSchreiben && vorhanden && (
           <button
@@ -547,7 +547,7 @@ function MitarbeiterFormular({
             disabled={laeuft}
             title="Geht nur, solange zu dieser Person keine Stunden erfasst sind"
           >
-            Loeschen
+            Löschen
           </button>
         )}
         <button type="button" className="knopf-leise" onClick={onAbbrechen}>

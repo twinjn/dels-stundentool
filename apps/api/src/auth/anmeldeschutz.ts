@@ -1,5 +1,5 @@
 /**
- * Bremse gegen das Durchprobieren von Passwoertern.
+ * Bremse gegen das Durchprobieren von Passwörtern.
  *
  * Ohne so etwas kann jemand in einer Nacht Millionen Passwörter testen.
  * Mit dieser Bremse sind es fünf pro Viertelstunde.
@@ -33,7 +33,7 @@ export function schluesselFuer(ip: string, email: string): string {
   return `${ip}|${email.toLowerCase()}`;
 }
 
-/** Verhindert, dass die Map unbegrenzt waechst. */
+/** Verhindert, dass die Map unbegrenzt wächst. */
 function aufraeumen(jetzt: number): void {
   if (speicher.size < AUFRAEUMEN_AB) return;
   for (const [schluessel, eintrag] of speicher) {

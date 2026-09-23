@@ -8,7 +8,7 @@
  *
  * WICHTIG: Das Ausblenden im Browser ist KEINE Sicherheit. Wer die Seite
  * kennt, schickt die Anfrage auch ohne Knopf. Sicherheit entsteht
- * ausschliesslich dadurch, dass die API jede Anfrage selbst prueft.
+ * ausschliesslich dadurch, dass die API jede Anfrage selbst prüft.
  */
 
 export const ROLLEN = ["admin", "buero"] as const;

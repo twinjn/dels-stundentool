@@ -41,7 +41,7 @@ const EnvSchema = z.object({
    *
    * Im Docker-Container muss dagegen 0.0.0.0 stehen: dort ist 127.0.0.1
    * das Innere des Containers, und die Portweiterleitung käme nie an.
-   * Deshalb setzt docker-compose.prod.yml HOST ausdruecklich.
+   * Deshalb setzt docker-compose.prod.yml HOST ausdrücklich.
    *
    * Sichere Vorgabe, unsichere Einstellung nur dort, wo sie gebraucht
    * wird und begründet ist.

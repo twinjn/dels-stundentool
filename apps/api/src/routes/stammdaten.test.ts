@@ -87,7 +87,7 @@ describe("Lohnfelder", () => {
 
     expect(antwort.status).toBe(403);
 
-    // Und der Wert ist wirklich unveraendert.
+    // Und der Wert ist wirklich unverändert.
     const [zeile] = await db
       .select({ lohn: mitarbeiter.monatslohn })
       .from(mitarbeiter)
@@ -188,7 +188,7 @@ describe("Protokoll", () => {
     expect(letzter?.nachher).toMatchObject({ ort: "Zuerich" });
   });
 
-  test("im Protokoll stehen nur die geaenderten Felder, nicht der ganze Datensatz", async () => {
+  test("im Protokoll stehen nur die geänderten Felder, nicht der ganze Datensatz", async () => {
     const klient = await anmelden(app, ADMIN_MAIL);
     await klient.patch(`/api/objekte/${objektId}`).send({ kunde: "Neuer Kunde" });
 

@@ -10,7 +10,7 @@ const hier = path.dirname(fileURLToPath(import.meta.url));
  * Steht TEST_DATABASE_URL in der .env, wird sie hier vor allen anderen
  * Modulen gesetzt und überschreibt DATABASE_URL für diesen Lauf. So
  * muss niemand daran denken, vor jedem Testlauf etwas umzustellen, und
- * die Entwicklungsdaten bleiben unberuehrt.
+ * die Entwicklungsdaten bleiben unberührt.
  *
  * In der CI kommt DATABASE_URL ohnehin schon aus dem Workflow und zeigt
  * auf dels_test.

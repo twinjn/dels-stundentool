@@ -9,7 +9,7 @@
  * WARUM NICHT 4000 EINGABEFELDER: 45 Personen mal 31 Tage mal mehrere
  * Objektzeilen ergeben schnell ein paar tausend Zellen. So viele echte
  * <input> würde der Browser spürbar langsam darstellen, und langsam ist
- * genau das, was am bisherigen Excel stoert. Deshalb sind die Zellen
+ * genau das, was am bisherigen Excel stört. Deshalb sind die Zellen
  * einfacher Text, und nur die Zelle, in der gerade jemand tippt, bekommt
  * ein Eingabefeld.
  */

@@ -55,7 +55,7 @@ describe("Kürzel", () => {
 
   test("Ferien auf einer Objektzeile werden abgelehnt", () => {
     // Genau diese Verwechslung hat im alten Excel den Ferienanspruch
-    // verfaelscht. Lieber eine klare Fehlermeldung als eine stille
+    // verfälscht. Lieber eine klare Fehlermeldung als eine stille
     // Umdeutung.
     const ergebnis = objekt("F");
     expect(istFehler(ergebnis)).toBe(true);
@@ -76,7 +76,7 @@ describe("Kürzel", () => {
 });
 
 describe("Anzeige", () => {
-  test("Stunden ohne ueberfluessige Nullen", () => {
+  test("Stunden ohne überflüssige Nullen", () => {
     expect(zeigeZelle("arbeit", "8.40")).toBe("8.4");
     expect(zeigeZelle("arbeit", "8.00")).toBe("8");
     expect(zeigeZelle("arbeit", "1.75")).toBe("1.75");

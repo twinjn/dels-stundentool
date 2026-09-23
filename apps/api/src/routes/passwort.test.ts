@@ -148,7 +148,7 @@ describe("Admin setzt ein Passwort zurück", () => {
     const antwort = await buero.post(`/api/benutzer/${adminId}/passwort`).send({ passwort: NEUES });
     expect(antwort.status).toBe(403);
 
-    // Und das Passwort des Admins ist unveraendert.
+    // Und das Passwort des Admins ist unverändert.
     expect(
       (await request(app).post("/api/auth/anmelden").send({ email: ADMIN, passwort: TESTPASSWORT }))
         .status,

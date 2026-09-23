@@ -1,5 +1,5 @@
 /**
- * Aenderungsprotokoll.
+ * Änderungsprotokoll.
  *
  * Festgehalten wird, wer wann welchen Datensatz angelegt, geändert oder
  * gelöscht hat, mitsamt dem alten und dem neuen Wert. Bei Lohn- und

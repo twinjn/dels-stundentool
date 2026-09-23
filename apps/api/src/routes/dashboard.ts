@@ -6,7 +6,7 @@
  * WARUM HIER GERECHNET WIRD UND NICHT IM BROWSER: ein Jahr hat rund
  * 4000 Eintraege. Die alle zu schicken, damit der Browser daraus vier
  * Zahlen bildet, wäre genau die Langsamkeit, die am bisherigen Excel
- * stoert. Postgres summiert das in einer Abfrage.
+ * stört. Postgres summiert das in einer Abfrage.
  */
 import { and, asc, eq, gte, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { Router } from "express";
@@ -178,7 +178,7 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
             // Früher stand hier ein Vergleich gegen den Freitext
             // "Monatslohn" aus dem Excel. Seit es die Spalte lohnart
             // gibt, fragt man die, und ein Tippfehler im Freitext kann
-            // die Liste nicht mehr verfaelschen.
+            // die Liste nicht mehr verfälschen.
             eq(mitarbeiter.lohnart, "stunde"),
             or(isNull(mitarbeiter.stundenlohn), eq(mitarbeiter.stundenlohn, "0.00")),
           ),
@@ -187,9 +187,9 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
     : null;
 
   /*
-   * Ferienstand, nur Monatsloehner. Bei Stundenlohn sind die Ferien mit
+   * Ferienstand, nur Monatslöhner. Bei Stundenlohn sind die Ferien mit
    * jedem Lohn schon ausbezahlt, da gibt es weder etwas zu mahnen noch
-   * einen Saldo, der ins Minus laufen koennte.
+   * einen Saldo, der ins Minus laufen könnte.
    */
   const monatNr = Number(monat.slice(5, 7));
   const stand = (await ferienstand(Number(monat.slice(0, 4))))
@@ -202,7 +202,7 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
    * Früher stand hier ein direkter Vergleich "bezogene Tage gegen
    * Jahresanspruch", ohne Übertrag und ohne anteiligen Anspruch. Der
    * meldete jeden, der seine mitgenommenen Resttage aufbrauchte, als
-   * Ueberzug. Seit es die richtige Rechnung gibt, wären das zwei
+   * Überzug. Seit es die richtige Rechnung gibt, wären das zwei
    * widersprechende Zahlen auf einem Bildschirm, und dann glaubt man
    * keiner mehr.
    */
@@ -211,7 +211,7 @@ dashboardRouter.get("/", brauchtRecht("stunden:lesen"), async (req, res) => {
   /*
    * Ab Oktober: wer hat noch Ferientage offen.
    *
-   * Drei Monate Vorlauf, damit die Leute ihre Tage noch planen koennen.
+   * Drei Monate Vorlauf, damit die Leute ihre Tage noch planen können.
    * Vorher wäre es nur Rauschen: im März hat naturgemäss fast jeder
    * fast alles offen, und eine Warnung, die immer leuchtet, schaut nach
    * zwei Wochen niemand mehr an.

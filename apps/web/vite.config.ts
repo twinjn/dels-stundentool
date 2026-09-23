@@ -43,7 +43,7 @@ export default defineConfig({
    *
    * Auf der Ferienseite stand ein hochgerechneter Saldo von 96 Tagen
    * fett und unkommentiert da. Die Zahl war richtig gerechnet und die
-   * Anzeige trotzdem irrefuehrend.
+   * Anzeige trotzdem irreführend.
    *
    * Beides fällt nur auf, wenn jemand hinschaut. Genau das machen
    * diese Tests, nur automatisch.

@@ -2,7 +2,7 @@
  * Änderungsprotokoll: wer hat wann was angefasst.
  *
  * Da alle mit Zugang die kompletten Personendaten sehen, ist das die
- * Stelle, an der sich das nachvollziehen laesst. Es gibt bewusst keinen
+ * Stelle, an der sich das nachvollziehen lässt. Es gibt bewusst keinen
  * Knopf zum Löschen: ein Protokoll, das man bereinigen kann, beantwortet
  * die Frage nicht mehr, für die es da ist.
  */
@@ -31,7 +31,7 @@ type Antwort = {
 const AKTION_TEXT: Record<string, string> = {
   anlegen: "angelegt",
   aendern: "geaendert",
-  loeschen: "geloescht",
+  loeschen: "gelöscht",
   exportieren: "exportiert",
 };
 
@@ -118,8 +118,8 @@ export function ProtokollSeite() {
       </div>
 
       <p className="hinweis">
-        Jede Aenderung an Stammdaten und Kalkulation wird hier festgehalten, mit altem und neuem
-        Wert. Eintraege lassen sich nicht loeschen.
+        Jede Änderung an Stammdaten und Kalkulation wird hier festgehalten, mit altem und neuem
+        Wert. Einträge lassen sich nicht löschen.
       </p>
 
       <div className="filterzeile">
@@ -159,7 +159,7 @@ export function ProtokollSeite() {
           <option value="">alle Aktionen</option>
           <option value="anlegen">angelegt</option>
           <option value="aendern">geändert</option>
-          <option value="loeschen">gelöscht</option>
+          <option value="löschen">gelöscht</option>
           <option value="exportieren">exportiert</option>
         </select>
         <select
@@ -233,7 +233,7 @@ export function ProtokollSeite() {
                 disabled={antwort.seite <= 1}
                 onClick={() => setSeite((s) => s - 1)}
               >
-                zurueck
+                zurück
               </button>
               <button
                 className="knopf-leise"

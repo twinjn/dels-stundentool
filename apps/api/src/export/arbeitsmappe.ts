@@ -13,7 +13,7 @@
  * 2. Es wird .xlsx geschrieben, nicht .csv. Ein Name wie "=cmd|..."
  *    landet in einer xlsx-Datei als Text (Typ "s"), in einer CSV-Datei
  *    dagegen als Formel. Das ist nicht nur Kosmetik, das ist der
- *    Unterschied zwischen einer Tabelle und einer Sicherheitsluecke.
+ *    Unterschied zwischen einer Tabelle und einer Sicherheitslücke.
  *
  * Was SheetJS in der freien Fassung NICHT kann und wir deshalb auch
  * nicht anbieten: eingefrorene Kopfzeilen, Rahmen, Farben, Fettdruck.

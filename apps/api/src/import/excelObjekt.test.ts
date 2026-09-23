@@ -146,7 +146,7 @@ describe("Mehrere Objektdateien zusammenfuehren", () => {
     expect(summenNachrechnen(eintraege).get("1010|2026-02")?.arbeit).toBe(8);
   });
 
-  test("widerspruechliche Kürzel in zwei Dateien werden gemeldet", () => {
+  test("widersprüchliche Kürzel in zwei Dateien werden gemeldet", () => {
     const a = leseObjektblatt(
       baueObjektmappe([person("1010", "Person", { 5: "F" })], "10002"),
       "Februar",

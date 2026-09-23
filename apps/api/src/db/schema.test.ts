@@ -23,7 +23,7 @@ let objektId: string;
  * Drizzle verpackt den eigentlichen Datenbankfehler: die äussere Meldung
  * sagt nur "Failed query", der Grund mit dem Namen der verletzten Regel
  * steckt eine Ebene tiefer in "cause". Diese Funktion sammelt die ganze
- * Kette ein, damit Tests auf den echten Grund prüfen koennen.
+ * Kette ein, damit Tests auf den echten Grund prüfen können.
  */
 function fehlerkette(fehler: unknown): string {
   const teile: string[] = [];
@@ -111,7 +111,7 @@ describe("Regeln, die die Datenbank selbst durchsetzt", () => {
     expect(typeof eintrag?.wert).toBe("string");
   });
 
-  test("Sozialversicherungssaetze behalten sechs Nachkommastellen", async () => {
+  test("Sozialversicherungssätze behalten sechs Nachkommastellen", async () => {
     // db.execute liefert das Ergebnisobjekt des Postgres-Treibers,
     // die Datensätze stehen in .rows.
     const ergebnis = await db.execute<{ probe: string }>(

@@ -338,7 +338,7 @@ const [vorhanden] =
 if ((vorhanden?.anzahl ?? 0) > 0 && !ersetzen) {
   console.error(
     `\nIn diesem Zeitraum stehen bereits ${vorhanden?.anzahl} Eintraege in der Datenbank.` +
-      "\nEntweder die Monate einschraenken oder mit --ersetzen aufrufen." +
+      "\nEntweder die Monate einschränken oder mit --ersetzen aufrufen." +
       "\n--ersetzen löscht die vorhandenen Einträge dieser Monate zuerst.\n",
   );
   await datenbankSchliessen();

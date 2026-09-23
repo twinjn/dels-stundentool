@@ -29,7 +29,7 @@ describe("jahresanspruch", () => {
     expect(jahresanspruch(25, 2026, null, "2026-06-30")).toEqual({ tage: 12.5, anteilig: true });
   });
 
-  it("beruecksichtigt Ein- und Austritt im selben Jahr", () => {
+  it("berücksichtigt Ein- und Austritt im selben Jahr", () => {
     // 1.4. bis 30.9. sind 183 Tage: 12.53 -> 12.5.
     expect(jahresanspruch(25, 2026, "2026-04-01", "2026-09-30")).toEqual({
       tage: 12.5,

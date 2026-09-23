@@ -17,7 +17,7 @@ import { COOKIE_NAME, sitzungPruefen } from "./sitzung.js";
 /**
  * Liest das Cookie und hängt den Benutzer an die Anfrage, falls die
  * Sitzung gültig ist. Lehnt nichts ab, das machen die Wächter darunter.
- * Läuft für JEDE Anfrage, auch für oeffentliche.
+ * Läuft für JEDE Anfrage, auch für öffentliche.
  */
 export async function sitzungLesen(
   req: Request,

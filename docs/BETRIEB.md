@@ -188,7 +188,7 @@ eintraege                      3774       3774
 mitarbeiter                     144        144
 objekte                          35         35
 
-Prüfung bestanden: alle Tabellen vollständig zurueckgespielt.
+Prüfung bestanden: alle Tabellen vollständig zurückgespielt.
 ```
 
 ### Die Sicherungen gehören woanders hin

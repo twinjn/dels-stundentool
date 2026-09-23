@@ -104,7 +104,7 @@ export type ObjektErfassung = {
 };
 
 /**
- * Stunden und Lohnsumme je Objekt aus den erfassten Eintraegen.
+ * Stunden und Lohnsumme je Objekt aus den erfassten Einträgen.
  *
  * Ohne hinterlegten Stundenlohn zählt die Person zwar mit ihren Stunden,
  * steuert aber keinen Lohn bei. Das wird in der Ansicht als Warnung

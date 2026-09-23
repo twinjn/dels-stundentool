@@ -1,6 +1,6 @@
 /**
  * Tests für das Protokoll.
- * Schwerpunkt: es ist admin-Sache, und es lässt sich nicht veraendern.
+ * Schwerpunkt: es ist admin-Sache, und es lässt sich nicht verändern.
  */
 import { inArray, like } from "drizzle-orm";
 import request from "supertest";
@@ -63,7 +63,7 @@ describe("Inhalt", () => {
     expect(aenderung.nachher).toEqual({ ort: "Bern" });
   });
 
-  test("lässt sich nach Bereich und Aktion einschraenken", async () => {
+  test("lässt sich nach Bereich und Aktion einschränken", async () => {
     const klient = await anmelden(app, ADMIN);
 
     const nurAnlegen = await klient.get("/api/protokoll?aktion=anlegen&tage=1");
@@ -78,7 +78,7 @@ describe("Inhalt", () => {
     ).toBe(true);
   });
 
-  test("es gibt keinen Weg, Protokolleintraege zu ändern oder zu löschen", async () => {
+  test("es gibt keinen Weg, Protokolleinträge zu ändern oder zu löschen", async () => {
     const klient = await anmelden(app, ADMIN);
     const { body } = await klient.get("/api/protokoll?tage=1");
     const ersteId = body.zeilen[0]?.id;

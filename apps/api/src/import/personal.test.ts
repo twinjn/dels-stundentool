@@ -42,7 +42,7 @@ describe("Personalstamm lesen", () => {
 
     expect(warnungen).toEqual([]);
     expect(zeilen).toHaveLength(1);
-    // "Nachname Vorname", genau wie in den Monatsblaettern.
+    // "Nachname Vorname", genau wie in den Monatsblättern.
     expect(zeilen[0]?.name).toBe("Muster Anna");
   });
 
@@ -86,7 +86,7 @@ describe("Personalstamm lesen", () => {
     expect(warnungen[0]).toMatch(/keinen Namen/);
   });
 
-  test("eine doppelte Personalnummer wird gemeldet, nicht still ueberschrieben", () => {
+  test("eine doppelte Personalnummer wird gemeldet, nicht still überschrieben", () => {
     const mappe = baueMappe([
       zeile({ 0: "1001", 2: "Aktiv", 4: "Erste", 5: "Person" }),
       zeile({ 0: "1001", 2: "Aktiv", 4: "Zweite", 5: "Person" }),
@@ -131,7 +131,7 @@ describe("Excel-Datumswerte", () => {
     expect(excelDatum(9_000_000)).toBeNull(); // weit im Jahr 26'000
 
     // Die Grenze liegt beim Jahr 1900, nicht bei "plausibles Geburtsjahr".
-    // Sie fängt Streuwerte ab, ersetzt aber keine Fachpruefung.
+    // Sie fängt Streuwerte ab, ersetzt aber keine Fachprüfung.
     expect(excelDatum(50)).toBe("1900-02-18");
   });
 

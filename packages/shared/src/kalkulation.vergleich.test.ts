@@ -8,7 +8,7 @@
  *
  * Verglichen wird auf exakte Gleichheit, nicht auf "ungefähr". Die
  * Portierung hält die Reihenfolge der Rechenschritte ein, also müssen
- * auch die letzten Stellen uebereinstimmen. Sobald hier ein Rappen
+ * auch die letzten Stellen übereinstimmen. Sobald hier ein Rappen
  * abweicht, wurde beim Umbau etwas umgestellt.
  *
  * Der Test fällt weg, sobald legacy/ gelöscht wird. Genau dann wird er

@@ -13,9 +13,9 @@ export function cookieOptionen(): CookieOptions {
     httpOnly: true,
 
     // sameSite "lax": das Cookie wird nicht mitgeschickt, wenn eine fremde
-    // Website eine Anfrage an uns ausloest. Das ist unser Hauptschutz gegen
+    // Website eine Anfrage an uns auslöst. Das ist unser Hauptschutz gegen
     // Cross-Site-Request-Forgery, also dagegen, dass eine präparierte Seite
-    // im Namen eines angemeldeten Benutzers Daten aendert.
+    // im Namen eines angemeldeten Benutzers Daten ändert.
     sameSite: "lax",
 
     // secure: nur über HTTPS. Lokal läuft die Entwicklung über http,
