@@ -1532,3 +1532,15 @@ button:focus-visible {
 .formularfuss-gefahr {
   margin-right: auto;
 }
+
+/* Eine Ergebniskachel, deren Basis unvollstaendig ist. Bewusst ohne
+   Gruen oder Rot: eine Farbe waere eine Bewertung, und bewerten kann man
+   erst, wenn die Erfassung steht. Gleiche Regel wie bei einem
+   Ferien-Saldo ohne Stichtag. */
+.kachel.kachel-unsicher .kachel-wert {
+  color: var(--farbe-gedaempft);
+}
+
+.kachel.kachel-unsicher .kachel-hinweis {
+  color: var(--farbe-orange-text);
+}

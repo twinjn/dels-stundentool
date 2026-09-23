@@ -113,6 +113,23 @@ export function KalkulationSeite() {
     });
   }, [daten]);
 
+  /**
+   * Steht das Monatsergebnis auf vollstaendiger Erfassung?
+   *
+   * Zwei Luecken machen es unzuverlaessig, und beide ziehen es in
+   * dieselbe Richtung, naemlich zu gut:
+   *
+   *   - Objekte ohne Stunden bringen ihr Abo in den Umsatz, ohne dass
+   *     Lohnkosten dagegenstehen
+   *   - Personen mit Stunden, aber ohne hinterlegten Stundenlohn, zaehlen
+   *     mit null Franken Lohnaufwand mit
+   *
+   * Beides ist im laufenden Monat der Normalfall und kein Fehler. Nur
+   * darf das Ergebnis dann nicht so aussehen, als waere es eines.
+   */
+  const basisUnvollstaendig =
+    ergebnis !== null && (ergebnis.res.ohneStd > 0 || (ergebnis.t.ohneLohnsatz ?? 0) > 0);
+
   async function speichern(pfad: string, rumpf: unknown, oertlich: () => void) {
     // Erst lokal uebernehmen, damit die Zahlen sofort stimmen, dann sichern.
     oertlich();
@@ -232,6 +249,27 @@ export function KalkulationSeite() {
 
       {daten && ergebnis && (
         <>
+          {/*
+            Die Warnungen stehen VOR den Kacheln, nicht darunter.
+            Vorher war es umgekehrt, und das las sich falsch herum: erst
+            ein Ergebnis in grossen gruenen Ziffern, darunter kleingedruckt
+            der Grund, warum man ihm nicht trauen darf. Wer von oben nach
+            unten liest, hat die Zahl dann schon geglaubt.
+          */}
+          {(ergebnis.t.ohneLohnsatz ?? 0) > 0 && (
+            <p className="warnhinweis">
+              {ergebnis.t.ohneLohnsatz} Person(en) haben Stunden erfasst, aber keinen Stundenlohn
+              hinterlegt. Deren Lohnaufwand fehlt in dieser Rechnung, das Ergebnis ist also zu gut.
+            </p>
+          )}
+          {ergebnis.res.ohneStd > 0 && (
+            <p className="warnhinweis">
+              {ergebnis.res.ohneStd} von {ergebnis.obj.length} Objekt(en) haben keine Stunden. Ihr
+              Abo von {chf0(ergebnis.res.abosOhneGew)} steht im Umsatz, ohne dass Lohnkosten
+              dagegenstehen. Solange die Erfassung fehlt, ist die Marge zu hoch.
+            </p>
+          )}
+
           <div className="kacheln">
             <Kachel titel="Abos" wert={chf0(ergebnis.t.abos ?? 0)} hinweis="nur aktive Objekte" />
             <Kachel titel="Lohn inkl. Sozialabgaben" wert={chf0(ergebnis.t.lohnSzAlle ?? 0)} />
@@ -241,25 +279,29 @@ export function KalkulationSeite() {
               hinweis="Abos minus Lohnkosten"
             />
             <Kachel titel="Administration" wert={chf0(ergebnis.res.adminTopf)} />
-            <div className={`kachel kachel-gross ${vorzeichen(ergebnis.res.ergebnis)}`}>
+            {/*
+              Solange Stunden fehlen, bekommt das Ergebnis KEINE Farbe.
+              Gruen heisst "gut gelaufen", und das waere hier eine Aussage
+              ueber einen Monat, von dem die Haelfte noch gar nicht erfasst
+              ist. Dieselbe Regel gilt auf der Ferienseite fuer einen Saldo
+              ohne Stichtag: die Zahl steht da, aber nicht als Tatsache.
+            */}
+            <div
+              className={
+                basisUnvollstaendig
+                  ? "kachel kachel-gross kachel-unsicher"
+                  : `kachel kachel-gross ${vorzeichen(ergebnis.res.ergebnis)}`
+              }
+            >
               <span className="kachel-titel">Ergebnis</span>
               <span className="kachel-wert">{chf0(ergebnis.res.ergebnis)}</span>
-              <span className="kachel-hinweis">Marge {pct(ergebnis.res.marge)}</span>
+              <span className="kachel-hinweis">
+                {basisUnvollstaendig
+                  ? `Marge ${pct(ergebnis.res.marge)}, aber auf unvollständiger Erfassung`
+                  : `Marge ${pct(ergebnis.res.marge)}`}
+              </span>
             </div>
           </div>
-
-          {(ergebnis.t.ohneLohnsatz ?? 0) > 0 && (
-            <p className="warnhinweis">
-              {ergebnis.t.ohneLohnsatz} Person(en) haben Stunden erfasst, aber keinen Stundenlohn
-              hinterlegt. Deren Lohnaufwand fehlt in dieser Rechnung.
-            </p>
-          )}
-          {ergebnis.res.ohneStd > 0 && (
-            <p className="warnhinweis">
-              {ergebnis.res.ohneStd} Objekt(e) ohne Stunden. Ihr Abo von{" "}
-              {chf0(ergebnis.res.abosOhneGew)} steht im Umsatz, ergibt aber keinen Gewinnbeitrag.
-            </p>
-          )}
 
           <details
             className="ansaetze"
