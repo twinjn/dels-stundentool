@@ -45,7 +45,10 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, 1130)
   where objekt_nr = '10004';
 update objekte set
-    name        = case when name = 'Objekt 10006' then 'Bäckerei-Konditorei Reppischtalstrasse' else name end,
+    name        = case
+                    when name = 'Objekt 10006' then 'Bäckerei-Konditorei Reppischtalstrasse'
+                    when name = 'Baeckerei-Konditorei Reppischtalstrasse' then 'Bäckerei-Konditorei Reppischtalstrasse'
+                    else name end,
     strasse     = coalesce(strasse, null),
     plz         = coalesce(plz,     null),
     ort         = coalesce(ort,     null),
@@ -53,7 +56,10 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, 1750)
   where objekt_nr = '10006';
 update objekte set
-    name        = case when name = 'Objekt 10007' then 'Bäckerei-Konditorei Zürcherstrasse' else name end,
+    name        = case
+                    when name = 'Objekt 10007' then 'Bäckerei-Konditorei Zürcherstrasse'
+                    when name = 'Baeckerei-Konditorei Zuercherstrasse' then 'Bäckerei-Konditorei Zürcherstrasse'
+                    else name end,
     strasse     = coalesce(strasse, null),
     plz         = coalesce(plz,     null),
     ort         = coalesce(ort,     null),
@@ -77,7 +83,10 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, 1222)
   where objekt_nr = '10009';
 update objekte set
-    name        = case when name = 'Objekt 10013' then 'Büro 2. OG Gerbegasse' else name end,
+    name        = case
+                    when name = 'Objekt 10013' then 'Büro 2. OG Gerbegasse'
+                    when name = 'Buero 2. OG Gerbegasse' then 'Büro 2. OG Gerbegasse'
+                    else name end,
     strasse     = coalesce(strasse, null),
     plz         = coalesce(plz,     null),
     ort         = coalesce(ort,     null),
@@ -197,7 +206,10 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, 420)
   where objekt_nr = '10032';
 update objekte set
-    name        = case when name = 'Objekt 10029' then 'LS Schürbunertweg' else name end,
+    name        = case
+                    when name = 'Objekt 10029' then 'LS Schürbunertweg'
+                    when name = 'LS Schuerbunertweg' then 'LS Schürbunertweg'
+                    else name end,
     strasse     = coalesce(strasse, null),
     plz         = coalesce(plz,     null),
     ort         = coalesce(ort,     null),
@@ -229,7 +241,10 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, 325)
   where objekt_nr = '10021';
 update objekte set
-    name        = case when name = 'Objekt 10023' then 'Apartment + Aufenthaltsraum Chäsernweg' else name end,
+    name        = case
+                    when name = 'Objekt 10023' then 'Apartment + Aufenthaltsraum Chäsernweg'
+                    when name = 'Apartment + Aufenthaltsraum Chaesernweg' then 'Apartment + Aufenthaltsraum Chäsernweg'
+                    else name end,
     strasse     = coalesce(strasse, 'Chäsernweg 22, 24'),
     plz         = coalesce(plz,     '8302'),
     ort         = coalesce(ort,     'Kloten'),
@@ -237,7 +252,10 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, null)
   where objekt_nr = '10023';
 update objekte set
-    name        = case when name = 'Objekt 10002' then 'Burgring ZüriOberland Geschäftshaus' else name end,
+    name        = case
+                    when name = 'Objekt 10002' then 'Burgring ZüriOberland Geschäftshaus'
+                    when name = 'Burgring ZueriOberland Geschaeftshaus' then 'Burgring ZüriOberland Geschäftshaus'
+                    else name end,
     strasse     = coalesce(strasse, 'Bahnhofstr. 63'),
     plz         = coalesce(plz,     '8620'),
     ort         = coalesce(ort,     'Wetzikon'),
@@ -269,7 +287,10 @@ update objekte set
     abo_betrag  = coalesce(abo_betrag, null)
   where objekt_nr = '10031';
 update objekte set
-    name        = case when name = 'Objekt 10005' then 'Bäckerei-Konditorei Birmensdorf' else name end,
+    name        = case
+                    when name = 'Objekt 10005' then 'Bäckerei-Konditorei Birmensdorf'
+                    when name = 'Baeckerei-Konditorei Birmensdorf' then 'Bäckerei-Konditorei Birmensdorf'
+                    else name end,
     strasse     = coalesce(strasse, 'Zürcherstrasse 11'),
     plz         = coalesce(plz,     '8903'),
     ort         = coalesce(ort,     'Birmensdorf'),
