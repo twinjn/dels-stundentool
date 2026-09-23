@@ -178,6 +178,33 @@ function alsBezeichner(name: string): string {
   return `"${name}"`;
 }
 
+/**
+ * Die Tabellen, die --leeren wegraeumt, in EINER truncate-Anweisung.
+ *
+ * ferien_uebertrag steht mit drin, obwohl der Import sie nie fuellt:
+ * Postgres verweigert ein truncate auf eine Tabelle, auf die ein
+ * Fremdschluessel zeigt, unabhaengig davon, ob dort Zeilen stehen.
+ *
+ * Bewusst kein CASCADE. Das wuerde jede kuenftige Tabelle stillschweigend
+ * mitleeren, auch eine, die jemand gerade erst angelegt hat und die
+ * wertvolle Daten haelt. Lieber bricht der Import ab und jemand schaut
+ * hin. Damit das nicht erst im Ernstfall auffaellt, gibt es dazu einen
+ * Test, der die Anweisung wirklich ausfuehrt und zurueckrollt.
+ *
+ * NICHT geleert werden benutzer, sitzungen und protokoll: Konten und
+ * Spuren ueberleben einen erneuten Import.
+ */
+export const ZU_LEEREN = [
+  "eintraege",
+  "ferien_uebertrag",
+  "kalk_person_monat",
+  "kalk_objekt_monat",
+  "kalk_adminkosten",
+  "kalk_monat",
+  "objekte",
+  "mitarbeiter",
+] as const;
+
 /** Zaehlt, was in der Zieldatenbank schon vorhanden ist. */
 export async function zielBestand(ziel: Pool): Promise<ImportBericht> {
   const bericht: ImportBericht = {};

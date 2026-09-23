@@ -8,7 +8,7 @@
  * SUPABASE_DATABASE_URL in der .env. Sie steht NICHT im Repository.
  */
 import { erstellePool, datenbankSchliessen, pool } from "./index.js";
-import { importiere, zielBestand } from "./import.js";
+import { ZU_LEEREN, importiere, zielBestand } from "./import.js";
 
 const quellUrl = process.env.SUPABASE_DATABASE_URL;
 
@@ -51,11 +51,8 @@ try {
 
   if (leeren) {
     console.log("Leere die Zieltabellen ...");
-    // Alle in EINER Anweisung, sonst stehen die Fremdschluessel im Weg.
-    await pool.query(`truncate table
-      eintraege, kalk_person_monat, kalk_objekt_monat, kalk_adminkosten,
-      kalk_monat, objekte, mitarbeiter
-      restart identity`);
+    // Welche Tabellen und warum: siehe ZU_LEEREN in import.ts.
+    await pool.query(`truncate table ${ZU_LEEREN.join(", ")} restart identity`);
   }
 
   console.log("Importiere ...");
