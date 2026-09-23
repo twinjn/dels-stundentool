@@ -196,7 +196,7 @@ export const objekte = pgTable("objekte", {
   strasse: text("strasse"),
   plz: text("plz"),
   ort: text("ort"),
-  /** Standardpreis pro Monat. Pro Monat ueberschreibbar. */
+  /** Standardpreis pro Monat. Pro Monat überschreibbar. */
   aboBetrag: geld("abo_betrag"),
   aktiv: boolean("aktiv").notNull().default(true),
   notizen: text("notizen"),
@@ -290,6 +290,23 @@ export const kalkMonat = pgTable("kalk_monat", {
   adminReserve: satz("admin_reserve").notNull().default("0.10"),
 
   notiz: text("notiz"),
+
+  /**
+   * Gesetzt, sobald der Monat als erledigt gilt. Ab da nimmt die API
+   * keine Änderungen mehr an diesem Monat an.
+   *
+   * Der Grund ist nicht Misstrauen, sondern Nachvollziehbarkeit: die
+   * Zahlen, die einmal an den Treuhänder gegangen sind, müssen sich
+   * später wieder genau so herstellen lassen. Ein Monat, den jemand
+   * still nachbessert, ist keine Grundlage mehr für irgendetwas.
+   *
+   * Wieder aufmachen geht, aber nur mit dem Recht dazu und mit einer
+   * Spur im Protokoll.
+   */
+  abgeschlossenAm: timestamp("abgeschlossen_am", { withTimezone: true }),
+  /** Klartextname, bleibt auch erhalten, wenn das Konto verschwindet. */
+  abgeschlossenVon: text("abgeschlossen_von"),
+
   erstelltAm,
 });
 
@@ -392,6 +409,43 @@ export const ferienUebertrag = pgTable(
     uniqueIndex("ferien_uebertrag_person_jahr_idx").on(t.mitarbeiterId, t.jahr),
     // Ein Übertrag von 3000 Tagen ist ein Tippfehler, kein Sonderfall.
     check("ferien_uebertrag_tage_grenzen", sql`${t.tage} between -100 and 100`),
+  ],
+);
+
+/**
+ * Abo-Preise eines Objekts mit Gültigkeitsdatum.
+ *
+ * Warum nicht einfach ein Betrag am Objekt: der Preis ändert sich, die
+ * Vergangenheit nicht. Steht nur ein Wert am Objekt, dann verschiebt
+ * eine Preiserhöhung im Oktober rückwirkend auch den Februar, sobald
+ * jemand den Monat neu anlegt oder abgleicht.
+ *
+ * Hier steht deshalb, ab wann welcher Preis gilt. Ein neuer
+ * Kalkulationsmonat nimmt den Preis, der an seinem Ersten gültig war.
+ *
+ * objekte.aboBetrag bleibt als aktueller Preis bestehen und wird aus
+ * dieser Tabelle nachgeführt. Doppelt gehalten, aber die eine Seite ist
+ * eindeutig die Quelle: diese hier.
+ */
+export const objektAbo = pgTable(
+  "objekt_abo",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    objektId: uuid("objekt_id")
+      .notNull()
+      .references(() => objekte.id, { onDelete: "cascade" }),
+    /** Ab diesem Tag gilt der Betrag, bis ihn ein späterer ablöst. */
+    gueltigAb: date("gueltig_ab").notNull(),
+    betrag: geld("betrag").notNull(),
+    bemerkung: text("bemerkung"),
+    erfasstVon: text("erfasst_von"),
+    erstelltAm,
+  },
+  (t) => [
+    // Zwei Preise am selben Tag für dasselbe Objekt wären nicht
+    // entscheidbar. Wer korrigieren will, ändert den vorhandenen.
+    uniqueIndex("objekt_abo_objekt_tag_idx").on(t.objektId, t.gueltigAb),
+    index("objekt_abo_objekt_idx").on(t.objektId, t.gueltigAb),
   ],
 );
 

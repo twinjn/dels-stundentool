@@ -29,6 +29,20 @@
       "when": 1790150351565,
       "tag": "0003_minor_wraith",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790173303287,
+      "tag": "0004_tearful_menace",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790173569898,
+      "tag": "0005_sturdy_the_hunter",
+      "breakpoints": true
     }
   ]
 }

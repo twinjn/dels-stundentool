@@ -46,6 +46,8 @@ const ANSAETZE = {
   trsSchluessel: "abos" as const,
   adminReserve: "0",
   notiz: null,
+  abgeschlossenAm: null,
+  abgeschlossenVon: null,
 };
 
 const OBJEKT = {
@@ -82,11 +84,25 @@ function monatsdaten(teil: Record<string, unknown> = {}) {
   };
 }
 
-/** Antwortet je nach Pfad: erst die Monatsliste, dann der Monat. */
-function antworten(daten: Record<string, unknown>) {
+/**
+ * Antwortet je nach Pfad: Monatsliste, Monat, Abgleich.
+ *
+ * Der Abgleich wird beim Laden des Monats gleich mitgeholt, deshalb
+ * muss die Attrappe ihn kennen. Ohne eigenen Zweig bekäme sie die
+ * Monatsdaten auch auf /abgleich zurück, und die Seite stürzte an
+ * einer Stelle ab, die mit dem geprüften Verhalten nichts zu tun hat.
+ */
+function antworten(daten: Record<string, unknown>, unterschiede: unknown[] = []) {
   vi.spyOn(api, "get").mockImplementation((pfad: string) => {
     if (pfad === "/kalkulation/monate") {
       return Promise.resolve([{ monat: "2026-09-01", notiz: null }] as never);
+    }
+    if (pfad.endsWith("/abgleich")) {
+      return Promise.resolve({
+        monat: "2026-09-01",
+        abgeschlossen: false,
+        unterschiede,
+      } as never);
     }
     return Promise.resolve(daten as never);
   });
@@ -164,7 +180,7 @@ describe("Vollständig erfasster Monat", () => {
     expect(screen.queryByText(/keine Stunden/i)).not.toBeInTheDocument();
   });
 
-  test("faerbt das Ergebnis wieder ein", async () => {
+  test("färbt das Ergebnis wieder ein", async () => {
     rendereAngemeldet(<KalkulationSeite />);
     const kachel = await ergebniskachel();
 
@@ -174,7 +190,7 @@ describe("Vollständig erfasster Monat", () => {
 });
 
 describe("Person mit Stunden, aber ohne Stundenlohn", () => {
-  test("zählt als unvollstaendige Basis", async () => {
+  test("zählt als unvollständige Basis", async () => {
     /*
      * Der zweite Weg, auf dem das Ergebnis zu gut wird: wer Stunden
      * erfasst hat, aber keinen hinterlegten Lohn, fällt mit null Franken
@@ -199,5 +215,110 @@ describe("Person mit Stunden, aber ohne Stundenlohn", () => {
 
     expect(await screen.findByText(/keinen Stundenlohn hinterlegt/i)).toBeInTheDocument();
     expect(await ergebniskachel()).toHaveClass("kachel-unsicher");
+  });
+});
+
+describe("Abgeschlossener Monat", () => {
+  test("zeigt das Band, sperrt die Felder und bietet das Öffnen an", async () => {
+    antworten(
+      monatsdaten({
+        ansaetze: {
+          ...ANSAETZE,
+          abgeschlossenAm: "2026-10-05T08:00:00.000Z",
+          abgeschlossenVon: "Twin",
+        },
+      }),
+    );
+
+    rendereAngemeldet(<KalkulationSeite />);
+
+    expect(await screen.findByText(/ist abgeschlossen/i)).toBeInTheDocument();
+    expect(screen.getByText(/Twin/)).toBeInTheDocument();
+
+    // Der Knopf bietet das Gegenteil an, nicht noch einmal dasselbe.
+    expect(screen.getByRole("button", { name: /Wieder öffnen/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Monat abschliessen/i })).toBeNull();
+
+    // Das Abo-Feld nimmt nichts mehr an.
+    const felder = document.querySelectorAll<HTMLInputElement>("input.wertfeld");
+    expect(felder.length).toBeGreaterThan(0);
+    for (const feld of felder) expect(feld.readOnly).toBe(true);
+
+    // Der Haken für "aktiv" ebenso.
+    const haken = screen.getByLabelText(/Objekt Eins aktiv/i) as HTMLInputElement;
+    expect(haken.disabled).toBe(true);
+  });
+
+  test("ein offener Monat zeigt den Abschluss-Knopf und offene Felder", async () => {
+    antworten(monatsdaten());
+    rendereAngemeldet(<KalkulationSeite />);
+
+    expect(await screen.findByRole("button", { name: /Monat abschliessen/i })).toBeInTheDocument();
+    expect(screen.queryByText(/ist abgeschlossen/i)).toBeNull();
+
+    const haken = screen.getByLabelText(/Objekt Eins aktiv/i) as HTMLInputElement;
+    expect(haken.disabled).toBe(false);
+  });
+});
+
+describe("Abgleich", () => {
+  test("kein Unterschied, kein Kasten", async () => {
+    antworten(monatsdaten());
+    const { container } = rendereAngemeldet(<KalkulationSeite />);
+    await screen.findByText(/^Ergebnis$/);
+    expect(container.querySelector(".abgleich")).toBeNull();
+  });
+
+  test("Unterschiede stehen über den Kacheln und sind vorgewählt", async () => {
+    antworten(monatsdaten(), [
+      {
+        art: "objekt_fehlt",
+        objektId: "o2",
+        objektNr: "10002",
+        name: "Objekt Zwei",
+        abo: "450.00",
+        stunden: 0,
+      },
+    ]);
+
+    const { container } = rendereAngemeldet(<KalkulationSeite />);
+
+    const kasten = await screen.findByText(/1 Unterschied\(e\)/);
+    expect(kasten).toBeInTheDocument();
+
+    // Gleiche Regel wie bei den Warnungen: erst der Vorbehalt, dann
+    // die grosse Zahl.
+    const kacheln = container.querySelector(".kacheln")!;
+    const stellung = kasten.compareDocumentPosition(kacheln);
+    expect(stellung & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    const haken = screen.getByLabelText(/Objekt Zwei übernehmen/i) as HTMLInputElement;
+    expect(haken.checked).toBe(true);
+    expect(screen.getByRole("button", { name: /1 Punkt\(e\) übernehmen/i })).toBeInTheDocument();
+  });
+
+  test("bei abgeschlossenem Monat ist der Kasten nur noch Information", async () => {
+    antworten(
+      monatsdaten({
+        ansaetze: { ...ANSAETZE, abgeschlossenAm: "2026-10-05T08:00:00.000Z" },
+      }),
+      [
+        {
+          art: "abo_weicht_ab",
+          objektId: "o1",
+          objektNr: "10001",
+          name: "Objekt Eins",
+          imMonat: "1000.00",
+          lautStammdaten: "1100.00",
+        },
+      ],
+    );
+
+    rendereAngemeldet(<KalkulationSeite />);
+
+    await screen.findByText(/1 Unterschied\(e\)/);
+    const haken = screen.getByLabelText(/Objekt Eins übernehmen/i) as HTMLInputElement;
+    expect(haken.disabled).toBe(true);
+    expect(screen.queryByRole("button", { name: /übernehmen$/i })).toBeNull();
   });
 });

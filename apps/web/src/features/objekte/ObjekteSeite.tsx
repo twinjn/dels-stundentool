@@ -9,6 +9,7 @@ import { ApiFehler, api } from "../../api/client.js";
 import { useAuth } from "../../app/AuthKontext.js";
 import { useListe } from "../../app/useListe.js";
 import { Feld, Feldgruppe, Kontrollkaestchen } from "../../components/Feld.js";
+import { Preisverlauf } from "./Preisverlauf.js";
 
 export type Objekt = {
   id: string;
@@ -311,13 +312,29 @@ function ObjektFormular({
         />
       </Feldgruppe>
 
+      {vorhanden && (
+        <Preisverlauf
+          objektId={vorhanden.id}
+          darfSchreiben={darfSchreiben}
+          // Ein neuer Preis kann den heute gültigen Betrag verändern.
+          // Das Feld oben zeigt genau diesen Betrag, also wird es
+          // nachgeführt, statt eine veraltete Zahl stehen zu lassen.
+          onGeaendert={() => {
+            void api
+              .get<Objekt>(`/objekte/${vorhanden.id}`)
+              .then((frisch) => setze("aboBetrag", frisch.aboBetrag ?? ""))
+              .catch(() => undefined);
+          }}
+        />
+      )}
+
       <div className="formularfuss">
         <button type="button" className="knopf-leise" onClick={onAbbrechen}>
           Schliessen
         </button>
         {darfSchreiben && vorhanden && (
           <button type="button" className="knopf-gefahr" onClick={() => void loeschen()}>
-            Loeschen
+            Löschen
           </button>
         )}
         {darfSchreiben && (

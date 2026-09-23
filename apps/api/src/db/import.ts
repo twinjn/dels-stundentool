@@ -189,7 +189,7 @@ function alsBezeichner(name: string): string {
  * mitleeren, auch eine, die jemand gerade erst angelegt hat und die
  * wertvolle Daten haelt. Lieber bricht der Import ab und jemand schaut
  * hin. Damit das nicht erst im Ernstfall auffällt, gibt es dazu einen
- * Test, der die Anweisung wirklich ausführt und zurueckrollt.
+ * Test, der die Anweisung wirklich ausführt und zurückrollt.
  *
  * NICHT geleert werden benutzer, sitzungen und protokoll: Konten und
  * Spuren überleben einen erneuten Import.
@@ -201,6 +201,7 @@ export const ZU_LEEREN = [
   "kalk_objekt_monat",
   "kalk_adminkosten",
   "kalk_monat",
+  "objekt_abo",
   "objekte",
   "mitarbeiter",
 ] as const;
@@ -248,7 +249,7 @@ export async function importiere(
         continue;
       }
 
-      // Alle Zeilen einer Tabelle in EINER Anweisung einfuegen. 400 einzelne
+      // Alle Zeilen einer Tabelle in EINER Anweisung einfügen. 400 einzelne
       // Anweisungen wären nicht falsch, aber unnötig langsam.
       const werte: unknown[] = [];
       const platzhalter = rows.map((zeile: Record<string, unknown>) => {

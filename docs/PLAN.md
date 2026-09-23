@@ -118,6 +118,49 @@ Wer das später enger fassen will: eine dritte Rolle, die Stunden erfassen
 darf, aber keine Personendaten sieht, ist in `rollen.ts` eine Zeile plus
 ein zweiter Spaltensatz neben `OHNE_LOHN` in `routes/mitarbeiter.ts`.
 
+## Kalkulation und Stammdaten: wie sie zusammenhängen
+
+Eine Frage, die beim Aufbau lange offen lag: wenn jemand bei einem Objekt
+ein neues Abo einträgt, soll das automatisch in der Kalkulation landen?
+
+Die Antwort ist nein, und zwar aus einem Grund, der beim ersten Hinsehen
+nicht auffällt. Ein Kalkulationsmonat ist eine Aufzeichnung, kein
+Live-Bericht. Stunden und Stundenlöhne holt die Rechnung bei jedem
+Öffnen frisch, die sind immer aktuell. Der Abo-Betrag dagegen steht fest
+im Monat. Käme er live aus den Stammdaten, würde jede Preiserhöhung
+still sämtliche Vergangenheit umschreiben, und die Zahlen, die letzten
+Monat beim Treuhänder auf dem Tisch lagen, liessen sich nicht mehr
+herstellen. Genau dieser Fehler steckte im alten Excel.
+
+Gleichzeitig darf eine Abweichung nicht unsichtbar bleiben. Ein Objekt,
+das nach dem Anlegen des Monats dazukam, fehlt in der Rechnung
+vollständig, und niemand merkt es: es taucht in keiner Warnung auf, weil
+es schlicht nicht da ist.
+
+Daraus sind drei Bausteine geworden, die zusammen arbeiten:
+
+**Preis-Historie** (`objekt_abo`). Nicht ein Preis je Objekt, sondern ein
+Preis ab einem Datum. `objekte.abo_betrag` ist nur noch die Anzeige
+davon, nämlich der Preis, der heute gilt; geschrieben wird er
+ausschliesslich aus der Historie heraus. Ein neu angelegter
+Kalkulationsmonat nimmt den Preis, der am Ersten jenes Monats galt. Eine
+Erhöhung per 1. Juli verändert den Juni damit nicht mehr, und der Juli
+bekommt sie automatisch, auch wenn ihn jemand erst im Herbst anlegt.
+
+**Abgleich** (`kalkulation/abgleich.ts`). Zeigt beim Öffnen eines Monats,
+was zwischen Stammdaten und Monat auseinanderläuft: fehlende Objekte,
+abweichende Abos, im Stammblatt stillgelegte Objekte, die im Monat noch
+mitzählen, und Personen mit erfassten Stunden ohne Zeile in der
+Personalliste. Übernommen wird auf Knopfdruck und nur, was angehakt ist.
+Der Server rechnet den Bericht beim Übernehmen neu und nimmt vom Browser
+nur die Auswahl entgegen, nie einen Betrag.
+
+**Monatsabschluss** (`kalk_monat.abgeschlossen_am`). Ein abgeschlossener
+Monat nimmt keine Änderungen mehr an, durchgesetzt von einer Middleware
+vor allen schreibenden Routen, nicht von einer Zeile in jeder einzelnen.
+Wieder aufmachen geht, verlangt aber das Recht `kalkulation:schreiben`
+und eine Begründung, die ins Protokoll wandert.
+
 ## Regeln für dieses Projekt
 
 1. **Die API prüft, der Browser verschönert.** Kein Recht wird allein

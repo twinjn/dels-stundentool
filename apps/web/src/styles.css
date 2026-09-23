@@ -2,8 +2,8 @@
  * Basis-Stile. Das richtige Design kommt in Phase 3, wenn die erste echte
  * Seite steht. Hier nur so viel, dass die Statusseite lesbar ist.
  *
- * Farben und Abstaende liegen als Variablen ganz oben. So aendert man
- * spaeter an EINER Stelle, statt 200 Zeilen zu durchsuchen.
+ * Farben und Abstände liegen als Variablen ganz oben. So ändert man
+ * später an EINER Stelle, statt 200 Zeilen zu durchsuchen.
  */
 :root {
   /* --- DELS Hausfarben ------------------------------------------------
@@ -660,7 +660,7 @@ button:focus-visible {
     flex-wrap: wrap;
   }
 
-  /* Auf dem Handy darf das Logo nicht das halbe Bild fuellen: die
+  /* Auf dem Handy darf das Logo nicht das halbe Bild füllen: die
      Navigation und die erste Tabellenzeile sollen ohne Scrollen sichtbar
      sein. Deshalb links ausgerichtet und in der Breite begrenzt. */
   .marke {
@@ -717,7 +717,7 @@ button:focus-visible {
  */
 /*
  * min-width: 0 ist hier kein Zierrat. In einem Grid- oder Flex-Container
- * ist die kleinste Breite eines Kindes standardmaessig sein INHALT. Eine
+ * ist die kleinste Breite eines Kindes standardmässig sein INHALT. Eine
  * Tabelle mit 31 Spalten sprengt damit das Raster, und statt der Tabelle
  * scrollt die ganze Seite seitlich. Genau das ist am Handy passiert.
  */
@@ -925,6 +925,158 @@ button:focus-visible {
   color: var(--farbe-rot);
 }
 
+/* --- Preisverlauf ---------------------------------------------------- */
+
+.preisverlauf {
+  margin: var(--abstand-3) 0;
+  padding: var(--abstand-3);
+  background: var(--farbe-hintergrund);
+  border: 1px solid var(--farbe-linie);
+  border-radius: var(--radius);
+}
+
+.preisverlauf summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.preisliste {
+  margin: var(--abstand-2) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.preisliste li {
+  padding: var(--abstand-2) 0;
+  border-bottom: 1px solid var(--farbe-linie);
+}
+
+.preisliste li:last-child {
+  border-bottom: none;
+}
+
+.preiskopf {
+  display: flex;
+  gap: var(--abstand-2);
+  align-items: baseline;
+}
+
+.preisdatum {
+  flex: 1 1 auto;
+}
+
+.preisbetrag {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* Ein Preis, der erst später greift, ist noch keine Tatsache. Er steht
+   in der Liste, aber blasser, damit niemand ihn für den heutigen hält. */
+.preisliste li.kuenftig {
+  color: var(--farbe-gedaempft);
+}
+
+.preisliste li.kuenftig .preisbetrag {
+  font-weight: 400;
+}
+
+.preiszeile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--abstand-2);
+  align-items: flex-end;
+  margin-top: var(--abstand-2);
+}
+
+.preiszeile label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--farbe-gedaempft);
+}
+
+.preiszeile label.breit {
+  flex: 1 1 160px;
+}
+
+.preiszeile input {
+  padding: 5px 8px;
+  font: inherit;
+  color: var(--farbe-text);
+  background: var(--farbe-flaeche);
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.leise {
+  color: var(--farbe-gedaempft);
+  font-size: 12px;
+}
+
+/* Abgeschlossener Monat: ruhig, nicht alarmierend. Es ist kein Fehler,
+   sondern ein Zustand, und zwar der gewollte Endzustand eines Monats. */
+.schlossband {
+  margin: 0 0 var(--abstand-3);
+  padding: var(--abstand-2) var(--abstand-3);
+  font-size: 13px;
+  color: var(--dels-navy-dunkel);
+  background: #eef3fa;
+  border: 1px solid #cfdcee;
+  border-left: 4px solid var(--dels-navy);
+  border-radius: 6px;
+}
+
+/* Der Abgleichskasten ist zugeklappt, solange niemand hinschaut, aber
+   die Zusammenfassung in der Zeile sagt schon, wie viel offen ist. */
+.abgleich {
+  margin: 0 0 var(--abstand-3);
+  padding: var(--abstand-3);
+  background: #fff8e6;
+  border: 1px solid #f0dca8;
+  border-radius: var(--radius);
+}
+
+.abgleich summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Die Liste bekommt einen Deckel. Sechs Unterschiede passen aufs Bild,
+   vierzig schoeben das Monatsergebnis aus dem Sichtfeld, und genau das
+   Ergebnis will man beim Oeffnen der Seite sehen. */
+.abgleich .abgleichliste {
+  max-height: 320px;
+  margin: var(--abstand-3) 0;
+  overflow-y: auto;
+  border: 1px solid var(--farbe-linie);
+  border-radius: 6px;
+}
+
+.abgleich .tabelle {
+  margin: 0;
+  background: var(--farbe-flaeche);
+}
+
+.abgleich .tabelle thead th {
+  position: sticky;
+  top: 0;
+  background: var(--farbe-flaeche);
+}
+
+.abgleich .hinweis {
+  margin: var(--abstand-2) 0 0;
+}
+
+/* Ein gesperrtes Feld sieht aus wie Text, nicht wie ein Eingabefeld:
+   sonst klickt man hinein und wundert sich, dass nichts passiert. */
+.wertfeld[readonly] {
+  color: var(--farbe-gedaempft);
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+}
+
 .warnhinweis {
   margin: 0 0 var(--abstand-3);
   padding: var(--abstand-2) var(--abstand-3);
@@ -1097,7 +1249,7 @@ button:focus-visible {
 /*
  * Es gibt bewusst KEINEN PDF-Export auf dem Server. Ein PDF entsteht hier
  * ueber den Druckdialog des Browsers ("Als PDF speichern"). Das erspart
- * eine schwergewichtige Abhaengigkeit und liefert immer genau das, was
+ * eine schwergewichtige Abhängigkeit und liefert immer genau das, was
  * am Bildschirm steht. Was es dafuer braucht, ist dieses Stylesheet:
  * ohne das wandert die Navigation mit aufs Papier und die Tabelle wird
  * auf halber Seite abgeschnitten.

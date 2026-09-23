@@ -16,7 +16,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { chf, chf0, monatName, pct, rechne, vorzeichen } from "@dels/shared";
 import { ApiFehler, api } from "../../api/client.js";
 import { DruckKnopf, ExportKnopf } from "../../components/ExportKnopf.js";
-import type { Adminzeile, MonatEintrag, Monatsdaten, ObjektZeile, PersonZeile } from "./typen.js";
+import { Abgleichskasten } from "./Abgleichskasten.js";
+import type {
+  Abgleichsbericht,
+  Adminzeile,
+  MonatEintrag,
+  Monatsdaten,
+  ObjektZeile,
+  PersonZeile,
+} from "./typen.js";
 
 /** Feld, das beim Verlassen speichert und vorher lokal weiterrechnet. */
 function Wertfeld({
@@ -24,11 +32,13 @@ function Wertfeld({
   onAendern,
   breit,
   ausrichtung = "rechts",
+  gesperrt = false,
 }: {
   wert: string;
   onAendern: (neu: string) => void;
   breit?: number;
   ausrichtung?: "links" | "rechts";
+  gesperrt?: boolean;
 }) {
   const [entwurf, setEntwurf] = useState(wert);
   useEffect(() => setEntwurf(wert), [wert]);
@@ -37,6 +47,11 @@ function Wertfeld({
     <input
       className={`wertfeld ${ausrichtung}`}
       style={breit ? { width: breit } : undefined}
+      // readOnly statt disabled: ein gesperrtes Feld soll seinen Wert
+      // weiterhin vorlesbar und markierbar zeigen. Ein disabled-Feld
+      // ist für Screenreader und zum Kopieren praktisch tot.
+      readOnly={gesperrt}
+      title={gesperrt ? "Der Monat ist abgeschlossen." : undefined}
       value={entwurf}
       onChange={(e) => setEntwurf(e.target.value)}
       onBlur={() => {
@@ -67,6 +82,7 @@ export function KalkulationSeite() {
   const [laedt, setLaedt] = useState(true);
   const [fehler, setFehler] = useState<string | null>(null);
   const [zeigeAnsaetze, setZeigeAnsaetze] = useState(false);
+  const [abgleich, setAbgleich] = useState<Abgleichsbericht | null>(null);
 
   useEffect(() => {
     api
@@ -86,14 +102,61 @@ export function KalkulationSeite() {
     setLaedt(true);
     setFehler(null);
     try {
-      setDaten(await api.get<Monatsdaten>(`/kalkulation/${welcher}`));
+      // Beides zusammen: der Abgleich ist kein Zusatzfeature, das man
+      // sich holen muss. Wer den Monat aufmacht, soll sofort sehen, ob
+      // er mit den Stammdaten noch zusammenpasst.
+      const [monatsdaten, bericht] = await Promise.all([
+        api.get<Monatsdaten>(`/kalkulation/${welcher}`),
+        api.get<Abgleichsbericht>(`/kalkulation/${welcher}/abgleich`),
+      ]);
+      setDaten(monatsdaten);
+      setAbgleich(bericht);
     } catch (e: unknown) {
       setFehler(e instanceof ApiFehler ? e.message : "Laden fehlgeschlagen.");
       setDaten(null);
+      setAbgleich(null);
     } finally {
       setLaedt(false);
     }
   }, []);
+
+  /** Ist der geöffnete Monat abgeschlossen? Dann nimmt er nichts mehr an. */
+  const gesperrt = daten?.ansaetze.abgeschlossenAm != null;
+
+  async function abschliessen() {
+    if (!daten) return;
+    const zahl = abgleich?.unterschiede.length ?? 0;
+    const warnung =
+      zahl > 0
+        ? `\n\nAchtung: ${zahl} Unterschied(e) zu den Stammdaten sind noch offen. Sie werden mit eingefroren.`
+        : "";
+    if (!window.confirm(`${monatName(daten.monat)} abschliessen?${warnung}`)) return;
+
+    try {
+      await api.post(`/kalkulation/${daten.monat}/abschluss`);
+      await laden(daten.monat);
+    } catch (e: unknown) {
+      setFehler(e instanceof ApiFehler ? e.message : "Abschliessen fehlgeschlagen.");
+    }
+  }
+
+  async function wiederOeffnen() {
+    if (!daten) return;
+    // Die Begründung ist Pflicht, weil sie ins Protokoll geht. Ein
+    // wieder geöffneter Monat ohne Grund ist später nicht erklärbar.
+    const grund = window.prompt(
+      `${monatName(daten.monat)} wieder öffnen.\nWarum? (steht im Protokoll)`,
+      "",
+    );
+    if (!grund) return;
+
+    try {
+      await api.delete(`/kalkulation/${daten.monat}/abschluss`, { grund });
+      await laden(daten.monat);
+    } catch (e: unknown) {
+      setFehler(e instanceof ApiFehler ? e.message : "Öffnen fehlgeschlagen.");
+    }
+  }
 
   useEffect(() => {
     if (monat) void laden(monat);
@@ -226,6 +289,16 @@ export function KalkulationSeite() {
             />
           )}
           <DruckKnopf />
+          {daten &&
+            (gesperrt ? (
+              <button className="knopf-leise" onClick={() => void wiederOeffnen()}>
+                Wieder öffnen
+              </button>
+            ) : (
+              <button className="knopf-leise" onClick={() => void abschliessen()}>
+                Monat abschliessen
+              </button>
+            ))}
           <button className="knopf" onClick={() => void monatAnlegen()}>
             Monat anlegen
           </button>
@@ -240,7 +313,7 @@ export function KalkulationSeite() {
 
       {monate.length === 0 && !laedt && (
         <p className="hinweis">
-          Noch kein Monat angelegt. Der erste Monat uebernimmt alle aktiven Objekte, jeder weitere
+          Noch kein Monat angelegt. Der erste Monat übernimmt alle aktiven Objekte, jeder weitere
           den Vormonat als Vorlage.
         </p>
       )}
@@ -249,10 +322,29 @@ export function KalkulationSeite() {
 
       {daten && ergebnis && (
         <>
+          {gesperrt && (
+            <p className="schlossband">
+              Dieser Monat ist abgeschlossen
+              {daten.ansaetze.abgeschlossenVon ? ` von ${daten.ansaetze.abgeschlossenVon}` : ""}
+              {daten.ansaetze.abgeschlossenAm
+                ? ` am ${new Date(daten.ansaetze.abgeschlossenAm).toLocaleDateString("de-CH")}`
+                : ""}
+              . Die Zahlen stehen fest. Zum Ändern muss er oben wieder geöffnet werden.
+            </p>
+          )}
+
+          {abgleich && (
+            <Abgleichskasten
+              bericht={abgleich}
+              gesperrt={gesperrt}
+              onFertig={() => void laden(daten.monat)}
+            />
+          )}
+
           {/*
             Die Warnungen stehen VOR den Kacheln, nicht darunter.
             Vorher war es umgekehrt, und das las sich falsch herum: erst
-            ein Ergebnis in grossen gruenen Ziffern, darunter kleingedruckt
+            ein Ergebnis in grossen grünen Ziffern, darunter kleingedruckt
             der Grund, warum man ihm nicht trauen darf. Wer von oben nach
             unten liest, hat die Zahl dann schon geglaubt.
           */}
@@ -282,8 +374,8 @@ export function KalkulationSeite() {
             {/*
               Solange Stunden fehlen, bekommt das Ergebnis KEINE Farbe.
               Gruen heisst "gut gelaufen", und das waere hier eine Aussage
-              ueber einen Monat, von dem die Haelfte noch gar nicht erfasst
-              ist. Dieselbe Regel gilt auf der Ferienseite fuer einen Saldo
+              über einen Monat, von dem die Hälfte noch gar nicht erfasst
+              ist. Dieselbe Regel gilt auf der Ferienseite für einen Saldo
               ohne Stichtag: die Zahl steht da, aber nicht als Tatsache.
             */}
             <div
@@ -311,7 +403,7 @@ export function KalkulationSeite() {
             <summary>Ansätze dieses Monats</summary>
             <p className="hinweis">
               Die Saetze gelten nur fuer {monatName(daten.monat)}. Aeltere Monate behalten ihre
-              eigenen, sonst rechnet man die Vergangenheit mit heutigen Saetzen nach.
+              eigenen, sonst rechnet man die Vergangenheit mit heutigen Sätzen nach.
             </p>
             <div className="ansatzraster">
               {(
@@ -335,6 +427,7 @@ export function KalkulationSeite() {
                     wert={String(daten.ansaetze[feld] ?? "")}
                     onAendern={(w) => aendereAnsatz(feld, w)}
                     breit={90}
+                    gesperrt={gesperrt}
                   />
                 </label>
               ))}
@@ -353,6 +446,7 @@ export function KalkulationSeite() {
                     wert={String(daten.ansaetze[feld] ?? "")}
                     onAendern={(w) => aendereAnsatz(feld, w)}
                     breit={90}
+                    gesperrt={gesperrt}
                   />
                 </label>
               ))}
@@ -360,6 +454,7 @@ export function KalkulationSeite() {
                 <span>NBU trägt der Arbeitgeber</span>
                 <input
                   type="checkbox"
+                  disabled={gesperrt}
                   checked={daten.ansaetze.nbuTraegtAg}
                   onChange={(e) => aendereAnsatz("nbuTraegtAg", e.target.checked)}
                 />
@@ -367,6 +462,7 @@ export function KalkulationSeite() {
               <label className="ansatzfeld">
                 <span>Treibstoff verteilen nach</span>
                 <select
+                  disabled={gesperrt}
                   value={daten.ansaetze.trsSchluessel}
                   onChange={(e) => aendereAnsatz("trsSchluessel", e.target.value)}
                 >
@@ -407,6 +503,7 @@ export function KalkulationSeite() {
                           wert={String(zeile.aboBetrag ?? "")}
                           onAendern={(w) => aendereObjekt(zeile, "aboBetrag", w)}
                           breit={80}
+                          gesperrt={gesperrt}
                         />
                       </td>
                       <td className="rechts">
@@ -417,6 +514,7 @@ export function KalkulationSeite() {
                             wert={String(zeile.stdManuell ?? "")}
                             onAendern={(w) => aendereObjekt(zeile, "stdManuell", w)}
                             breit={70}
+                            gesperrt={gesperrt}
                           />
                         )}
                       </td>
@@ -428,6 +526,7 @@ export function KalkulationSeite() {
                       <td>
                         <input
                           type="checkbox"
+                          disabled={gesperrt}
                           checked={zeile.aktiv}
                           aria-label={`${zeile.objektName} aktiv`}
                           onChange={(e) => aendereObjekt(zeile, "aktiv", e.target.checked)}
@@ -484,6 +583,7 @@ export function KalkulationSeite() {
                               wert={String(zeile.lohn ?? "")}
                               onAendern={(w) => aenderePerson(zeile, "lohn", w)}
                               breit={90}
+                              gesperrt={gesperrt}
                             />
                           </td>
                           <td className="rechts">
@@ -491,6 +591,7 @@ export function KalkulationSeite() {
                               wert={String(zeile.spesen ?? "")}
                               onAendern={(w) => aenderePerson(zeile, "spesen", w)}
                               breit={80}
+                              gesperrt={gesperrt}
                             />
                           </td>
                           <td className="rechts">{chf(r.ml13)}</td>
@@ -524,6 +625,7 @@ export function KalkulationSeite() {
             posten={daten.adminkosten}
             reserve={String(daten.ansaetze.adminReserve ?? "0")}
             topf={ergebnis.res.adminTopf}
+            gesperrt={gesperrt}
             onGeaendert={() => void laden(daten.monat)}
             onFehler={setFehler}
           />
@@ -546,6 +648,7 @@ function Adminkosten({
   posten,
   reserve,
   topf,
+  gesperrt,
   onGeaendert,
   onFehler,
 }: {
@@ -553,6 +656,7 @@ function Adminkosten({
   posten: Adminzeile[];
   reserve: string;
   topf: number;
+  gesperrt: boolean;
   onGeaendert: () => void;
   onFehler: (text: string) => void;
 }) {
@@ -587,11 +691,13 @@ function Adminkosten({
                     )
                   }
                   breit={90}
+                  gesperrt={gesperrt}
                 />
               </td>
               <td className="rechts">
                 <button
                   className="knopf-leise"
+                  disabled={gesperrt}
                   onClick={() =>
                     void versuche(() => api.delete(`/kalkulation/${monat}/adminkosten/${p.id}`))
                   }
@@ -606,6 +712,7 @@ function Adminkosten({
               <input
                 className="wertfeld links"
                 placeholder="Neue Position"
+                readOnly={gesperrt}
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
                 style={{ width: 220 }}
@@ -615,6 +722,7 @@ function Adminkosten({
               <input
                 className="wertfeld rechts"
                 placeholder="Betrag"
+                readOnly={gesperrt}
                 value={betrag}
                 onChange={(e) => setBetrag(e.target.value)}
                 style={{ width: 90 }}
@@ -623,7 +731,7 @@ function Adminkosten({
             <td className="rechts">
               <button
                 className="knopf-leise"
-                disabled={position.trim() === "" || betrag.trim() === ""}
+                disabled={gesperrt || position.trim() === "" || betrag.trim() === ""}
                 onClick={() =>
                   void versuche(async () => {
                     await api.post(`/kalkulation/${monat}/adminkosten`, { position, betrag });

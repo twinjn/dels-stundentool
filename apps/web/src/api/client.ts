@@ -144,5 +144,17 @@ export const api = {
     anfrage<T>(pfad, { method: "PUT", body: JSON.stringify(daten ?? {}) }),
   patch: <T>(pfad: string, daten?: unknown) =>
     anfrage<T>(pfad, { method: "PATCH", body: JSON.stringify(daten ?? {}) }),
-  delete: <T>(pfad: string) => anfrage<T>(pfad, { method: "DELETE" }),
+  /**
+   * DELETE, bei Bedarf mit Rumpf.
+   *
+   * Ein Rumpf bei DELETE ist unüblich, aber erlaubt, und hier
+   * sinnvoll: das Wiederöffnen eines Monats verlangt eine Begründung,
+   * und die gehört zur Anfrage, nicht in die Adresszeile, wo sie in
+   * jedem Serverprotokoll landen würde.
+   */
+  delete: <T>(pfad: string, daten?: unknown) =>
+    anfrage<T>(pfad, {
+      method: "DELETE",
+      ...(daten === undefined ? {} : { body: JSON.stringify(daten) }),
+    }),
 };
